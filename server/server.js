@@ -3,6 +3,7 @@ const advertisementController = require("./AdvertisementController");
 const cors = require("cors");
 const { dynamoDb } = require("./awsConfig");
 // const ws = require("ws");
+
 // const WebSocketClient = require("./WebsocketClient");
 const { Server } = require("socket.io");
 const http = require("http");
@@ -28,6 +29,14 @@ const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
 dotenv.config();
 
 const app = express();
+
+// configuring the session middleware 
+app.use(session({
+  secret: 'process.env.secret_token',
+  resave: false,
+  saveUnintialized: false
+}));
+
 const PORT = process.env.PORT || 5000;
 
 console.log("PORT", PORT);
@@ -44,7 +53,7 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:3000",
+    origin: ["http://localhost:3000", "https://3000--main--devfsdp--manoman--gmm37v7g4l358.pit-1.try.coder.app"],
     methods: ["GET", "POST"],
   },
 });
