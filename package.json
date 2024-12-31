@@ -1,4 +1,5 @@
-{ "name": "fsdp",
+{
+  "name": "fsdp",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -11,6 +12,7 @@
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
     "axios": "^1.7.7",
+    "bcrypt": "^5.1.1",
     "body-parser": "^1.20.3",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
@@ -18,21 +20,19 @@
     "express-fileupload": "^1.5.1",
     "fabric": "^6.4.3",
     "http-proxy": "^1.18.1",
+    "jsonwebtoken": "^9.0.2",
     "mime": "^4.0.4",
     "multer": "^1.4.5-lts.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-icons": "^5.3.0",
     "react-router-dom": "^6.28.0",
-    "react-scripts": "^5.0.1",
+    "react-scripts": "5.0.1",
     "socket.io": "^4.8.1",
     "socket.io-client": "^4.8.1",
     "uuid": "^11.0.2",
     "web-vitals": "^2.1.4",
-    "ws": "^8.18.0",
-    "ejs": "^3.1.10",
-    "express-session": "^1.18.1",
-    "openid-client": "^5.7.0"
+    "ws": "^8.18.0"
   },
   "scripts": {
     "start": "react-scripts start",
