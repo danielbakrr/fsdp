@@ -29,14 +29,6 @@ const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
 dotenv.config();
 
 const app = express();
-
-// configuring the session middleware 
-app.use(session({
-  secret: 'process.env.secret_token',
-  resave: false,
-  saveUnintialized: false
-}));
-
 const PORT = process.env.PORT || 5000;
 
 console.log("PORT", PORT);
