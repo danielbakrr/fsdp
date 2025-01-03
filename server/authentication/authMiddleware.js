@@ -1,9 +1,12 @@
 // Import the necessary libs for using STS assume role command and get the IAM user
 const bcrypt = require('bcrypt');
 const { IAMClient, GetUserCommand } = require("@aws-sdk/client-iam");
-const { dynamoDb } = require('./awsConfig');
+const { dynamoDb } = require('../awsConfig');
+const {stsClient} = require('../awsConfig');
+const {iamClient} = require('../awsConfig');
+const Account = require('../Account');
+// Export the account class 
 const { 
-    STSClient, 
     AssumeRoleCommand 
 } = require("@aws-sdk/client-sts");
 
@@ -15,18 +18,8 @@ const login = async(req,res) => {
     // get the user with the password and generate the JWT Token 
     // Add 2FA (MFA) when logging in 
     const {email,password} = req.body;
-    // get the user from the dynamoDB database 
-    const params = {
-        TableName: 'users',
-        FilterExpression: 'email = :email AND password = :password',
-        ExpressionAttributeValues: {
-            ':email': email,
-            ':hashedPassword': password
-        }
-    };
-
     try {
-        const user = await dynamoDb.send(new ScanCommand(params));
+        const user = await Account.getUser(email);
         if (user != null){
             // Check the password of the user 
             const isMatch = bcrypt.compare(password,user.hashedPassword);
@@ -35,8 +28,11 @@ const login = async(req,res) => {
                 const command = new GetUserCommand({
                     UserName: user.email
                 })
-                const client = new IAMClient();
-                const response = await client.send(command);
+                const response = await iamClient.send(command);
+                const iamUser = response.User;
+                if (!iamUser){
+                    return res.status(401).send('The user is not an IAM user');
+                }
                 // assume role with the user's access key id and secret access key
                 var accessKeyId, secretAccessKey;
                 switch (user.role){
@@ -45,10 +41,14 @@ const login = async(req,res) => {
                         // Assume the sts role 
                         const input = {
                             RoleArn: 'arn:aws:iam::050752642849:role/Admin',
-                            RoleSessionName: 'default'
+                            RoleSessionName: `${iamUser.userEmail}-session`,
+                            Tags: [
+                                {
+                                    Key: 'IamUserArn',
+                                    Value: iamUser.Arn
+                                }
+                            ]
                         }
-
-                        const stsClient = new STSClient();
                         const stsResponse = await stsClient.send(new AssumeRoleCommand(input));
                         accessKeyId = stsResponse.Credentials.AccessKeyId;
                         secretAccessKey = stsResponse.Credentials.SecretAccessKey;
@@ -77,14 +77,18 @@ const login = async(req,res) => {
                     }
                     const token = jwt.sign(payload, secretKey, { expiresIn: "3600s" }); // Expires in 1 hour (automaticallt logsout user after the session of 1 hour exceeded)
                     res.status(200).json({
-                        'message' : `${user.role} has sucessfully logged in`
+                        'message' : `${user.role} has sucessfully logged in`,
+                        'jwtToken' : token
                     })
                 }
+            }
+            else {
+                return res.status(401).send('Incorrect Password has been entered');
             }
             
         }
         else{
-            res.status(401).send('Invalid credentials');
+            res.status(404).send('Email of the user is invalid or does not exists');
         }
     }
     catch (error) {
@@ -95,30 +99,31 @@ const login = async(req,res) => {
 
 // create a normal sign up method 
 const signUp = async (req,res) => {
-    const {email,password,role} = req.body;
-    // hash the password
-    const hashedPassword = await bcrypt.hash(password, 10);
-    // create the user in the dynamoDB database
-    const params = {
-        TableName: 'users',
-        Item: {
-            email: email,
-            password: hashedPassword,
-            role: role
-        }
-    };
+    const {userID,createdDate,email,firstName,lastName} = req.body;
+    // hash the password 
+    const hashedPassword = await bcrypt.hash(password,10);
+
+    const newUser = Account(userID,createdDate,email,hashedPassword,firstName,lastName);
     try {
-        const command = new PutCommand(params);
-        const response = await dynamoDb.send(command);
-        res.status(201).json({
-            message: 'User created successfully',
-            timestamp: new Date().toISOString()
-        });
+        const response = await Account.createUser(newUser);
+        if (response.$metadata.httpStatusCode === 200){
+            return res.status(200).json({
+                'message' : 'User has been created successfully',
+                'user' : newUser
+            })
+        }
+        else {
+            return res.status(response.$metadata.httpStatusCode).json({
+                'message' : 'User has not been created successfully',
+                'user' : newUser
+            })
+        }
     }
     catch (error) {
         console.error(error);
         res.status(500).send('Internal Server Error');
     }
+
 }
 
 module.exports = {
