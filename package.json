@@ -5,6 +5,7 @@
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.687.0",
     "@aws-sdk/client-dynamodb-streams": "^3.687.0",
+    "@aws-sdk/client-iam": "^3.721.0",
     "@aws-sdk/client-s3": "^3.687.0",
     "@aws-sdk/lib-dynamodb": "^3.687.0",
     "@aws-sdk/s3-request-presigner": "^3.687.0",
@@ -57,5 +58,9 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "aws-sdk-client-mock": "^4.1.0",
+    "jest": "^27.5.1"
   }
 }
