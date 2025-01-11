@@ -1,0 +1,14 @@
+{
+    "roleId": "rId001",
+    "permissions": [
+      {
+        "actions": [
+          "get",
+          "view",
+          "edit"
+        ],
+        "resource": "Advertisements"
+      }
+    ],
+    "roleName": "Admin"
+  }

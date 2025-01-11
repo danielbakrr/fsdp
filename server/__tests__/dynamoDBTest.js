@@ -88,6 +88,8 @@ describe("Testing dynamoDB functions on roles table", ()=>{
 
         // assert the test results
         const result = await Role.getPermissions("rId001");
+        console.log("This is the result returned");
+        console.log(JSON.stringify(result,null,2));
         expect(result).toEqual({
             "roleId": "rId001",                                                                                                                                                                        
             "permissions": [
