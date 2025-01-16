@@ -1,7 +1,7 @@
 const { mockClient } = require("aws-sdk-client-mock");
-const {dynamoDb} = require('../awsConfig');
+const {dynamoDb} = require('../../awsConfig');
 const {DynamoDBDocumentClient, PutItemCommand, GetItemCommand} = require('@aws-sdk/client-dynamodb');
-const {Role} = require("../role")
+const {Role} = require("../../role")
 // instantiate the mockClient with aws 
 const ddbMock = mockClient(dynamoDb);
 
@@ -25,26 +25,33 @@ describe("Testing dynamoDB functions on roles table", ()=>{
         // S is for string datatype, L is for list datatype and M is for Map datatype
         ddbMock.on(PutItemCommand).resolves({
             Attributes: {
-                    "roleId": { "S": "rId001" },
+                    "roleName": { "S": "Admin" },
                     "permissions": {
                       "L": [
                         {
                           "M": {
                             "Actions": { "L": [{ "S": "get" }, { "S": "view" }, { "S": "edit" }] },
                             "resource": { "S": "Advertisements" }
+                          },
+                          "M": {
+                            "Actions": { "L": [{ "S": "get" }, { "S": "view" }, { "S": "edit" }] },
+                            "resource": { "S": "Campaigns" }
                           }
                         }
                       ]
                     },
-                    "roleName": { "S": "Admin" }  
                 }
         });
         const role = {
-            roleId: "rId001", // A unique identifier for the role
+            roleId: "Admin", // A unique identifier for the role
             permissions: [
                 {
                     "Actions": ["get","view","edit"],
                     "resource": "Advertisements"
+                },
+                {
+                    "Actions": ["get","view","edit"],
+                    "resource": "Campaigns"
                 }
             ],
             roleName: "Admin", // The name of the role
@@ -52,7 +59,6 @@ describe("Testing dynamoDB functions on roles table", ()=>{
         
         const result = await Role.createRole(role);
         // assert the values of the test (result with the expected result)
-        expect(result.Attributes.roleId).toEqual({"S":"rId001"});
         expect(result.Attributes.roleName).toEqual({"S":"Admin"});
         expect(result.Attributes.permissions).toEqual({
             "L" : [
@@ -60,38 +66,44 @@ describe("Testing dynamoDB functions on roles table", ()=>{
                         "M" : {
                             "Actions": {"L" : [{"S":"get"},{"S":"view"},{"S":"edit"}]},
                             "resource": {"S" : "Advertisements"}
+                        },
+                        "M" : {
+                            "Actions": {"L" : [{"S":"get"},{"S":"view"},{"S":"edit"}]},
+                            "resource": {"S" : "Campaigns"}
                         }
                     }
                 ]
         })
     })
-
-    // Next test the get function 
     it("should return the role of the user as a role object", async ()=>{
         // call the getitemCommand
         ddbMock.on(GetItemCommand).resolves({
-                // expected result of the test
-                "Item":{
-                    "roleId": { "S": "rId001" },
-                    "permissions": { "L" : [
-                            {
-                                "M" : {
-                                    "Actions": {"L" : [{"S":"get"},{"S":"view"},{"S":"edit"}]},
-                                    "resource": {"S" : "Advertisements"}
-                                }
+            // expected result of the test
+            "Item":{
+                "roleName": { "S": "Admin" },
+                "permissions": { "L" : [
+                        {
+                            "M" : {
+                                "Actions": {"L" : [{"S":"get"},{"S":"view"},{"S":"edit"}]},
+                                "resource": {"S" : "Advertisements"}
+                            },
+                            
+                        },
+                        {
+                            "M" : {
+                                "Actions": {"L" : [{"S":"get"},{"S":"view"},{"S":"edit"}]},
+                                "resource": {"S" : "Campaigns"}
                             }
-                        ],
-                    },
-                    "roleName": { "S": "Admin" }
-                }
+                        }
+                    ],
+                },
+            }
         })
 
         // assert the test results
-        const result = await Role.getPermissions("rId001");
-        console.log("This is the result returned");
-        console.log(JSON.stringify(result,null,2));
+        const result = await Role.getPermissions("Admin");
         expect(result).toEqual({
-            "roleId": "rId001",                                                                                                                                                                        
+            "roleName": "Admin",                                                                                                                                                                        
             "permissions": [
               {
                 "actions": [
@@ -100,9 +112,16 @@ describe("Testing dynamoDB functions on roles table", ()=>{
                   "edit"
                 ],
                 "resource": "Advertisements"
+              },
+              {
+                "actions": [
+                    "get",
+                    "view",
+                    "edit"
+                  ],
+                  "resource": "Campaigns"
               }
             ],
-            "roleName": "Admin"
           })
     })
 })

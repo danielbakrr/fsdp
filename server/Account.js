@@ -1,13 +1,16 @@
+const { QueryCommand } = require('@aws-sdk/client-dynamodb');
 const {dynamoDb} = require('./awsConfig')
 const {PutCommand, ScanCommand} = require('@aws-sdk/lib-dynamodb')
 class Account {
-    constructor(userId, createdDate, email, hashedPassword, firstName, lastName){
+    constructor(userId, registeredDate, email, hashedPassword, firstName, lastName,role){
         this.userId = userId;
-        this.createdDate = createdDate;
+        this.registeredDate = registeredDate;
         this.email = email;
-        this.hashedPassword = hashedPassword;
         this.firstName = firstName;
         this.lastName = lastName;
+        this.role = role
+        this.hashedPassword = hashedPassword;
+
     }
 
     static async createUser(User){
@@ -17,13 +20,15 @@ class Account {
                 userId: User.userId,
                 createdDate: User.createdDate,
                 email: User.email,
-                hashedPassword: User.hashedPassword,
                 firstName: User.firstName,
                 lastName: User.lastName,
+                role: User.role,
+                hashedPassword: User.hashedPassword,
+
             }
         }
         try{
-            const response = await dynamoDb.send(PutCommand(params));
+            const response = await dynamoDb.send(new PutCommand(params));
             return response;
         }
         catch (err){
@@ -45,6 +50,30 @@ class Account {
             console.log(err);
         }
     }
+
+    static async getRole(userId){
+        const params = {
+            TableName: "Users",
+            // Use alias to compare
+            KeyConditionExpression: 'userId = :partKeyVal',
+            // Define the alias value 
+            ExpressionAttributeValues:{
+                ':partitionKeyVal': userId
+            },
+            ProjectionExpression: 'role'
+        }
+        try {
+            const response = await dynamoDb.send(QueryCommand(params));
+            return response.Item[0] || null;
+        }
+        catch (err){
+            console.log(err);
+        }
+    }
+
+    
+
+
 
 }
 

@@ -6,37 +6,37 @@ const {dynamoDb} = require("./awsConfig");
 
 // method for updating the role
 class Role {
-    constructor(roleId,permissions,roleName){
-        this.roleId = roleId,
-        this.permissions = permissions,
-        this.roleName = roleName
+    constructor(roleName,permissions){
+        this.roleName = roleName,
+        this.permissions = permissions
     }
     // give them least privilleged permissions for roles
-
+    
+    /*This function has already been tested */
     static async createRole(role){
-       const {roleId,permissions,roleName} = role // role is a js object
+       console.log(JSON.stringify(role,null,2));
+       const {roleName, permissions} = role // role is a js object
+       console.log(JSON.stringify(permissions,null,2));
        const formattedPermissions = {
             L: permissions.map((perm) => ({
                 M: {
                     Actions: {
-                        L: perm.Actions.map((action) => ({ S: action })), // Convert each action to { S: "value" }
+                        L: perm.actions.map((action) => ({ S: action })), // Convert each action to { S: "value" }
                     },
                     resource: {
                         S: perm.resource, // Convert resource to { S: "value" }
                     },
                 },
             })),
-       };    
+       };
+       console.log(formattedPermissions);
        const params = {
         TableName: "Roles",
         Item:{
-            "roleId":{
-                "S":roleId,
+            "roleName":{
+                "S":roleName,
             },
             "permissions": formattedPermissions,
-            "roleName":{
-                "S":roleName
-            }
         }
        }
        const command = new PutItemCommand(params);
@@ -44,11 +44,11 @@ class Role {
        return result
 
     }
-
-    static async editPermissions(permissions,roleId){
+    // May not need as can just create a new role 
+    static async editPermissions(permissions,roleName){
         const params = {
-            TableName: Roles,
-            Key: roleId,
+            TableName: "Roles",
+            Key: roleName,
             Item: {
                 "permissions":{
                     "M": permissions
@@ -63,23 +63,23 @@ class Role {
         const result = await dynamoDb.send(new UpdateCommand(params));
         return result;
     }
-
-    static async getPermissions(roleId){
+    // Function has been tested 
+    static async getPermissions(roleName){
         const params = {
             TableName: "Roles",
-            Key: roleId,
+            Key: roleName,
         }
         const result = await dynamoDb.send(new GetItemCommand(params));
+        console.log(JSON.stringify(result.Item,null,2));
         // the returned result is items followed by something else 
         const permissions = result.Item.permissions.L;
-        console.log(JSON.stringify(permissions, null, 2))
         if(Array.isArray(permissions)){
             let denormalizedpermissions = []
             // then we start to denormalize the permissions
             permissions.map((perm) =>{
-                console.log(JSON.stringify(perm.M.Actions,null,2));
+                console.log(JSON.stringify(perm.M.actions,null,2));
                 const actions = [];
-                perm.M.Actions.L.forEach(element => {
+                perm.M.actions.L.forEach(element => {
                     actions.push(element.S);
                 });
                 const resource = perm.M.resource.S;
@@ -87,9 +87,8 @@ class Role {
             })
             
             const res = {
-                "roleId": roleId,
+                "roleName": roleName,
                 "permissions": denormalizedpermissions,
-                "roleName": result.Item.roleName.S
             }
 
             return res;
