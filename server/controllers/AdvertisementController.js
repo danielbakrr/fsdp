@@ -1,13 +1,11 @@
-const Advertisement = require('./Advertisement');
-const retrieveStream = require('./getStreamArn');
-const {sendUsersConnected} = require('./WebsocketClient')
-const {s3} = require('./awsConfig');
+const Advertisement = require('../models/Advertisement');
+// const retrieveStream = require('../getStreamArn');
+const {sendUsersConnected} = require('../WebsocketClient')
+const {s3} = require('../awsConfig');
 const dotenv = require('dotenv');
 dotenv.config();
 const {GetObjectCommand} = require('@aws-sdk/client-s3');
 const uuidv4 = require('uuid').v4;
-let dbStreams = require('./DyanmoStreamsHandler');
-const DyanmoStreamsHandler = require('./DyanmoStreamsHandler');
 const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
 const retrieveAllAdvertisements = async (req, res) => {
     try {

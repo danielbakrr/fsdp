@@ -54,7 +54,7 @@ describe("Test for authorisation middlware",() => {
         process.env.JWT_SECRET_KEY = 'mockSecret'; // Set the mock secret
         const mockToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvbiBEb2UiLCJhZG1pbiI6dHJ1ZX0.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c";
         const request = {
-            "url": "http://localhost:3000/get-Advertisments",
+            "url": "http://localhost:3000/get-advertisments",
             "headers":{
                 "authorization": `Bearer ${mockToken}`
             }
@@ -70,7 +70,9 @@ describe("Test for authorisation middlware",() => {
 
         // mock jwt verify client
         jest.spyOn(jwt, 'verify').mockImplementation((token, secret, callback) => {
+            // payload
             const decoded = {
+                userName: "Isaac Tiew",
                 role: 'Admin',
                 permissions: [
                     {
@@ -95,10 +97,13 @@ describe("Test for authorisation middlware",() => {
          // Assert `next` was called
         expect(next).toHaveBeenCalled();
 
-        console.log(JSON.stringify(request,null,2));
+        // console.log(JSON.stringify(request,null,2));
+
+        console.log(JSON.stringify(request.user,null,2));
         // Assert `req.user` contains the decoded data
         expect(request.user).toEqual(
             {
+                userName: "Isaac Tiew",
                 role: 'Admin',
                 permissions: [
                     {
@@ -117,7 +122,6 @@ describe("Test for authorisation middlware",() => {
         const permissions =  [
             {
               "actions": [
-                "get",
                 "view",
                 "edit"
               ],
@@ -131,11 +135,12 @@ describe("Test for authorisation middlware",() => {
     })
 
     test("Return boolean result false as resource does not match expected", ()=>{
+        console.log();
+        console.log();
         const rolePerm = {"action": "view", "resource": "Advertisements"};
         const permissions =  [
             {
               "actions": [
-                "get",
                 "view",
                 "edit"
               ],

@@ -1,4 +1,4 @@
-const { dynamoDb } = require('./awsConfig');
+const { dynamoDb } = require('../awsConfig');
 const { ScanCommand, PutCommand, DeleteCommand, UpdateCommand, GetCommand } = require('@aws-sdk/lib-dynamodb');
 class Advertisement{
     // constructor for advertisements 

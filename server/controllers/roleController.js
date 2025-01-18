@@ -1,4 +1,4 @@
-const {Role} = require("./role");
+const {Role} = require("../models/role");
 
 const createRole = async (req,res) => {
     const {roleName,permissions} = req.body;
@@ -7,7 +7,7 @@ const createRole = async (req,res) => {
         const roleCreated = await Role.createRole(newRole);
         console.log(JSON.stringify(roleCreated,null,2));
         // roleCreated 
-        if (roleCreated.$metadata == 200){
+        if (roleCreated.$metadata.httpStatusCode == 200){
             return res.status(200).json({"message": "Role has been created successfully", "newRole": newRole})
         }
         else{
@@ -24,9 +24,10 @@ const createRole = async (req,res) => {
 // controller for editing the role permissions 
 
 const getPermissions = async(req,res) => {
-    const roleName = req.body;
+    const roleName = req.params;
     if (roleName != null){
         const rolePermissions = await Role.getPermissions(roleName);
+        console.log(JSON.stringify(rolePermissions,null,2));
         if (rolePermissions){
             return res.status(200).json({"message":"role permission of the user have been successful","rolePermissions":rolePermissions})
         }

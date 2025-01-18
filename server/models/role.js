@@ -1,6 +1,6 @@
 // method for retrieving role
 const { PutItemCommand, GetItemCommand } = require("@aws-sdk/client-dynamodb");
-const {dynamoDb} = require("./awsConfig");
+const {dynamoDb} = require("../awsConfig");
 
 
 

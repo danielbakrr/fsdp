@@ -1,6 +1,6 @@
 // Method to verify JWT and extract payload info 
 const jwt = require('jsonwebtoken');
-const { Role } = require('../role');
+const { Role } = require('../models/role');
 require('dotenv').config();
 const secretKey = process.env.JWT_SECRET_KEY;
 function verifyJWT(req,res,next){
@@ -16,13 +16,19 @@ function verifyJWT(req,res,next){
             return res.status(403).json({message: "Forbidden"});
         }
 
+        // Standardising the CRUD operations to actions 
+        // view (GET) -> view
+        // uplaod (POST) -> create 
+        // update (PUT) -> update 
+        // delete (DELETE) -> delete 
+
         // List of authorizedRoutes for each user
         const authorizedRoutes = {
-            "/get-Advertisments" : {"action": "view", "resource": "Advertisements"},
-            "/upload-Advertisement/^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i": {"action": "create", "resource": "Advertisements"},
-            "/edit-UserRole": {"action": "edit", "resource":"User"},
-            "/edit-Campaigns": {"action": "edit", "resource": "Campaigns"},
-            "/view-Campaigns": {"action": "view", "resource": "Campaigns"}
+            "/get-advertisments" : {"action": "view", "resource": "Advertisements"},
+            "/upload-advertisement/^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i": {"action": "create", "resource": "Advertisements"},
+            "/update-userRole": {"action": "update", "resource":"User"},
+            "/update-campaigns": {"action": "update", "resource": "Campaigns"},
+            "/view-campaigns": {"action": "view", "resource": "Campaigns"}
         }
         // match the permissions of each use to a route in authroized role  
         const requestedEndpoint = req.url;

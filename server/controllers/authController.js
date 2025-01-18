@@ -1,7 +1,7 @@
 // Import the necessary libs for using STS assume role command and get the IAM user
 const bcrypt = require('bcrypt');
-const Account = require('../Account');
-const {Role} = require('../role');
+const Account = require('../models/Account');
+const {Role} = require('../models/role');
 const {jwt} = require("jsonwebtoken");
 const { json } = require('body-parser');
 const { v4: uuidv4 } = require('uuid');
@@ -13,7 +13,7 @@ const login = async(req,res) => {
     // Add 2FA (MFA) when logging in 
     const {email,password} = req.body;
     try {
-        const user = await Account.getUser(email);
+        const user = await Account.getUserByEmail(email);
         // retrieve the user details 
         if (!user){
             return res.status(401).json({"message": "Invalid credentials"});
@@ -31,6 +31,7 @@ const login = async(req,res) => {
             const permissions = Role.getPermissions(userRole);
             const payload = {
                 "userId": user.userId,
+                "userName": `${user.firstName} + " " + ${user.lastName}`,
                 "role": user.role,
                 "permissions": permissions
             }

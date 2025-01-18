@@ -1,10 +1,10 @@
 const express = require("express");
-const advertisementController = require("./AdvertisementController");
+const advertisementController = require("./controllers/AdvertisementController");
 const cors = require("cors");
-const authController = require("./authentication/authController")
+const authController = require("./controllers/authController")
 const { dynamoDb } = require("./awsConfig");
-const roleController = require("./roleController")
-const {Role} = require("./role")
+const roleController = require("./controllers/roleController")
+const accountController = require("./controllers/accountController")
 // const ws = require("ws");
 
 // const WebSocketClient = require("./WebsocketClient");
@@ -271,13 +271,18 @@ app.post("/api/upload-file", upload.single("file"), (req, res) => {
 
 
 // Routes for user authentication 
-app.post('/userLogin')
-app.post('/userSignUp')
+app.post('/userLogin',authController.login)
+app.post('/userSignUp',authController.signUp)
 
 
-// Route for changing the user role
-app.post('/createRole',roleController.createRole);
-app.get('/getRolePermissions',roleController.getPermissions);
+app.get('/get-rolePermissions',roleController.getPermissions);
+
+// Route for Account 
+app.post('/edit-userRole/:uuid',accountController.editUserRole)
+app.get('/get-userById/:uuid',accountController.getUserById)
+app.get('/get-userByEmail',accountController.getUserByEmail)
+// app.post('/createUser',accountController.)
+app.post('')
 
 
 server.listen(PORT, () => {
