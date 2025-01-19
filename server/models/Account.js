@@ -1,5 +1,6 @@
 const { QueryCommand, DynamoDBServiceException, GetItemCommand, ReturnValue, UpdateItemCommand } = require('@aws-sdk/client-dynamodb');
 const {dynamoDb} = require('../awsConfig')
+const { marshall, unmarshall } = require("@aws-sdk/util-dynamodb");
 const {PutCommand, ScanCommand, DeleteCommand} = require('@aws-sdk/lib-dynamodb')
 class Account {
     constructor(userId, registeredDate, email, hashedPassword, firstName, lastName,role){
@@ -37,6 +38,33 @@ class Account {
 
     }
 
+    static async getAllUsers(){
+        const params = {
+            TableName: "Users",
+        }
+        try {
+            const scanCommandOutput = await dynamoDb.send(new ScanCommand(params));
+            console.log(scanCommandOutput);
+            if (scanCommandOutput.Items.length != 0){
+                return scanCommandOutput.Items.map((item) => {
+                    return {
+                        "userId": item.userId,
+                        "userName": `${item.firstName} ${item.lastName}`,
+                        "email": item.email,
+                        "role": item.role
+                    }
+                })
+            }
+            else {
+                return null;
+            }
+        }
+        catch (err){
+            console.error(err);
+        }
+        
+    }
+
     static async getUserByEmail(email){
         const params = {
             TableName: 'Users',
@@ -65,23 +93,19 @@ class Account {
         const params = {
             TableName: "Users",
             Key: {
-                "userId": userId
+                userId: marshall(userId)
             }
         }
         try{
             const getUserResponse = await dynamoDb.send(new GetItemCommand(params));
-            if(getUserResponse != null){
-                // create the user to a new User object and return in in the request 
-                const userDetails = getUserResponse.Item;
-                const user = new Account 
-                    (userDetails.userId,
-                    userDetails.registeredDate,
-                    userDetails.email,
-                    userDetails.role,
-                    userDetails.firstName,
-                    userDetails.lastName,
-                    userDetails.hashedPassword)
-                return user;
+            
+            if(getUserResponse.Item != undefined){
+               const denormalisedResponse = unmarshall(getUserResponse.Item);
+               console.log(denormalisedResponse);
+               return denormalisedResponse;
+            }
+            else {
+                return null;
             }
         }
         catch(err){
@@ -111,26 +135,30 @@ class Account {
     }
 
     static async editUserRole(userId,newRole){
+        console.log(userId);
+        console.log(newRole);
         // UpdateItemCommand, specify which attributes to update based on the key of the attribute then 
         // insert new value and specify whether to replace (overwrite) -> PUT
         const params = {
             TableName: "Users",
             Key: {
-                "userId": userId
+                userId: marshall(userId) // Assuming `userId` is a string
             },
-            AttributeUpdate: {
-                "role": {
-                    Value: newRole,
-                    Action: "ADD"
-                }
+            UpdateExpression: "SET #role = :newRole",
+            ExpressionAttributeNames: {
+                "#role": "role" // Alias for the attribute name
             },
-            ReturnValue: "ALL_NEW"
-        }
+            ExpressionAttributeValues: {
+                ":newRole": marshall(newRole) // Assuming `newRole` is a string
+            },
+            ReturnValues: "UPDATED_NEW" // Correct parameter name
+        };
         try{
             const updatedUser = await dynamoDb.send(new UpdateItemCommand(params));
             console.log(JSON.stringify(updatedUser));
             if(updatedUser.Attributes != null){
-                const updatedAttribute = updatedUser.Attributes.role.S;
+                const updatedAttribute = unmarshall(updatedUser.Attributes)
+                console.log(updatedAttribute);
                 return updatedAttribute
             }
             else {

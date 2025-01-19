@@ -3,7 +3,7 @@
 // To mock the API request made by the user 
 // Mock the jwt.verify function since i am not using an actual token and secret key, returns decoded role on the payload
 // +Don't mock find since u should test the function
-const {checkPermissions, verifyJWT, matchEndpoint} = require("../../authentication/authorisationMiddleware");
+const {checkPermissions, verifyJWT, matchEndpoint} = require("../../middleware/authorisationMiddleware");
 const jwt = require("jsonwebtoken");
 const consoleSpy = jest.spyOn(console, 'log').mockImplementation((message) => {
     // Log the message to the test console for visibility, mock the function jest.spyOn() to spy on each console log 

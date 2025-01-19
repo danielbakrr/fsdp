@@ -20,7 +20,7 @@ class Role {
        const formattedPermissions = {
             L: permissions.map((perm) => ({
                 M: {
-                    Actions: {
+                    actions: {
                         L: perm.actions.map((action) => ({ S: action })), // Convert each action to { S: "value" }
                     },
                     resource: {
@@ -65,9 +65,13 @@ class Role {
     }
     // Function has been tested 
     static async getPermissions(roleName){
+        console.log(roleName);
         const params = {
             TableName: "Roles",
-            Key: roleName,
+            Key:{
+                roleName: { S: roleName }
+            }
+            
         }
         const result = await dynamoDb.send(new GetItemCommand(params));
         console.log(JSON.stringify(result.Item,null,2));

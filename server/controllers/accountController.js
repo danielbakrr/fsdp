@@ -1,13 +1,14 @@
 const Account = require("../models/Account")
 
-
 const getUserById = async(req,res) => {
-    const userId = req.params;
+    const {uuid} = req.params;
+    const userId = uuid.split(":")[1]
+    console.log(userId)
     if (userId != null){
         try{
             const user = await Account.getUserByUserId(userId);
+            console.log(user);
             if(user != null){
-                console.log(JSON.stringify(user,null,2));
                 const {userId,email,registeredDate,role} = user;
                 return res.status(200).json({"message": "Retrieved the user sucessfully", "userInformation": {
                     "userId": userId,
@@ -15,6 +16,9 @@ const getUserById = async(req,res) => {
                     "registeredDate":registeredDate,
                     "userRole":role
                 }})
+            }
+            else {
+                res.status(500).send("Internal server error");
             }
         }
 
@@ -62,7 +66,6 @@ const editUserRole = async(req,res) => {
     const userId = uuid.split(":")[1]
     console.log(userId)
     const {newRole} = req.body
-    console.log(newRole);
     if (userId && newRole != null){
         // call the async function
         try {
@@ -82,9 +85,26 @@ const editUserRole = async(req,res) => {
         }
     }
 }
+ 
+const getAllUsers = async(req,res) => {
+    try {
+        const retrievedUsers = await Account.getAllUsers();
+        if (!retrievedUsers){
+            return res.status(404).send("There are no users in the database");
+        }
+        else {
+            return res.status(200).json({"message":"Sucessfully retrieved all users", "retrievedUsers": retrievedUsers});
+        }
+    }
+    catch(err){
+        console.error(err);
+        res.status(500).send("Internal server error");
+    }
+}
 
 module.exports = {
     getUserById,
     getUserByEmail,
-    editUserRole
+    editUserRole,
+    getAllUsers
 }

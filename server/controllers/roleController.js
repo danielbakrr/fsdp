@@ -24,7 +24,8 @@ const createRole = async (req,res) => {
 // controller for editing the role permissions 
 
 const getPermissions = async(req,res) => {
-    const roleName = req.params;
+    const roleName = req.params.roleId;
+    console.log(roleName);
     if (roleName != null){
         const rolePermissions = await Role.getPermissions(roleName);
         console.log(JSON.stringify(rolePermissions,null,2));

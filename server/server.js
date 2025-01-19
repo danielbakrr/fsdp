@@ -271,18 +271,19 @@ app.post("/api/upload-file", upload.single("file"), (req, res) => {
 
 
 // Routes for user authentication 
-app.post('/userLogin',authController.login)
-app.post('/userSignUp',authController.signUp)
+app.post('/userLogin',authController.login);
+app.post('/userSignUp',authController.signUp);
 
 
-app.get('/get-rolePermissions',roleController.getPermissions);
+app.get('/get-rolePermissions/:roleId',roleController.getPermissions);
+app.post('/create-userRole',roleController.createRole);
 
 // Route for Account 
-app.post('/edit-userRole/:uuid',accountController.editUserRole)
-app.get('/get-userById/:uuid',accountController.getUserById)
-app.get('/get-userByEmail',accountController.getUserByEmail)
-// app.post('/createUser',accountController.)
-app.post('')
+app.post('/edit-userRole/:uuid',accountController.editUserRole);
+app.get('/get-userById/:uuid',accountController.getUserById);
+app.get('/get-userByEmail',accountController.getUserByEmail);
+app.get('/get-allUsers',accountController.getAllUsers);
+
 
 
 server.listen(PORT, () => {
