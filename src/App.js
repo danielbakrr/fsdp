@@ -6,6 +6,8 @@ import FileUpload from './components/FileUpload';
 import TemplatePage from './components/templatePage';
 import ViewAllTemplates from "./components/viewAllTemplates";
 import AdvertisementDisplay from "./components/advertisement"; // Import the component
+import Calendar from './components/Calendar';
+import './styles/calendar.css';
 
 import Home from './components/home';
 
@@ -18,6 +20,7 @@ const App = () => {
         <Route path="/manage-templates/view-all" element={<ViewAllTemplates />} />
         <Route path="/file-management" element={<FileUpload />} />
         <Route path="/template-editor" element={<TemplateEditor/>} />
+        <Route path="/calendar" element={<Calendar />} />
         <Route path="/advertisement-display" element={<AdvertisementDisplay />} /> {/* New route */}
         {/* Default route for undefined paths */}
         <Route path="*" element={<Navigate to="/" />} />
