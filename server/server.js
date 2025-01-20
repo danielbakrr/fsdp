@@ -26,6 +26,7 @@ const {
   DeleteCommand,
   GetCommand,
 } = require("@aws-sdk/lib-dynamodb");
+
 const { v4: uuidv4 } = require("uuid");
 const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
 
@@ -279,10 +280,10 @@ app.get('/get-rolePermissions/:roleId',roleController.getPermissions);
 app.post('/create-userRole',roleController.createRole);
 
 // Route for Account 
-app.post('/edit-userRole/:uuid',accountController.editUserRole);
-app.get('/get-userById/:uuid',accountController.getUserById);
-app.get('/get-userByEmail',accountController.getUserByEmail);
-app.get('/get-allUsers',accountController.getAllUsers);
+app.post('/api/edit-userRole/:uuid',accountController.editUserRole);
+app.get('/api/get-userById/:uuid',accountController.getUserById);
+app.get('/api/get-userByEmail',accountController.getUserByEmail);
+app.get('/api/get-allUsers',accountController.getAllUsers);
 
 
 
