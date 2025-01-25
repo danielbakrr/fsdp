@@ -8,7 +8,7 @@ const { Server } = require("socket.io");
 const http = require("http");
 const bodyParser = require("body-parser");
 const { DynamoDBClient } = require("@aws-sdk/client-dynamodb");
-const tvGroupController = require("./controllers/tvGroupController");
+const TVGroupController = require("./controllers/tvGroupController");
 const TVController = require("./controllers/TVController");
 
 const {
@@ -323,7 +323,7 @@ app.get("/advertisements", async (req, res) => {
 });*/
 
 // Routes for tv groups
-app.get("/tvgroups/:id", tvGroupController.getTVGroupsById);
+app.get("/tvgroups/:id", TVGroupController.getTVGroupsById);
 app.get("/tvgroups", async (req, res) => {
   try {
     const params = {
@@ -341,8 +341,9 @@ app.get("/tvgroups", async (req, res) => {
   }
 });
 
-app.post("/tvgroups", tvGroupController.addTVGroup);
-app.delete("/tvgroups/:groupID", tvGroupController.deleteTVGroup);
+app.post("/tvgroups", TVGroupController.addTVGroup);
+app.put("/tvgroups/:groupID", TVGroupController.updateTVGroup);
+app.delete("/tvgroups/:groupID", TVGroupController.deleteTVGroup);
 
 // Routes for TVs
 app.get("/tvgroups/:groupID/tvs/:tvID", TVController.getTvById);

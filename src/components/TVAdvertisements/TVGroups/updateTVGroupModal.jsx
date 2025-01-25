@@ -1,18 +1,19 @@
 import React, { useState, useEffect } from "react";
 import AlertMessage from "../successMessage";
 
-const AddGroupModal = ({ isOpen, onClose, onAddGroup }) => {
-  const [groupName, setGroupName] = useState("");
-  const [notifications, setNotifications] = useState([]); // Store notifications
+const UpdateGroupModal = ({ groupID, isOpen, onClose, onUpdateGroup }) => {
+  const [newGroupName, setNewGroupName] = useState("");
+  const [notifications, setNotifications] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!groupName) {
+    if (!newGroupName) {
       const newNotification = {
         id: Date.now(),
         type: "Error",
-        message: "Please fill in all fields.",
+        message: "Please fill in the fields.",
       };
 
       setNotifications((prevNotifications) => [
@@ -20,36 +21,37 @@ const AddGroupModal = ({ isOpen, onClose, onAddGroup }) => {
         newNotification,
       ]);
 
-      // Reset form fields
-      setGroupName("");
-
-      setTimeout(() => {
-        onClose();
-      }, 100);
+      setNewGroupName("");
+      setTimeout(() => onClose(), 100);
       return;
     }
 
+    setIsLoading(true); // Set loading state
+
     try {
-      const response = await fetch("/tvgroups", {
-        method: "POST",
+      const response = await fetch(`/tvgroups/${groupID}`, {
+        method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ groupName }),
+        body: JSON.stringify({ newGroupName }),
       });
 
-      const data = await response.json();
+      const textResponse = await response.text();
+      console.log(textResponse); // Log response to check if it's valid JSON
+
+      const data = JSON.parse(textResponse);
 
       if (data.error) {
         throw new Error(data.error);
       }
 
-      onAddGroup={data};
+      onUpdateGroup(data);
 
       const newNotification = {
         id: Date.now(),
         type: "Success",
-        message: "Group added.",
+        message: "Group name updated.",
       };
 
       setNotifications((prevNotifications) => [
@@ -57,24 +59,22 @@ const AddGroupModal = ({ isOpen, onClose, onAddGroup }) => {
         newNotification,
       ]);
 
-      // Reset form fields
-      setGroupName("");
-
-      setTimeout(() => {
-        onClose();
-      }, 100);
+      setNewGroupName("");
+      setTimeout(() => onClose(), 100);
     } catch (error) {
-      console.error("Error adding group:", error);
+      console.error("Error updating group:", error);
       const newNotification = {
         id: Date.now(),
         type: "Error",
-        message: "Failed to add group.",
+        message: "Failed to update group.",
       };
 
       setNotifications((prevNotifications) => [
         ...prevNotifications,
         newNotification,
       ]);
+    } finally {
+      setIsLoading(false); // Reset loading state
     }
   };
 
@@ -84,13 +84,13 @@ const AddGroupModal = ({ isOpen, onClose, onAddGroup }) => {
     );
   };
 
-  //Automatically remove notifications after 5 seconds
   useEffect(() => {
     if (notifications.length > 0) {
-      setTimeout(() => {
+      const timer = setTimeout(() => {
         setNotifications((prevNotifications) => prevNotifications.slice(1));
       }, 5000);
-      return; // Cleanup timer
+
+      return () => clearTimeout(timer); // Cleanup timer
     }
   }, [notifications]);
 
@@ -99,26 +99,31 @@ const AddGroupModal = ({ isOpen, onClose, onAddGroup }) => {
       {isOpen && (
         <div className="modal fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center z-50">
           <div className="modal-content bg-white rounded-lg shadow-lg p-6 w-96">
-            <h3 className="text-lg font-bold mb-4">Add New Group</h3>
             <form onSubmit={handleSubmit} className="space-y-4">
-            
               <div>
-                <label className="block text-sm font-medium">
-                  Group Name:
+                <label
+                  htmlFor="newGroupName"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  New Group Name
                 </label>
                 <input
                   type="text"
-                  value={groupName}
-                  onChange={(e) => setGroupName(e.target.value)}
-                  className="w-full border rounded p-2"
+                  id="newGroupName"
+                  value={newGroupName}
+                  onChange={(e) => setNewGroupName(e.target.value)}
+                  className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+                  placeholder="Enter new group name"
                 />
               </div>
+
               <div className="flex justify-end space-x-4">
                 <button
                   type="submit"
                   className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                  disabled={isLoading} // Disable button while loading
                 >
-                  Add Group
+                  {isLoading ? "Saving..." : "Save"}
                 </button>
                 <button
                   type="button"
@@ -140,7 +145,7 @@ const AddGroupModal = ({ isOpen, onClose, onAddGroup }) => {
               key={notification.id}
               className={`notification ${notification.type}`}
               style={{
-                bottom: `${320 + index}px`,
+                bottom: `${120 + index}px`,
                 right: "20px",
                 position: "absolute",
                 transform: `translateY(${index * 65}px)`,
@@ -159,4 +164,4 @@ const AddGroupModal = ({ isOpen, onClose, onAddGroup }) => {
   );
 };
 
-export default AddGroupModal;
+export default UpdateGroupModal;

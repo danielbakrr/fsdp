@@ -35,7 +35,8 @@ class TVGroup {
       console.error("Error fetching TV Groups:", error);
       throw new Error("Unable to fetch TV Groups");
     }
-  }F
+  }
+  F;
 
   // Add a new TVGroup
   static async addTVGroup(TVGroupData) {
@@ -50,6 +51,29 @@ class TVGroup {
       throw new Error("Unable to add TV Group");
     }
   }
+
+// Update the name of the TV group by ID
+static async updateTVGroup(groupID, newGroupName) {
+    const params = {
+      TableName: "TVGroups",
+      Key: { groupID },
+      UpdateExpression: "SET groupName = :newName",
+      ExpressionAttributeValues: {
+        ":newName": newGroupName,
+      },
+      ReturnValues: "UPDATED_NEW",
+    };
+  
+    try {
+      const data = await dynamoDb.send(new UpdateCommand(params));
+      console.log("DynamoDB response:", data); // Log the full response for debugging
+      return data.Attributes; // Return the updated attributes
+    } catch (error) {
+      console.error("Error updating TV Group:", error);
+      throw new Error("Unable to update TV Group");
+    }
+  }
+  
 
   // Delete a TVGroup by ID
   static async deleteTVGroup(groupID) {

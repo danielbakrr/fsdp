@@ -22,8 +22,8 @@ const AddButton = ({onClick, label}) => {
 
 const StyledWrapper = styled.div`
   button {
-    width: 140px;
-    height: 40px;
+    width: 120px;
+    height: 36px;
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -41,8 +41,8 @@ const StyledWrapper = styled.div`
 
   button .text {
     position: absolute;
-    font-size: 18px;
-    transform: translateX(25px);
+    font-size: 16px;
+    transform: translateX(15px);
     color: white;
     font-weight: bold;
   }
@@ -50,7 +50,7 @@ const StyledWrapper = styled.div`
   button .icon {
     position: absolute;
     border-left: 1px solid #007300;
-    transform: translateX(88px);
+    transform: translateX(65px);
     height: 30px;
     width: 40px;
     display: flex;
@@ -77,7 +77,7 @@ const StyledWrapper = styled.div`
 
   button:hover .icon {
     width: 120px;
-    transform: translateX(0);
+    transform: translateX(-15px);
     border-left: none;
   }
 

@@ -32,10 +32,38 @@ const getTVGroupsById = async (req, res) => {
 
 const addTVGroup = async (req, res) => {
   try {
-    await TVGroup.addTVGroup(req.body);
+    const {groupName} = req.body;
+    const groupID = `grp${Math.floor(100000 + Math.random() * 900000)}`;
+    const TVGroupData = {
+      groupID,
+      groupName
+    }
+    await TVGroup.addTVGroup(TVGroupData);
+
     res.status(201).json({ message: "Tv Group added successfully" });
   } catch (error) {
     res.status(500).json({ error: error.message });
+  }
+};
+
+const updateTVGroup = async (req, res) => {
+  try {
+    const { groupID } = req.params;
+    const { newGroupName } = req.body;
+
+    if (!groupID || !newGroupName) {
+      return res.status(400).json({ message: "Group ID and new group name are required." });
+    }
+
+    const updatedGroup = await TVGroup.updateTVGroup(groupID, newGroupName); // Update the group
+    if (updatedGroup) {
+      res.status(200).json({ message: "TV Group updated successfully.", updatedGroup });
+    } else {
+      res.status(404).json({ message: "TV Group not found." });
+    }
+  } catch (error) {
+    console.error("Error updating TV group:", error);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 };
 
@@ -52,5 +80,6 @@ module.exports = {
   getAllTVGroups,
   getTVGroupsById,
   addTVGroup,
+  updateTVGroup,
   deleteTVGroup,
 };

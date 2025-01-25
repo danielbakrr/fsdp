@@ -1,70 +1,66 @@
-@import url("https://fonts.googleapis.com/css2?display=swap&amp;family=Noto+Sans%3Awght%40400%3B500%3B700%3B900&amp;family=Work+Sans%3Awght%40400%3B500%3B700%3B900");
-
+/* General Styling */
 .Ad {
   font-family: "Arimo", sans-serif;
   letter-spacing: 1px;
+  margin: 20px;
 }
 
+/* New TVGroup Button */
 .new-tvgroup-container {
-  margin-bottom: 20px;
-  margin-left: 20px;
-  margin-right: 20px; 
   text-align: center;
+  margin-bottom: 20px;
+}
+
+/* TV Groups Table */
+.tvgroup-table {
+  width: 100%;
+  border-collapse: collapse;
   margin-top: 20px;
+  border: 1px solid #ddd;
 }
 
-/* tvgroups List */
-.tvgroups-list {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-  margin-left: 20px;
-  margin-right: 20px;
-}
-
-.tvgroup-card {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.tvgroup-table th,
+.tvgroup-table td {
   padding: 15px;
-  background-color: #ffffff;
-  border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-  cursor: pointer;
-  transition: transform 0.2s, background-color 0.3s ease;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
 }
 
-.tvgroup-card:hover {
-  transform: scale(1.02);
-  background-color: #eeeeee;
+.tvgroup-table th {
+  background-color: #f4f4f4;
 }
 
-.tvgroup-info p {
-  margin: 0;
-  font-size: 19px;
-  color: #000000;
+.tvgroup-table tr:hover {
+  background-color: #f1f1f1;
 }
 
-.tvgroup-arrow {
-  font-size: 20px;
-  color: #605b64;
+/* TV Table */
+.tv-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  border: 1px solid #ddd;
 }
 
-/* TV Cards */
-.tvs-list {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-  margin-left: 20px; /* Added left margin */
-  margin-right: 20px; /* Added right margin */
+.tv-table th,
+.tv-table td {
+  padding: 15px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.tv-table th {
+  background-color: #f4f4f4;
+}
+
+.tv-table tr:hover {
+  background-color: #f1f1f1;
 }
 
 /* Ad Display */
 .displayed-ad-container {
   margin-top: 20px;
   text-align: center;
-  margin-left: 20px; /* Added left margin */
-  margin-right: 20px; /* Added right margin */
 }
 
 .displayed-ad {
@@ -73,6 +69,29 @@
   border-radius: 8px;
 }
 
+/* Buttons */
+button {
+  padding: 8px 16px;
+  border: none;
+  background-color: #5c6bc0;
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #866ed4;
+}
+
+.tvgroup-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 20px; 
+}
+
+
 /* Modal Overlay */
 .modal {
   position: fixed;
@@ -80,17 +99,12 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(
-    0,
-    0,
-    0,
-    0.7
-  ); /* Darker background for better contrast */
+  background-color: rgba(0, 0, 0, 0.7);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 1000;
-  transition: opacity 0.3s ease; /* Smooth transition for modal appearance */
+  transition: opacity 0.3s ease;
 }
 
 /* Modal Content */
@@ -103,9 +117,6 @@
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
   text-align: center;
   animation: fadeIn 0.5s ease-out;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between; /* Space between the fields */
 }
 
 /* Modal Animation */
@@ -124,7 +135,7 @@
 .modal-content form {
   display: flex;
   flex-direction: column;
-  gap: 15px; /* Space between each input */
+  gap: 15px;
 }
 
 .modal-content input,
@@ -134,28 +145,10 @@
   border-radius: 8px;
   border: 1px solid #ccc;
   width: 100%;
-  box-sizing: border-box; /* Ensures the input takes up full width */
+  box-sizing: border-box;
 }
 
-/* Title */
-.modal-content h3 {
-  font-size: 24px;
-  font-weight: 700;
-  color: #333;
-  margin-bottom: 20px;
-  letter-spacing: 0.5px;
-}
-
-/* tvgroup Information Fields */
-.tvgroup-info {
-  display: flex;
-  flex-direction: column;
-  gap: 10px; /* Space between each input field */
-  align-items: center;
-  justify-content: space-between;
-}
-
-/* Buttons */
+/* Close Button */
 .close-btn {
   background-color: #ff5c8d;
   color: white;
@@ -164,64 +157,10 @@
   font-size: 16px;
   cursor: pointer;
   border-radius: 8px;
-  transition: background-color 0.3s ease, transform 0.2s ease;
+  transition: background-color 0.3s ease;
   margin-top: 20px;
 }
 
 .close-btn:hover {
   background-color: #e04e77;
-  transform: scale(1.05);
-}
-
-/* Ads List */
-.ads-list {
-  margin-top: 20px;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 15px; /* Space between ad items */
-}
-
-/* Ad Card */
-.ad-card {
-  width: 150px;
-  cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.3s ease;
-  border-radius: 10px;
-  overflow: hidden;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-.ad-card:hover {
-  transform: translateY(-5px); /* Slight lift effect on hover */
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-}
-
-/* Ad Thumbnail */
-.ad-thumbnail {
-  width: 100%;
-  height: auto;
-  border-radius: 8px;
-  transition: transform 0.3s ease;
-}
-
-.ad-thumbnail:hover {
-  transform: scale(1.05); /* Slight zoom effect on hover */
-}
-
-.ad-card p {
-  margin-top: 10px;
-  font-size: 14px;
-  color: #333;
-  font-weight: 600;
-  letter-spacing: 0.5px;
-}
-
-/* Modal Header */
-.modal-content h3 {
-  font-size: 24px;
-  font-weight: 700;
-  color: #333;
-  margin-bottom: 20px;
-  letter-spacing: 0.5px;
 }
