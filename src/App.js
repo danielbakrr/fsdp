@@ -5,7 +5,8 @@ import TemplateEditor from './components/AdForm';
 import TemplateManagement from './components/AdList';
 import TemplatePage from './components/templatePage';
 import ViewAllTemplates from "./components/viewAllTemplates";
-import AdvertisementDisplay from "./components/advertisement"; // Import the component
+import AdvertisementDisplay from "./components/TVAdvertisements/TVGroups/advertisement";
+import TVsList from "./components/TVAdvertisements/IndividualTVs/TVsList";
 import Calendar from './components/Calender';
 
 import Home from './components/home';
@@ -21,6 +22,7 @@ const App = () => {
         <Route path="/template-editor" element={<TemplateEditor/>} />
         <Route path="/calendar" element={<Calendar />} />
         <Route path="/advertisement-display" element={<AdvertisementDisplay />} /> {/* New route */}
+        <Route path="/advertisement-display/location/:locationId" element={<TVsList/>} />
         {/* Default route for undefined paths */}
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
