@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import "../styles/advDisplay.css";
-import Navbar from "./navbar";
+import Navbar from "../../navbar";
 import { FaChevronRight } from "react-icons/fa";
 import AddLocationModal from "./addLocationModal";
-import "../styles/tailwind.css";
+import "../../../styles/advDisplay.css";
 import AddButton from "./addButton";
 import { useNavigate } from "react-router-dom";
 

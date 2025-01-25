@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate, Link, useParams } from "react-router-dom";
 import Navbar from "./navbar";
-import "../styles/TVsList.css";
+import "../../../styles/TVsList.css";
 import AddTvButton from "./addTVButton";
 
 const TVsList = () => {

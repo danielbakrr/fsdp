@@ -1,5 +1,5 @@
 import React from "react";
-import "../styles/alertMessage.css";
+import "../../styles/alertMessage.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faCircleCheck,

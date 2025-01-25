@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import AlertMessage from "./successMessage"; // Import the updated AlertMessage component
+import AlertMessage from "../../../styles/alertMessage"; // Import the updated AlertMessage component
 
 const AddLocationModal = ({ isOpen, onClose, onAddLocation }) => {
   const [locationId, setLocationId] = useState("");
