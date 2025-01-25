@@ -2,61 +2,61 @@ import React, { useState, useEffect } from "react";
 import "../styles/advDisplay.css";
 import Navbar from "../../navbar";
 import { FaChevronRight } from "react-icons/fa";
-import AddLocationModal from "./addLocationModal";
+import AddTVGroupModal from "./addTVGroupModal";
 import "../../../styles/advDisplay.css";
 import AddButton from "./addButton";
 import { useNavigate } from "react-router-dom";
 
 const AdvertisementDisplay = () => {
-  const [locations, setLocations] = useState([]); // Store locations
-  const [tvs, setTvs] = useState([]); // Store TVs for selected location
-  const [selectedLocation, setSelectedLocation] = useState(null); // Store selected location
+  const [tvgroups, setTVGroups] = useState([]); // Store Groups
+  const [tvs, setTvs] = useState([]); // Store TVs for selected TVGroup
+  const [selectedTVGroup, setSelectedTVGroup] = useState(null); // Store selected TVGroup
   const [selectedTv, setSelectedTv] = useState(null); // Store selected TV
   const [isModalOpen, setIsModalOpen] = useState(false); // Modal state for selecting ad
   const [ads, setAds] = useState([]); // Store ads
   const [displayedAd, setDisplayedAd] = useState(null); // Store the ad to display
-  const [locationAdded, setLocationAdded] = useState(false); // Track if location is added
-  const [locationError, setLocationError] = useState(false); // Track if there was an error
+  const [tvGroupAdded, setTVGroupAdded] = useState(false); // Track if TVGroup is added
+  const [tvGroupError, setTVGroupError] = useState(false); // Track if there was an error
   const [notifications, setNotifications] = useState([]); // Store notifications
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetchLocations(); // Fetch locations when the component mounts
+    fetchTVGroups(); // Fetch Groups when the component mounts
   }, []);
 
-  // Fetch the list of locations
-  const fetchLocations = async () => {
+  // Fetch the list of Groups
+  const fetchTVGroups = async () => {
     try {
-      const response = await fetch("/locations");
+      const response = await fetch("/tvgroups");
       const data = await response.json();
 
       if (data.error) {
         throw new Error(data.error); // Handle the error returned by the API
       }
 
-      console.log("Locations data:", data);
-      setLocations(data); // Set locations state
+      console.log("Groups data:", data);
+      setTVGroups(data); // Set Groups state
     } catch (error) {
-      console.error("Error fetching locations:", error);
+      console.error("Error fetching TV groups:", error);
     }
   };
-  // Fetch TVs for the selected location
-  const fetchTvs = async (locationId) => {
+  // Fetch TVs for the selected TVGroup
+  const fetchTvs = async (groupID) => {
     try {
-      const response = await fetch(`/locations/${locationId}/tvs`); // Endpoint to get TVs for a location
+      const response = await fetch(`/tvgroups/${groupID}/tvs`); // Endpoint to get TVs for a TVGroup
       const data = await response.json();
-      setTvs(data); // Set the TVs for the selected location
+      setTvs(data); // Set the TVs for the selected TVGroup
     } catch (error) {
       console.error("Error fetching TVs:", error);
     }
   };
 
-  // Handle location selection
-  const handleLocationSelect = (location) => {
-    navigate(`/advertisement-display/location/${location.locationId}`,{ state: { location } });
-    setSelectedLocation(location); // Set the selected location
+  // Handle tv group selection
+  const handleTVGroupSelect = (group) => {
+    navigate(`/advertisement-display/tvgroups/${group.groupID}`,{ state: { group } });
+    setSelectedTVGroup(group); // Set the selected tv group
     setTvs([]); // Clear the TVs list before fetching new TVs
-    fetchTvs(location.locationId); // Fetch TVs for the selected location
+    fetchTvs(group.groupID); // Fetch TVs for the selected group
   };
 
   // Handle TV selection
@@ -71,23 +71,23 @@ const AdvertisementDisplay = () => {
     setIsModalOpen(false); // Close the modal
   };
 
-  // Add new location after modal submission
-  const handleAddLocation = (newLocation) => {
+  // Add new TVGroup after modal submission
+  const handleAddTVGroup = (newTVGroup) => {
     try {
-      // Simulate adding the new location (e.g., API call)
-      setLocations((prevLocations) => [...prevLocations, newLocation]); // Update locations state with the new location
+
+      setTVGroups((prevTVGroups) => [...prevTVGroups, newTVGroup]);
 
       // Set success message
-      setLocationAdded(true);
-      setLocationError(false);
-      fetchLocations(); // Fetch locations again to update the list
+      setTVGroupAdded(true);
+      setTVGroupError(false);
+      fetchTVGroups(); // Fetch groups again to update the list
 
       // Trigger success notification
       createNotification("success", "fa-solid fa-circle-check", "Success");
     } catch (error) {
       // If there's an error, set error message
-      setLocationAdded(false);
-      setLocationError(true);
+      setTVGroupAdded(false);
+      setTVGroupError(true);
 
       // Trigger error notification
       createNotification("error", "fa-solid fa-circle-exclamation", "Error");
@@ -117,37 +117,36 @@ const AdvertisementDisplay = () => {
       <Navbar />
       <h1>TV Groups</h1>
 
-      {/* New Location Button */}
-      <div className="new-location-container">
+      {/* New TVGroup Button */}
+      <div className="new-tvgroup-container">
         <AddButton onClick={() => setIsModalOpen(true)} label="Add" />
       </div>
 
-      {/* Locations List */}
+      {/* TVGroups List */}
       <h3>TV Groups:</h3>
-      <div className="locations-list">
-        {locations.length > 0 ? (
-          locations.map((location) => (
+      <div className="tvgroups-list">
+        {tvgroups.length > 0 ? (
+          tvgroups.map((tvgroups) => (
             <div
-              key={location.locationId} // Use locationId as the key
-              className="location-card"
-              onClick={() => handleLocationSelect(location)}
+              key={group.groupID} // Use groupID as the key
+              className="tvgroup-card"
+              onClick={() => handleTVGroupSelect(tvgroups)}
             >
-              <div className="location-info">
-                <p>{location.locationName}</p>{" "}
-                {/* Use locationName for display */}
+              <div className="tvgroup-info">
+                <p>{group.groupName}</p>{" "}
               </div>
-              <FaChevronRight className="location-arrow" />
+              <FaChevronRight className="tvgroup-arrow" />
             </div>
           ))
         ) : (
-          <p>No locations available</p> // Fallback if locations array is empty
+          <p>No TV groups available</p> // Fallback if tvgroups array is empty
         )}
       </div>
 
-      {/* TVs List for Selected Location */}
-      {selectedLocation && (
+      {/* TVs List for Selected Groups */}
+      {selectedTVGroup && (
         <div>
-          <h3>TVs in {selectedLocation.locationName}:</h3>
+          <h3>TVs in {selectedTVGroup.groupName}:</h3>
           <div className="tvs-list">
             {tvs.map((tv) => (
               <div
@@ -177,11 +176,11 @@ const AdvertisementDisplay = () => {
         </div>
       )}
 
-      {/* Modal for Adding New Location */}
-      <AddLocationModal
+      {/* Modal for Adding New TVGroup */}
+      <AddTVGroupModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        onAddLocation={handleAddLocation}
+        onAddTVGroup={handleAddTVGroup}
       />
     </div>
   );

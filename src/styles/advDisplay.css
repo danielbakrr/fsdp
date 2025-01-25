@@ -5,26 +5,16 @@
   letter-spacing: 1px;
 }
 
-.new-location-container {
+.new-tvgroup-container {
   margin-bottom: 20px;
   margin-left: 20px;
   margin-right: 20px; 
+  text-align: center;
+  margin-top: 20px;
 }
 
-.new-location-btn {
-  padding: 10px 20px;
-  background-color: #c6afd6;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 16px;
-  font-weight: bold;
-  transition: background-color 0.3s ease;
-}
-
-/* Locations List */
-.locations-list {
+/* tvgroups List */
+.tvgroups-list {
   display: flex;
   flex-direction: column;
   gap: 15px;
@@ -32,7 +22,7 @@
   margin-right: 20px;
 }
 
-.location-card {
+.tvgroup-card {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -44,18 +34,18 @@
   transition: transform 0.2s, background-color 0.3s ease;
 }
 
-.location-card:hover {
+.tvgroup-card:hover {
   transform: scale(1.02);
   background-color: #eeeeee;
 }
 
-.location-info p {
+.tvgroup-info p {
   margin: 0;
   font-size: 19px;
   color: #000000;
 }
 
-.location-arrow {
+.tvgroup-arrow {
   font-size: 20px;
   color: #605b64;
 }
@@ -156,8 +146,8 @@
   letter-spacing: 0.5px;
 }
 
-/* Location Information Fields */
-.location-info {
+/* tvgroup Information Fields */
+.tvgroup-info {
   display: flex;
   flex-direction: column;
   gap: 10px; /* Space between each input field */
@@ -234,21 +224,4 @@
   color: #333;
   margin-bottom: 20px;
   letter-spacing: 0.5px;
-}
-
-/* Button Container */
-.new-location-container {
-  text-align: center;
-  margin-top: 20px;
-}
-
-.new-location-btn {
-  background-color: #6a4c9c;
-  color: white;
-  padding: 12px 24px;
-  font-size: 16px;
-  border-radius: 8px;
-  border: none;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
 }

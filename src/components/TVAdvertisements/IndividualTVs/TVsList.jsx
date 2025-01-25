@@ -1,28 +1,28 @@
 import React, { useEffect, useState } from "react";
-import { useLocation, useNavigate, Link, useParams } from "react-router-dom";
+import { useGroup, useNavigate, Link, useParams } from "react-router-dom";
 import Navbar from "./navbar";
 import "../../../styles/TVsList.css";
 import AddTvButton from "./addTVButton";
 
 const TVsList = () => {
-  const { locationId } = useParams();
+  const { groupID } = useParams();
   const [tvs, setTvs] = useState([]);
   const [ads, setAds] = useState({});
   const [selectedTvs, setSelectedTvs] = useState([]);
   const [pinnedTvs, setPinnedTvs] = useState([]);
   const [error, setError] = useState("");
-  const { state } = useLocation();
+  const { state } = useGroup();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (state?.location) {
-      fetchTvs(state.location.locationId);
+    if (state?.group) {
+      fetchTvs(state.group.groupID);
     }
   }, [state]);
 
-  const fetchTvs = async (locationId) => {
+  const fetchTvs = async (groupID) => {
     try {
-      const response = await fetch(`/locations/${locationId}/tvs`);
+      const response = await fetch(`/tvgroups/${groupID}/tvs`);
       const tvData = await response.json();
       if (Array.isArray(tvData)) {
         setTvs(tvData);
@@ -51,12 +51,12 @@ const TVsList = () => {
   const handleAddTv = async () => {
     setError("");
     try {
-      const response = await fetch(`/locations/${locationId}/tvs`, {
+      const response = await fetch(`/tvgroups/${groupID}/tvs`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ locationId }),
+        body: JSON.stringify({ groupID }),
       });
       const data = await response.json();
       if (response.ok) {
@@ -72,7 +72,7 @@ const TVsList = () => {
   const handleDeleteMultipleTv = async () => {
     setError("");
     try {
-      const response = await fetch(`/locations/${locationId}/tvs/batch-delete`, {
+      const response = await fetch(`/tvgroups/${groupID}/tvs/batch-delete`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -98,13 +98,13 @@ const TVsList = () => {
     try {
       if (pinnedTvs.length === 1) {
         const tvID = pinnedTvs[0];
-        const response = await fetch(`/locations/${locationId}/tvs/${tvID}`, {
+        const response = await fetch(`/tvgroups/${groupID}/tvs/${tvID}`, {
           method: "DELETE",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            locationId,
+            groupID,
             tvID,
           }),
         });
@@ -148,10 +148,10 @@ const TVsList = () => {
       <Navbar />
       <div className="breadcrumb">
         <Link to="/advertisement-display" className="breadcrumb-link">
-          Location
+          Group
         </Link>{" "}
         &gt;
-        <span> {state?.location?.locationName}</span>
+        <span> {state?.group?.groupName}</span>
       </div>
 
       <div className="tvs-header-container">

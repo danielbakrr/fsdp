@@ -1,16 +1,15 @@
 import React, { useState, useEffect } from "react";
 import AlertMessage from "../../../styles/alertMessage"; // Import the updated AlertMessage component
 
-const AddLocationModal = ({ isOpen, onClose, onAddLocation }) => {
-  const [locationId, setLocationId] = useState("");
-  const [address, setAddress] = useState("");
-  const [locationName, setLocationName] = useState("");
+const AddGroupModal = ({ isOpen, onClose, onAddGroup }) => {
+  const [groupID, setGroupID] = useState("");
+  const [groupName, setGroupName] = useState("");
   const [notifications, setNotifications] = useState([]); // Store notifications
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!locationId || !address || !locationName) {
+    if (!groupID || !groupName) {
       const newNotification = {
         id: Date.now(),
         type: "Error",
@@ -23,9 +22,8 @@ const AddLocationModal = ({ isOpen, onClose, onAddLocation }) => {
       ]);
 
       // Reset form fields
-      setLocationId("");
-      setAddress("");
-      setLocationName("");
+      setGroupID("");
+      setGroupName("");
 
       setTimeout(() => {
         onClose();
@@ -34,12 +32,12 @@ const AddLocationModal = ({ isOpen, onClose, onAddLocation }) => {
     }
 
     try {
-      const response = await fetch("/locations", {
+      const response = await fetch("/tvgroups", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ locationId, address, locationName }),
+        body: JSON.stringify({ groupID, groupName }),
       });
 
       const data = await response.json();
@@ -48,12 +46,12 @@ const AddLocationModal = ({ isOpen, onClose, onAddLocation }) => {
         throw new Error(data.error);
       }
 
-      onAddLocation(data);
+      onAddGroup(data);
 
       const newNotification = {
         id: Date.now(),
         type: "Success",
-        message: "Location added.",
+        message: "Group added.",
       };
 
       setNotifications((prevNotifications) => [
@@ -62,19 +60,18 @@ const AddLocationModal = ({ isOpen, onClose, onAddLocation }) => {
       ]);
 
       // Reset form fields
-      setLocationId("");
-      setAddress("");
-      setLocationName("");
+      setGroupID("");
+      setGroupName("");
 
       setTimeout(() => {
         onClose();
       }, 100);
     } catch (error) {
-      console.error("Error adding location:", error);
+      console.error("Error adding group:", error);
       const newNotification = {
         id: Date.now(),
         type: "Error",
-        message: "Failed to add location.",
+        message: "Failed to add group.",
       };
 
       setNotifications((prevNotifications) => [
@@ -105,36 +102,28 @@ const AddLocationModal = ({ isOpen, onClose, onAddLocation }) => {
       {isOpen && (
         <div className="modal fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center z-50">
           <div className="modal-content bg-white rounded-lg shadow-lg p-6 w-96">
-            <h3 className="text-lg font-bold mb-4">Add New Location</h3>
+            <h3 className="text-lg font-bold mb-4">Add New Group</h3>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium">
-                  Location ID:
+                  Group ID:
                 </label>
                 <input
                   type="text"
-                  value={locationId}
-                  onChange={(e) => setLocationId(e.target.value)}
+                  value={groupID}
+                  onChange={(e) => setGroupID(e.target.value)}
                   className="w-full border rounded p-2"
                 />
               </div>
-              <div>
-                <label className="block text-sm font-medium">Address:</label>
-                <input
-                  type="text"
-                  value={address}
-                  onChange={(e) => setAddress(e.target.value)}
-                  className="w-full border rounded p-2"
-                />
-              </div>
+            
               <div>
                 <label className="block text-sm font-medium">
-                  Location Name:
+                  Group Name:
                 </label>
                 <input
                   type="text"
-                  value={locationName}
-                  onChange={(e) => setLocationName(e.target.value)}
+                  value={groupName}
+                  onChange={(e) => setGroupName(e.target.value)}
                   className="w-full border rounded p-2"
                 />
               </div>
@@ -143,7 +132,7 @@ const AddLocationModal = ({ isOpen, onClose, onAddLocation }) => {
                   type="submit"
                   className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
                 >
-                  Add Location
+                  Add Group
                 </button>
                 <button
                   type="button"
@@ -184,4 +173,4 @@ const AddLocationModal = ({ isOpen, onClose, onAddLocation }) => {
   );
 };
 
-export default AddLocationModal;
+export default AddGroupModal;

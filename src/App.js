@@ -22,7 +22,7 @@ const App = () => {
         <Route path="/template-editor" element={<TemplateEditor/>} />
         <Route path="/calendar" element={<Calendar />} />
         <Route path="/advertisement-display" element={<AdvertisementDisplay />} /> {/* New route */}
-        <Route path="/advertisement-display/location/:locationId" element={<TVsList/>} />
+        <Route path="/advertisement-display/tvgroups/:groupID" element={<TVsList/>} />
         {/* Default route for undefined paths */}
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
