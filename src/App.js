@@ -6,8 +6,7 @@ import TemplateManagement from './components/AdList';
 import TemplatePage from './components/templatePage';
 import ViewAllTemplates from "./components/viewAllTemplates";
 import AdvertisementDisplay from "./components/advertisement"; // Import the component
-import Calendar from './components/Calendar';
-import './styles/calendar.css';
+import Calendar from './components/Calender';
 
 import Home from './components/home';
 
