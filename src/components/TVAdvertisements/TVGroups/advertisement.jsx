@@ -5,6 +5,8 @@ import { FaChevronRight, FaTrashAlt } from "react-icons/fa";
 import AddTVGroupModal from "./addTVGroupModal";
 import UpdateGroupModal from "./updateTVGroupModal";
 import AddButton from "./addButton";
+import ActionsButton from "./actionButtons";
+
 import { useNavigate } from "react-router-dom";
 
 const AdvertisementDisplay = () => {
@@ -159,7 +161,8 @@ const AdvertisementDisplay = () => {
         <thead>
           <tr>
             <th>Group Name</th>
-            <th>Actions</th>
+            <th className="actions">Actions</th>{" "}
+            {/* "Actions" is aligned to the start */}
           </tr>
         </thead>
         <tbody>
@@ -167,16 +170,14 @@ const AdvertisementDisplay = () => {
             tvgroups.map((tvgroup) => (
               <tr key={tvgroup.groupID}>
                 <td>{tvgroup.groupName}</td>
-                <td>
-                  <button onClick={() => handleTVGroupSelect(tvgroup)}>
-                    View TVs
-                  </button>
-                  <button onClick={() => handleUpdateTVGroup(tvgroup)}>
-                    Update
-                  </button>
-                  <button onClick={() => handleDeleteTVGroup(tvgroup.groupID)}>
-                    <FaTrashAlt />
-                  </button>
+                <td className="actions">
+                  {" "}
+                  {/* Actions are aligned to the end */}
+                  <ActionsButton
+                    onView={() => handleTVGroupSelect(tvgroup)}
+                    onUpdate={() => handleUpdateTVGroup(tvgroup)}
+                    onDelete={() => handleDeleteTVGroup(tvgroup.groupID)}
+                  />
                 </td>
               </tr>
             ))
@@ -235,8 +236,8 @@ const AdvertisementDisplay = () => {
       <UpdateGroupModal
         isOpen={isUpdateModalOpen}
         onClose={() => setIsUpdateModalOpen(false)}
-        groupID={selectedUpdateGroup?.groupID} 
-        onUpdateGroup={handleUpdateTVGroup} 
+        groupID={selectedUpdateGroup?.groupID}
+        onUpdateGroup={handleUpdateTVGroup}
       />
     </div>
   );

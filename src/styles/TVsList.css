@@ -1,6 +1,6 @@
 /* TVs List Page */
 .tvs-page {
-  font-family: "Arimo", sans-serif;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   padding: 20px;
 }
 

@@ -77,7 +77,7 @@ const StyledWrapper = styled.div`
 
   button:hover .icon {
     width: 120px;
-    transform: translateX(-15px);
+    transform: translateX(-5px);
     border-left: none;
   }
 
