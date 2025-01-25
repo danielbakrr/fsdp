@@ -1,6 +1,7 @@
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
+const { dynamoDb } = require("./awsConfig");
 const multer = require("multer");
 const sharp = require("sharp");
 const { Server } = require("socket.io");
@@ -8,10 +9,11 @@ const http = require("http");
 const bodyParser = require("body-parser");
 const { DynamoDBClient } = require("@aws-sdk/client-dynamodb");
 const tvGroupController = require("./controllers/tvGroupController");
-const tvsController = require("./controllers/TVController");
+const TVController = require("./controllers/TVController");
 
 const {
   DynamoDBDocumentClient,
+  GetCommand,
   PutCommand,
   //DeleteCommand,
   ScanCommand,
@@ -247,6 +249,54 @@ app.get("/api/files", async (req, res) => {
   }
 });
 
+// Advertisement route
+// Route to get an advertisement by adID
+app.get("/advertisements/:adID", async (req, res) => {
+  try {
+    const { adID } = req.params;
+
+    const params = {
+      TableName: process.env.DYNAMODB_TABLE_ADVERTISEMENTS,
+      Key: {
+        adID,
+      },
+    };
+
+    const adData = await dynamoDBClient.send(new GetCommand(params));
+
+    if (!adData.Item) {
+      return res.status(404).json({ message: "Advertisement not found" });
+    }
+
+    // Return the advertisement data
+    res.json(adData.Item);
+  } catch (error) {
+    console.error("Error fetching advertisement:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+app.get("/advertisements", async (req, res) => {
+  try {
+    // Query DynamoDB to get all advertisements
+    const params = {
+      TableName: process.env.DYNAMODB_TABLE_ADVERTISEMENTS,
+    };
+
+    const adData = await dynamoDBClient.send(new ScanCommand(params)); // Use ScanCommand to retrieve all items
+
+    if (!adData.Items || adData.Items.length === 0) {
+      return res.status(404).json({ message: "No advertisements found" });
+    }
+
+    // Return all advertisements
+    res.json(adData.Items);
+  } catch (error) {
+    console.error("Error fetching advertisements:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
 // Delete File
 /*app.delete('/api/delete-file/:fileKey', async (req, res) => {
     const { fileKey } = req.params;
@@ -292,15 +342,15 @@ app.get("/tvgroups", async (req, res) => {
 });
 
 app.post("/tvgroups", tvGroupController.addTVGroup);
-app.delete("/tvgroups/:groupId", tvGroupController.deleteTVGroup);
+app.delete("/tvgroups/:groupID", tvGroupController.deleteTVGroup);
 
 // Routes for TVs
-app.get("/tvgroups/:groupId/tvs/:tvId", tvsController.getTvById);
-app.get("/tvgroups/:groupId/tvs", tvsController.getAllTvsByTVGroup);
-app.post("/tvgroups/:groupId/tvs", tvsController.addTv);
-app.delete("/tvgroups/:groupId/tvs/:tvId", tvsController.deleteTv);
-app.put("/tvgroups/:groupId/tvs/:tvId", tvsController.updateAdForTv);
-app.post("/tvgroups/:groupId/tvs/batch-delete", tvsController.deleteTvs);
+app.get("/tvgroups/:groupID/tvs/:tvID", TVController.getTvById);
+app.get("/tvgroups/:groupID/tvs", TVController.getAllTvsByTVGroup);
+app.post("/tvgroups/:groupID/tvs", TVController.addTv);
+app.delete("/tvgroups/:groupID/tvs/:tvID", TVController.deleteTv);
+app.put("/tvgroups/:groupID/tvs/:tvID", TVController.updateAdForTv);
+app.post("/tvgroups/:groupID/tvs/batch-delete", TVController.deleteTvs);
 
 // Start Server
 server.listen(PORT, () => {

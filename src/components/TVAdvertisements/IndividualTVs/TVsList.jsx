@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { useGroup, useNavigate, Link, useParams } from "react-router-dom";
-import Navbar from "./navbar";
+import { useLocation, useNavigate, Link, useParams } from "react-router-dom";
+import Navbar from "../../navbar";
 import "../../../styles/TVsList.css";
 import AddTvButton from "./addTVButton";
 
@@ -11,7 +11,7 @@ const TVsList = () => {
   const [selectedTvs, setSelectedTvs] = useState([]);
   const [pinnedTvs, setPinnedTvs] = useState([]);
   const [error, setError] = useState("");
-  const { state } = useGroup();
+  const { state } = useLocation();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -24,14 +24,16 @@ const TVsList = () => {
     try {
       const response = await fetch(`/tvgroups/${groupID}/tvs`);
       const tvData = await response.json();
+
       if (Array.isArray(tvData)) {
         setTvs(tvData);
       }
+
       const adPromises = tvData.map(async (tv) => {
         if (tv.adID) {
-          const adResponse = await fetch(`/realAds/${tv.adID}`);
-          const adData = await adResponse.json();
-          return { [tv.tvID]: adData };
+            const adResponse = await fetch(`/advertisements/${tv.adID}`);
+            const adData = await adResponse.json();
+            return { [tv.tvID]: adData };
         }
         return null;
       });

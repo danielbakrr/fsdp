@@ -1,5 +1,5 @@
 // controllers/tvs.js
-const TVs = require("./models/TVs");
+const TVs = require("../models/TVs");
 const dotenv = require("dotenv");
 dotenv.config();
 

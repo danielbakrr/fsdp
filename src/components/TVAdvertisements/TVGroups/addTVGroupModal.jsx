@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import AlertMessage from "../../../styles/alertMessage"; // Import the updated AlertMessage component
+import AlertMessage from "../successMessage";
 
 const AddGroupModal = ({ isOpen, onClose, onAddGroup }) => {
   const [groupID, setGroupID] = useState("");

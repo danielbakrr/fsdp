@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import "../styles/advDisplay.css";
+import "../../../styles/advDisplay.css";
 import Navbar from "../../navbar";
 import { FaChevronRight } from "react-icons/fa";
 import AddTVGroupModal from "./addTVGroupModal";
@@ -126,14 +126,14 @@ const AdvertisementDisplay = () => {
       <h3>TV Groups:</h3>
       <div className="tvgroups-list">
         {tvgroups.length > 0 ? (
-          tvgroups.map((tvgroups) => (
+          tvgroups.map((tvgroup) => (
             <div
-              key={group.groupID} // Use groupID as the key
+              key={tvgroup.groupID} // Use groupID as the key
               className="tvgroup-card"
-              onClick={() => handleTVGroupSelect(tvgroups)}
+              onClick={() => handleTVGroupSelect(tvgroup)}
             >
               <div className="tvgroup-info">
-                <p>{group.groupName}</p>{" "}
+                <p>{tvgroup.groupName}</p>{" "}
               </div>
               <FaChevronRight className="tvgroup-arrow" />
             </div>
