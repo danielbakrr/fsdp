@@ -44,7 +44,7 @@ const AddGroupModal = ({ isOpen, onClose, onAddGroup }) => {
         throw new Error(data.error);
       }
 
-      onAddGroup={data};
+      onAddGroup = { data };
 
       const newNotification = {
         id: Date.now(),
@@ -101,11 +101,8 @@ const AddGroupModal = ({ isOpen, onClose, onAddGroup }) => {
           <div className="modal-content bg-white rounded-lg shadow-lg p-6 w-96">
             <h3 className="text-lg font-bold mb-4">Add New Group</h3>
             <form onSubmit={handleSubmit} className="space-y-4">
-            
               <div>
-                <label className="block text-sm font-medium">
-                  Group Name:
-                </label>
+                <label className="block text-sm font-medium">Group Name:</label>
                 <input
                   type="text"
                   value={groupName}
@@ -133,28 +130,27 @@ const AddGroupModal = ({ isOpen, onClose, onAddGroup }) => {
         </div>
       )}
 
-      {notifications.length > 0 && (
-        <div>
-          {notifications.map((notification, index) => (
-            <div
-              key={notification.id}
-              className={`notification ${notification.type}`}
-              style={{
-                bottom: `${320 + index}px`,
-                right: "20px",
-                position: "absolute",
-                transform: `translateY(${index * 65}px)`,
-              }}
-            >
-              <AlertMessage
-                type={notification.type}
-                message={notification.message}
-                onClose={() => handleCloseNotification(notification.id)}
-              />
-            </div>
-          ))}
-        </div>
-      )}
+      <div className="notifications-container">
+        {notifications.length > 0 && (
+          <div>
+            {notifications.map((notification, index) => (
+              <div
+                key={notification.id}
+                className={`notification ${notification.type}`}
+                style={{
+                  transform: `translateY(${index * 16}px)`,
+                }}
+              >
+                <AlertMessage
+                  type={notification.type}
+                  message={notification.message}
+                  onClose={() => handleCloseNotification(notification.id)}
+                />
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </>
   );
 };

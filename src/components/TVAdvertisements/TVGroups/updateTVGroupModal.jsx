@@ -38,8 +38,6 @@ const UpdateGroupModal = ({ groupID, isOpen, onClose, onUpdateGroup }) => {
       });
 
       const textResponse = await response.text();
-      console.log(textResponse); // Log response to check if it's valid JSON
-
       const data = JSON.parse(textResponse);
 
       if (data.error) {
@@ -145,11 +143,8 @@ const UpdateGroupModal = ({ groupID, isOpen, onClose, onUpdateGroup }) => {
               key={notification.id}
               className={`notification ${notification.type}`}
               style={{
-                bottom: `${120 + index}px`,
-                right: "20px",
-                position: "absolute",
-                transform: `translateY(${index * 65}px)`,
-              }}
+                transform: `translateY(${index * 16}px)`,
+            }}
             >
               <AlertMessage
                 type={notification.type}

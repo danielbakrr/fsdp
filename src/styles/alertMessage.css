@@ -12,7 +12,13 @@
   --info-background: #0099cc30;
 }
 
-/* Notification Styles */
+.notifications-container {
+  position: absolute;
+  margin-top: 20px; 
+  right: 25px; 
+  z-index: 50;
+}
+
 .notification {
   display: flex;
   flex-direction: row;
@@ -22,7 +28,8 @@
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
   width: 270px;
   height: 60px;
-  top: 140px;
+  position: relative;
+  left: auto;
   overflow: hidden;
   animation: show 5s ease;
 }
