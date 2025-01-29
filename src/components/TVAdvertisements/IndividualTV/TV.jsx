@@ -5,12 +5,21 @@ import "./TV.css";
 
 const TV = () => {
   const { groupID, tvID } = useParams();
-  const { state } = useLocation();
+  const { state, search } = useLocation();
+  const queryParams = new URLSearchParams(search);
+  const groupNameFromUrl = queryParams.get("groupName");
+  const storedGroupName = localStorage.getItem("groupName");
+  const groupName =
+    state?.group?.groupName ||
+    groupNameFromUrl ||
+    storedGroupName ||
+    "Unknown Group";
 
   const [adsList, setAdsList] = useState([]);
   const [selectedAd, setSelectedAd] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [tvs, setTvs] = useState([]);
 
   useEffect(() => {
     fetchAllAds();
@@ -38,9 +47,10 @@ const TV = () => {
   };
 
   const handleAdChange = (event) => {
-    const newAd = adsList.find((ad) => ad.adID === event.target.value);
-    setSelectedAd(newAd);
-  };
+    const newAdID = event.target.value;
+    const selectedAdObject = adsList.find((ad) => ad.adID === newAdID);
+    setSelectedAd(selectedAdObject);
+  };  
 
   const handleConfirm = async () => {
     if (!selectedAd) {
@@ -85,10 +95,12 @@ const TV = () => {
         </Link>{" "}
         &gt;{" "}
         <Link
-          to={`/advertisement-display/tvgroups/${groupID}`}
+          to={`/advertisement-display/tvgroups/${groupID}?groupName=${encodeURIComponent(
+            groupName
+          )}`}
           className="breadcrumb-link"
         >
-          {state?.group?.groupName || "Unknown Group"}
+          {groupName}
         </Link>{" "}
         &gt; <span className="breadcrumb-current">TV {tvID}</span>
       </div>
@@ -112,11 +124,8 @@ const TV = () => {
 
             <div className="ad-selector">
               <label htmlFor="ad-select">Select Advertisement:</label>
-              <select
-                id="ad-select"
-                value={selectedAd.adID}
-                onChange={handleAdChange}
-              >
+              <select id="ad-select" value={selectedAd?.adID || ""} onChange={handleAdChange}>
+
                 {adsList.map((ad) => (
                   <option key={ad.adID} value={ad.adID}>
                     {ad.adTitle}

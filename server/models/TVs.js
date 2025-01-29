@@ -2,9 +2,8 @@ const { dynamoDb } = require("../awsConfig");
 const {
   ScanCommand,
   GetCommand,
-  PutCommand,
-  DeleteCommand,
   UpdateCommand,
+  DeleteCommand,
   QueryCommand,
   BatchWriteCommand,
 } = require("@aws-sdk/lib-dynamodb");
@@ -55,7 +54,7 @@ class TVs {
     };
 
     try {
-      await dynamoDb.send(new PutCommand(params));
+      await dynamoDb.send(new UpdateCommand(params));
     } catch (error) {
       throw new Error(`Error adding TV: ${error.message}`);
     }
@@ -105,21 +104,22 @@ class TVs {
   }
 
   // Update ad content for a TV by groupID and tvId
-  static async updateAdForTv(groupID, tvID, adContent) {
+  static async updateAdForTv(groupID, tvID, adID) {
     const params = {
       TableName: "TVs",
       Key: {
-        groupID: { S: groupID },
-        tvID: { S: tvID },
+        groupID: groupID,
+        tvID: tvID,
       },
-      UpdateExpression: "set adID = :adID",
+      UpdateExpression: "SET adID = :adID",
       ExpressionAttributeValues: {
-        ":adID": { S: adID },
+        ":adID": adID,
       },
     };
 
     try {
-      await dynamoDb.send(new UpdateCommand(params));
+      await dynamoDb.send(new UpdateCommand(params));  // Using PUTCommand instead of UpdateCommand
+      return { message: "Advertisement updated successfully" };
     } catch (error) {
       throw new Error(`Error updating ad content for TV: ${error.message}`);
     }

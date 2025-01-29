@@ -76,9 +76,16 @@ const deleteTv = async (req, res) => {
 };
 
 const updateAdForTv = async (req, res) => {
+  const { groupID, tvID } = req.params;
+  const { adID } = req.body;
+
+  if (!adID) {
+    return res.status(400).json({ error: "adID is required" });
+  }
+
   try {
-    await TVs.updateAdForTv(req.params.tvID, req.body.adContent);
-    res.status(200).json({ message: "Advertisement updated successfully" });
+    const updatedTv = await TVs.updateAdForTv(groupID, tvID, adID);
+    res.status(200).json({ message: updatedTv.message });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

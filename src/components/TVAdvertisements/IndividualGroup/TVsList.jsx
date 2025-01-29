@@ -16,13 +16,16 @@ const TVsList = () => {
 
   // Fetch TVs and ads on component mount and every 3 seconds
   useEffect(() => {
+    if (state?.group?.groupName) {
+      localStorage.setItem("groupName", state.group.groupName);
+    }
     fetchTvs(groupID);
     const intervalId = setInterval(() => {
       fetchTvs(groupID);
     }, 3000);
     return () => clearInterval(intervalId);
-  }, [groupID]);
-
+  }, [state, groupID]);
+  
   // Fetch TVs and their associated ads
   const fetchTvs = async (groupID) => {
     try {
@@ -173,7 +176,18 @@ const TVsList = () => {
           Group
         </Link>{" "}
         &gt;
-        <span> {state?.group?.groupName || "Unknown Group"}</span>
+        <Link
+          to={`/advertisement-display/tvgroups/${groupID}?groupName=${encodeURIComponent(
+            state?.group?.groupName ||
+              localStorage.getItem("groupName") ||
+              "Unknown Group"
+          )}`}
+          className="breadcrumb-link"
+        >
+          {state?.group?.groupName ||
+            localStorage.getItem("groupName") ||
+            "Unknown Group"}
+        </Link>
       </div>
 
       <div className="tvs-header-container">
