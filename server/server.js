@@ -12,21 +12,21 @@ const TVGroupController = require("./controllers/tvGroupController");
 const TVController = require("./controllers/TVController");
 
 const {
-    DynamoDBDocumentClient,
-    PutCommand,
-    DeleteCommand,
-    ScanCommand,
-    UpdateCommand,
-} = require('@aws-sdk/lib-dynamodb');
+  DynamoDBDocumentClient,
+  GetCommand,
+  PutCommand,
+  DeleteCommand,
+  ScanCommand,
+  UpdateCommand,
+} = require("@aws-sdk/lib-dynamodb");
 
 const {
-    S3Client,
-    PutObjectCommand,
-    DeleteObjectCommand,
-    ListObjectsV2Command,
-    GetObjectCommand,
-} = require('@aws-sdk/client-s3');
-
+  S3Client,
+  PutObjectCommand,
+  DeleteObjectCommand,
+  ListObjectsV2Command,
+  GetObjectCommand,
+} = require("@aws-sdk/client-s3");
 
 // Configure AWS clients
 const dynamoDBClient = new DynamoDBClient({ region: process.env.AWS_REGION });
@@ -82,123 +82,128 @@ io.on("connection", (socket) => {
 const storage = multer.memoryStorage();
 
 const upload = multer({
-    storage,
-    fileFilter: (req, file, cb) => {
-      if (!file.mimetype.startsWith('image/') && !file.mimetype.startsWith('video/')) {
-        return cb(new Error('Only image and video files are allowed!'), false);
-      }
-      cb(null, true);
-    },
-    limits: { fileSize: 50 * 1024 * 1024 }, // Increased limit to 50MB for videos
-  });
-  
-  app.post('/api/upload', upload.array('mediaFiles', 10), async (req, res) => {
-    try {
-      const { adTitle, coordinates } = req.body;
-      const metadata = JSON.parse(coordinates);
-      const adID = Date.now().toString();
-  
-      if (!req.files || req.files.length === 0) {
-        return res.status(400).json({ error: 'No media files uploaded.' });
-      }
-  
-      const mediaUrls = [];
-  
-      // Process and upload all media files
-      for (const file of req.files) {
-        const mediaType = file.mimetype.startsWith('image') ? 'images' : 'videos';
-        const s3Params = {
-          Bucket: process.env.S3_BUCKET_NAME,
-          Key: `${adID}-${file.originalname}`,
-          Body: file.buffer,
-          ContentType: file.mimetype,
-        };
-        await s3Client.send(new PutObjectCommand(s3Params));
-        const mediaUrl = `https://${process.env.S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${s3Params.Key}`;
-        mediaUrls.push({ mediaUrl, type: mediaType });
-      }
-  
-      // Save ad with media URLs in DynamoDB
-      const params = {
-        TableName: process.env.DYNAMODB_TABLE_ADVERTISEMENTS,
-        Item: {
-          adID,
-          adTitle,
-          mediaUrls,
-          metadata,
-        },
-      };
-      await ddbDocClient.send(new PutCommand(params));
-  
-      res.json({ message: 'Advertisement uploaded successfully', adID });
-    } catch (error) {
-      console.error('Error uploading advertisement:', error);
-      res.status(500).json({ error: 'Failed to upload advertisement' });
+  storage,
+  fileFilter: (req, file, cb) => {
+    if (
+      !file.mimetype.startsWith("image/") &&
+      !file.mimetype.startsWith("video/")
+    ) {
+      return cb(new Error("Only image and video files are allowed!"), false);
     }
-  });
-  
-// Retrieve Advertisements
-app.get('/api/Advertisements', async (req, res) => {
-    try {
-        const params = {
-            TableName: process.env.DYNAMODB_TABLE_ADVERTISEMENTS,
-        };
-        const data = await dynamoDBClient.send(new ScanCommand(params));
-        
-        // For each advertisement, add the direct S3 image URL
-        data.Items.forEach((item) => {
-            item.FileUrl = `https://${process.env.S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${item.adID}-${item.adTitle}`;
-        });
+    cb(null, true);
+  },
+  limits: { fileSize: 50 * 1024 * 1024 }, // Increased limit to 50MB for videos
+});
 
-        res.json(data.Items);
-    } catch (error) {
-        console.error('Error fetching advertisements:', error);
-        res.status(500).json({ message: 'Internal server error' });
+app.post("/api/upload", upload.array("mediaFiles", 10), async (req, res) => {
+  try {
+    const { adTitle, coordinates } = req.body;
+    const metadata = JSON.parse(coordinates);
+    const adID = Date.now().toString();
+
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({ error: "No media files uploaded." });
     }
+
+    const mediaUrls = [];
+
+    // Process and upload all media files
+    for (const file of req.files) {
+      const mediaType = file.mimetype.startsWith("image") ? "images" : "videos";
+      const s3Params = {
+        Bucket: process.env.S3_BUCKET_NAME,
+        Key: `${adID}-${file.originalname}`,
+        Body: file.buffer,
+        ContentType: file.mimetype,
+      };
+      await s3Client.send(new PutObjectCommand(s3Params));
+      const mediaUrl = `https://${process.env.S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${s3Params.Key}`;
+      mediaUrls.push({ mediaUrl, type: mediaType });
+    }
+
+    // Save ad with media URLs in DynamoDB
+    const params = {
+      TableName: process.env.DYNAMODB_TABLE_ADVERTISEMENTS,
+      Item: {
+        adID,
+        adTitle,
+        mediaUrls,
+        metadata,
+      },
+    };
+    await ddbDocClient.send(new PutCommand(params));
+
+    res.json({ message: "Advertisement uploaded successfully", adID });
+  } catch (error) {
+    console.error("Error uploading advertisement:", error);
+    res.status(500).json({ error: "Failed to upload advertisement" });
+  }
+});
+
+// Retrieve Advertisements
+app.get("/api/Advertisements", async (req, res) => {
+  try {
+    const params = {
+      TableName: process.env.DYNAMODB_TABLE_ADVERTISEMENTS,
+    };
+    const data = await dynamoDBClient.send(new ScanCommand(params));
+
+    // For each advertisement, add the direct S3 image URL
+    data.Items.forEach((item) => {
+      item.FileUrl = `https://${process.env.S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${item.adID}-${item.adTitle}`;
+    });
+
+    res.json(data.Items);
+  } catch (error) {
+    console.error("Error fetching advertisements:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
 });
 
 // Delete Advertisement
-app.delete('/api/delete/:adID', async (req, res) => {
-    const { adID } = req.params;
-  
-    try {
-      // List objects in S3 with prefix
-      const listParams = {
-        Bucket: process.env.S3_BUCKET_NAME,
-        Prefix: `${adID}-`, // Find files starting with "adID-"
-      };
-      const listResponse = await s3Client.send(new ListObjectsV2Command(listParams));
-  
-      if (!listResponse.Contents || listResponse.Contents.length === 0) {
-        return res.status(404).json({ message: 'Ad not found in S3' });
-      }
-  
-      // Extract the correct object key
-      const s3Key = listResponse.Contents[0].Key; // Assuming there's only one matching file
-  
-      // Delete from S3
-      const deleteParams = {
-        Bucket: process.env.S3_BUCKET_NAME,
-        Key: s3Key,
-      };
-      await s3Client.send(new DeleteObjectCommand(deleteParams));
-  
-      // Delete from DynamoDB
-      const ddbParams = {
-        TableName: process.env.DYNAMODB_TABLE_ADVERTISEMENTS,
-        Key: { adID },
-      };
-      await ddbDocClient.send(new DeleteCommand(ddbParams));
-  
-      res.json({ message: 'Advertisement deleted successfully' });
-    } catch (error) {
-      console.error('Error deleting advertisement:', error);
-      res.status(500).json({ message: 'Internal server error' });
-    }
-  });
+app.delete("/api/delete/:adID", async (req, res) => {
+  const { adID } = req.params;
 
-  app.post('/api/update-coordinates', async (req, res) => {
-    const { adID, coordinates } = req.body;
+  try {
+    // List objects in S3 with prefix
+    const listParams = {
+      Bucket: process.env.S3_BUCKET_NAME,
+      Prefix: `${adID}-`, // Find files starting with "adID-"
+    };
+    const listResponse = await s3Client.send(
+      new ListObjectsV2Command(listParams)
+    );
+
+    if (!listResponse.Contents || listResponse.Contents.length === 0) {
+      return res.status(404).json({ message: "Ad not found in S3" });
+    }
+
+    // Extract the correct object key
+    const s3Key = listResponse.Contents[0].Key; // Assuming there's only one matching file
+
+    // Delete from S3
+    const deleteParams = {
+      Bucket: process.env.S3_BUCKET_NAME,
+      Key: s3Key,
+    };
+    await s3Client.send(new DeleteObjectCommand(deleteParams));
+
+    // Delete from DynamoDB
+    const ddbParams = {
+      TableName: process.env.DYNAMODB_TABLE_ADVERTISEMENTS,
+      Key: { adID },
+    };
+    await ddbDocClient.send(new DeleteCommand(ddbParams));
+
+    res.json({ message: "Advertisement deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting advertisement:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+app.post("/api/update-coordinates", async (req, res) => {
+  const { adID, coordinates } = req.body;
 
   if (!adID || !coordinates) {
     return res
@@ -217,69 +222,77 @@ app.delete('/api/delete/:adID', async (req, res) => {
       ReturnValues: "UPDATED_NEW",
     };
 
-        const result = await ddbDocClient.send(new UpdateCommand(params));
-        res.json({ message: 'Coordinates updated successfully', updatedAttributes: result.Attributes });
-    } catch (error) {
-        console.error('Error updating coordinates:', error);
-        res.status(500).json({ error: 'Failed to update coordinates' });
-    }
+    const result = await ddbDocClient.send(new UpdateCommand(params));
+    res.json({
+      message: "Coordinates updated successfully",
+      updatedAttributes: result.Attributes,
+    });
+  } catch (error) {
+    console.error("Error updating coordinates:", error);
+    res.status(500).json({ error: "Failed to update coordinates" });
+  }
 });
 
-// update ad metadata 
-app.post('/api/update-ad', upload.single('image'), async (req, res) => {
-    const { adID, adTitle, coordinates } = req.body;
-    let imageUrl = null;
+// update ad metadata
+app.post("/api/update-ad", upload.single("image"), async (req, res) => {
+  const { adID, adTitle, coordinates } = req.body;
+  let imageUrl = null;
 
-    try {
-        if (!adID) {
-            return res.status(400).json({ error: "Missing adID, which is required to update an ad." });
-        }
-
-      const metadata = JSON.parse(coordinates);
-
-        if (req.file) {
-            // Resize the image based on metadata
-            const resizedImageBuffer = await sharp(req.file.buffer)
-                .resize(metadata.width, metadata.height) // Resize to provided dimensions
-                .toBuffer();
-
-        // Upload resized image to S3
-        const s3Params = {
-          Bucket: process.env.S3_BUCKET_NAME,
-          Key: `ads/${adID}-${req.file.originalname}`,
-          Body: resizedImageBuffer,
-          ContentType: req.file.mimetype,
-        };
-        await s3Client.send(new PutObjectCommand(s3Params));
-        imageUrl = `https://${process.env.S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${s3Params.Key}`;
-      }
-
-        const expressionAttributeValues = {
-            ':adTitle': adTitle,
-            ':metadata': metadata,
-        };
-
-        let updateExpression = 'set adTitle = :adTitle, metadata = :metadata';
-
-        if (imageUrl) {
-            updateExpression += ', imageUrl = :imageUrl';
-            expressionAttributeValues[':imageUrl'] = imageUrl;
-        }
-
-        const params = {
-            TableName: process.env.DYNAMODB_TABLE_ADVERTISEMENTS,
-            Key: { adID },
-            UpdateExpression: updateExpression,
-            ExpressionAttributeValues: expressionAttributeValues,
-            ReturnValues: 'UPDATED_NEW',
-        };
-
-        const response = await ddbDocClient.send(new UpdateCommand(params));
-        res.json({ message: 'Ad updated successfully', updatedAttributes: response.Attributes });
-    } catch (error) {
-        console.error('Error updating ad:', error);
-        res.status(500).json({ error: 'Failed to update ad' });
+  try {
+    if (!adID) {
+      return res
+        .status(400)
+        .json({ error: "Missing adID, which is required to update an ad." });
     }
+
+    const metadata = JSON.parse(coordinates);
+
+    if (req.file) {
+      // Resize the image based on metadata
+      const resizedImageBuffer = await sharp(req.file.buffer)
+        .resize(metadata.width, metadata.height) // Resize to provided dimensions
+        .toBuffer();
+
+      // Upload resized image to S3
+      const s3Params = {
+        Bucket: process.env.S3_BUCKET_NAME,
+        Key: `ads/${adID}-${req.file.originalname}`,
+        Body: resizedImageBuffer,
+        ContentType: req.file.mimetype,
+      };
+      await s3Client.send(new PutObjectCommand(s3Params));
+      imageUrl = `https://${process.env.S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${s3Params.Key}`;
+    }
+
+    const expressionAttributeValues = {
+      ":adTitle": adTitle,
+      ":metadata": metadata,
+    };
+
+    let updateExpression = "set adTitle = :adTitle, metadata = :metadata";
+
+    if (imageUrl) {
+      updateExpression += ", imageUrl = :imageUrl";
+      expressionAttributeValues[":imageUrl"] = imageUrl;
+    }
+
+    const params = {
+      TableName: process.env.DYNAMODB_TABLE_ADVERTISEMENTS,
+      Key: { adID },
+      UpdateExpression: updateExpression,
+      ExpressionAttributeValues: expressionAttributeValues,
+      ReturnValues: "UPDATED_NEW",
+    };
+
+    const response = await ddbDocClient.send(new UpdateCommand(params));
+    res.json({
+      message: "Ad updated successfully",
+      updatedAttributes: response.Attributes,
+    });
+  } catch (error) {
+    console.error("Error updating ad:", error);
+    res.status(500).json({ error: "Failed to update ad" });
+  }
 });
 
 // Retrieve Files with Signed URLs
