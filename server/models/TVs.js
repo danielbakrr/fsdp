@@ -125,6 +125,26 @@ class TVs {
       throw new Error(`Error updating ad content for TV: ${error.message}`);
     }
   }
+
+  // Update batch tvs
+  static async updateBatchTvs(groupID, tvIds, adID) {
+    const updateRequests = tvIds.map((tvID) => ({
+      PutRequest: {
+        Item: { groupID, tvID, adID},
+      },
+    }));
+
+    const params = {
+      RequestItems: {
+        TVs: updateRequests,
+      },
+    };
+    try {
+      await dynamoDb.send(new BatchWriteCommand(params));
+    } catch (error) {
+      throw new Error(`Error updating TVs: ${error.message}`);
+    }
+  }
 }
 
 module.exports = TVs;

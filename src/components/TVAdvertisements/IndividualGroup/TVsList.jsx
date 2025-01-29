@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate, Link, useParams } from "react-router-dom";
 import Navbar from "../../navbar";
-import "../../../styles/TVsList.css";
+import "./TVsList.css";
 import AddTvButton from "./addTVButton";
 import UpdateAll from "./updateAllButton";
+import SelectAdModal from "./selectAdModal";
 
 const TVsList = () => {
   const { groupID } = useParams();
@@ -11,6 +12,8 @@ const TVsList = () => {
   const [ads, setAds] = useState({});
   const [pinnedTvs, setPinnedTvs] = useState([]);
   const [error, setError] = useState("");
+  const [showModal, setShowModal] = useState(false);
+  const [selectedAd, setSelectedAd] = useState(null);
   const { state } = useLocation();
   const navigate = useNavigate();
 
@@ -26,7 +29,7 @@ const TVsList = () => {
     }, 3000);
     return () => clearInterval(intervalId);
   }, [state, groupID]);
-  
+
   // Fetch TVs and their associated ads
   const fetchTvs = async (groupID) => {
     try {
@@ -158,15 +161,30 @@ const TVsList = () => {
   };
 
   // Update ads for selected TVs
-  const updateAllAds = () => {
-    console.log("Updating ads for TVs:", pinnedTvs);
-    // Implement logic to update ads for selected TVs
-  };
+  const updateSelectedTvs = async (selectedAd, pinnedTvs) => {
+    setError("");
+    try {
+      // Send a request to update ads for the pinned TVs
+      const response = await fetch(`/tvgroups/${groupID}/tvs/batch-update`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ tvIds: pinnedTvs, adID: selectedAd.adID }),
+      });
 
-  // Update all TVs
-  const updateAllTvs = () => {
-    console.log("Updating all TVs");
-    // Implement logic to update all TVs
+      if (response.ok) {
+        fetchTvs(groupID);
+        console.log("Ads updated for selected TVs");
+      } else {
+        const data = await response.json();
+        setError(data.error || "Failed to update selected TVs");
+      }
+    } catch (error) {
+      setError(
+        error.message || "An error occurred while updating selected TVs"
+      );
+    }
   };
 
   return (
@@ -176,25 +194,16 @@ const TVsList = () => {
         <Link to="/advertisement-display" className="breadcrumb-link">
           Group
         </Link>{" "}
-        &gt;
-        <Link
-          to={`/advertisement-display/tvgroups/${groupID}?groupName=${encodeURIComponent(
-            state?.group?.groupName ||
-              localStorage.getItem("groupName") ||
-              "Unknown Group"
-          )}`}
-          className="breadcrumb-link"
-        >
-          {state?.group?.groupName ||
-            localStorage.getItem("groupName") ||
-            "Unknown Group"}
-        </Link>
+        &gt;{" "}
+        <span className="breadcrumb-current">
+          {" "}
+          {localStorage.getItem("groupName") || "Unknown Group"}
+        </span>
       </div>
-
       <div className="tvs-header-container">
         <div className="text">Available TVs</div>
         <div className="tv-button-container">
-          <button onClick={updateAllTvs}>
+          <button onClick={handleAddTv}>
             <UpdateAll />
           </button>
           <button onClick={handleAddTv}>
@@ -270,7 +279,7 @@ const TVsList = () => {
           ) : (
             <>
               <button onClick={handleDeleteMultipleTv}>Delete Selected</button>
-              <button onClick={updateAllAds}>Update All</button>
+              <button onClick={() => setShowModal(true)}>Update All</button>
               <button onClick={groupSelectedTvs}>Group TVs</button>
             </>
           )}
@@ -278,6 +287,14 @@ const TVsList = () => {
       )}
 
       {error && <div className="error-message">{error}</div>}
+      {/* Render the SelectAdModal */}
+      <SelectAdModal
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
+        onUpdate={updateSelectedTvs}
+        groupID={groupID}
+        pinnedTvs={pinnedTvs}
+      />
     </div>
   );
 };

@@ -421,6 +421,7 @@ app.post("/tvgroups/:groupID/tvs", TVController.addTv);
 app.delete("/tvgroups/:groupID/tvs/:tvID", TVController.deleteTv);
 app.put("/tvgroups/:groupID/tvs/:tvID", TVController.updateAdForTv);
 app.post("/tvgroups/:groupID/tvs/batch-delete", TVController.deleteTvs);
+app.post("/tvgroups/:groupID/tvs/batch-update", TVController.updateBatchTvs);
 
 // Start Server
 server.listen(PORT, () => {

@@ -23,6 +23,8 @@
 .breadcrumb-current {
   font-weight: bold;
   color: #333;
+  text-decoration: none;
+
 }
 
 /* TVs Header */

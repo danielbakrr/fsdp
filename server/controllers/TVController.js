@@ -107,6 +107,22 @@ const deleteTvs = async (req, res) => {
   }
 };
 
+const updateBatchTvs = async (req, res) => {
+  const { groupID } = req.params;
+  const { tvIds, adID } = req.body;
+
+  if (!Array.isArray(tvIds) || tvIds.length === 0) {
+    return res.status(400).json({ error: "No TV data provided for update" });
+  }
+
+  try {
+    await TVs.updateBatchTvs(groupID, tvIds, adID);
+    res.status(200).json({ message: "TVs updated successfully" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 module.exports = {
   getAllTvsByTVGroup,
   getTvById,
@@ -114,4 +130,6 @@ module.exports = {
   deleteTv,
   updateAdForTv,
   deleteTvs,
+  updateBatchTvs,
 };
+
