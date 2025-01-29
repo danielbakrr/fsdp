@@ -14,7 +14,7 @@ const DisplayUsers = () => {
     const [userPermissions,setUserPermissions] = useState([]);
     const [templatePermissions,setTemplatePermissions] = useState([]);
     const [roleName,setRoleName] = useState("");
-    const [role,selectRole] = useState("");
+    const [newRole,selectRole] = useState("");
     const [roles,setRoles] = useState([]);
     // Custom styles for react-select
     const customStyles = {
@@ -46,13 +46,24 @@ const DisplayUsers = () => {
 
     const handleTemplatePermissions = (selected)=> {
         setTemplatePermissions(selected); // Set selected items in the array
-    }   
+    }
 
     const options = [
         { value: 'view', label: 'view' },
         { value: 'update', label: 'update' },
         { value: 'delete', label: 'delete' }
     ]
+
+    const fetchAllRoles = async()=>{
+        try {
+            const response = await fetch("/api/getAllRoles");
+            const roles = await response.json();
+            setRoles(roles.roles);
+        }
+        catch (err){
+            console.error(err);
+        }
+    }
 
     const createNewRole = async ()=> {
         const newPermissions = [];
@@ -93,10 +104,10 @@ const DisplayUsers = () => {
     }
     // fetch the data in the useEffect (When component is rendered first time i fetch the data, subsequent re renders no need to fetch )
     useEffect(()=>{
-        // call fetch api to set the roles 
-        setRoles(["jeff","john","joseph"]);
         // call our fetch api method that sets the data 
         fetchUsers();
+        // call fetch api to set the roles 
+        fetchAllRoles();
     },[])
 
     const openAddRoleModal = () => {
@@ -123,6 +134,7 @@ const DisplayUsers = () => {
         }
        
     }
+
 
     createNewRole();
 
@@ -154,14 +166,18 @@ const DisplayUsers = () => {
                             <td>{user.email}</td>
                             <td>
                                 <Dropdown
-                                    buttonText= "Admin"
+                                    id = {user.userId}
+                                    buttonText= {newRole} // set it to the currentRole 
                                     content={
                                         <>
                                         {roles.map((role, id) => (
-                                            <DropdownItem key={id}>{`Item ${role}`}</DropdownItem>
+                                            <DropdownItem key={id} onClick={() => selectRole(role)}>{role}
+                                                
+                                            </DropdownItem>
                                         ))}
                                         </>
                                     }
+                                    
                                 />
                             </td>
                             <td>

@@ -1,5 +1,5 @@
 // method for retrieving role
-const { PutItemCommand, GetItemCommand } = require("@aws-sdk/client-dynamodb");
+const { PutItemCommand, GetItemCommand, ScanCommand } = require("@aws-sdk/client-dynamodb");
 const {dynamoDb} = require("../awsConfig");
 
 
@@ -96,6 +96,27 @@ class Role {
             }
 
             return res;
+        }
+    }
+
+    // Function to getAllRoles from the role table 
+    static async getAllRoles(){
+        const params = {
+            TableName: "Roles",
+            ProjectionExpression: "roleName"
+        }
+        const result = await dynamoDb.send(new ScanCommand(params));
+        console.log(JSON.stringify(result,null,2));
+        if (result.Items.length > 0){
+            // paerse the result 
+            return result.Items.map((row)=>{
+                const role = row.roleName.S;
+                console.log(role);
+                return role; // add role to result now (map basically creates a new array )
+            });
+        }
+        else{
+            return null;
         }
     }
     

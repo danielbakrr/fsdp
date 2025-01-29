@@ -4,7 +4,7 @@ import { useState } from "react"
 import DropDownContent from "../DropdownContent/dropdownContent"
 
 // pass the props to child component from parent component 
-const Dropdown = ({buttonText, content}) => {
+const Dropdown = ({buttonText, content,id}) => {
     const [open,setOpen] = useState(false);
     // set the open to true (dropdown is toggled open )
     const toggleDropDown = ()=> {

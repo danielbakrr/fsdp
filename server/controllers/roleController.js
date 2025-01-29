@@ -41,7 +41,24 @@ const getPermissions = async(req,res) => {
     }
 }
 
+const getRoles = async(req,res) =>{
+    try{
+        const roles = await Role.getAllRoles();
+        if (roles != null){
+            return res.status(200).json({"message": "Sucessfully retrieved all roles", "roles": roles});
+        }
+        else {
+            return res.status(400).send("There are no roles")
+        }
+    }
+    catch (err){
+        console.error(err);
+        res.status(500).send("Internal server error");
+    }
+}
+
 module.exports = {
     createRole,
-    getPermissions
+    getPermissions, 
+    getRoles
 }
