@@ -112,9 +112,9 @@ class TVs {
         groupID: { S: groupID },
         tvID: { S: tvID },
       },
-      UpdateExpression: "set adContent = :adContent",
+      UpdateExpression: "set adID = :adID",
       ExpressionAttributeValues: {
-        ":adContent": { S: adContent },
+        ":adID": { S: adID },
       },
     };
 

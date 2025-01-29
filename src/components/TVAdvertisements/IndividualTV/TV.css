@@ -1,0 +1,71 @@
+/* Breadcrumb */
+.breadcrumb {
+    margin: 20px 0;
+    font-size: 16px;
+    color: #666;
+  }
+  
+  .breadcrumb-link {
+    text-decoration: none;
+    color: #007bff;
+  }
+  
+  .breadcrumb-link:hover {
+    text-decoration: underline;
+  }
+  
+  .breadcrumb-current {
+    font-weight: bold;
+    color: #333;
+  }
+  
+  /* TV Container */
+  .tv-container {
+    padding: 20px;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  
+  .tv-container h1 {
+    font-size: 24px;
+    margin-bottom: 20px;
+  }
+  
+  /* Ad Preview */
+  .ad-preview {
+    margin-bottom: 20px;
+    text-align: center;
+  }
+  
+  .ad-image {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Ad Selector */
+  .ad-selector {
+    margin-bottom: 20px;
+  }
+  
+  .ad-selector label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+  }
+  
+  .ad-selector select {
+    width: 100%;
+    padding: 8px;
+    font-size: 16px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+  }
+  
+  /* Error Message */
+  .error-message {
+    color: #dc3545;
+    font-weight: bold;
+    text-align: center;
+  }

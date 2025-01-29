@@ -1,16 +1,16 @@
 import React from 'react';
-import { FaTv } from 'react-icons/fa'; // Import the TV icon from react-icons
+import { FaSync } from 'react-icons/fa'; // Correct icon import
 import styled from "styled-components";
 
-const AddTVButton = () => {
+const UpdateAll = () => {
     return (
         <StyledWrapper>
-            <ul className="add-tv-button">
+            <ul className="update-all-button">
                 <li className="icon-content">
-                    <div className="tv">
-                        <FaTv />
+                    <div className="update">
+                        <FaSync /> 
                     </div>
-                    <div className="text">Add TV</div>
+                    <div className="text">Update All</div>
                 </li>
             </ul>
         </StyledWrapper>
@@ -18,7 +18,7 @@ const AddTVButton = () => {
 };
 
 const StyledWrapper = styled.div`
-    .add-tv-button {
+    .update-all-button {
         display: flex;
         justify-content: center;
         align-items: center;
@@ -32,20 +32,22 @@ const StyledWrapper = styled.div`
         position: relative;
     }
 
-    .tv {
+    .update {
         display: flex;
         justify-content: center;
         align-items: center;
-        width: 75px;
-        height: 55px; 
+        width: 85px;
+        height: 40px; 
         border-radius: 10%;
-        color:rgb(255, 255, 255); 
-        font-size: 32px; 
+        color: rgba(213, 205, 240, 0.87);
+        font-size: 25px; 
         transition: color 0.3s ease-in-out;
-        background-color: rgb(231, 226, 226); 
+        background-color: white;
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
     }
 
-    .add-tv-button:hover .tv {
+    /* Fix hover effect */
+    .update-all-button:hover .update {
         color: rgb(179, 139, 255); 
     }
 
@@ -65,11 +67,11 @@ const StyledWrapper = styled.div`
         white-space: nowrap;     
     }
 
-    .add-tv-button:hover .icon-content .text {
+    .update-all-button:hover .icon-content .text {
         opacity: 1;
         visibility: visible;
         top: -50px;
     }
 `;
 
-export default AddTVButton;
+export default UpdateAll;

@@ -3,23 +3,27 @@ import { useLocation, useNavigate, Link, useParams } from "react-router-dom";
 import Navbar from "../../navbar";
 import "../../../styles/TVsList.css";
 import AddTvButton from "./addTVButton";
+import UpdateAll from "./updateAllButton";
 
 const TVsList = () => {
   const { groupID } = useParams();
   const [tvs, setTvs] = useState([]);
   const [ads, setAds] = useState({});
-  const [selectedTvs, setSelectedTvs] = useState([]);
   const [pinnedTvs, setPinnedTvs] = useState([]);
   const [error, setError] = useState("");
   const { state } = useLocation();
   const navigate = useNavigate();
 
+  // Fetch TVs and ads on component mount and every 3 seconds
   useEffect(() => {
-    if (state?.group) {
-      fetchTvs(state.group.groupID);
-    }
-  }, [state]);
+    fetchTvs(groupID);
+    const intervalId = setInterval(() => {
+      fetchTvs(groupID);
+    }, 3000);
+    return () => clearInterval(intervalId);
+  }, [groupID]);
 
+  // Fetch TVs and their associated ads
   const fetchTvs = async (groupID) => {
     try {
       const response = await fetch(`/tvgroups/${groupID}/tvs`);
@@ -29,14 +33,16 @@ const TVsList = () => {
         setTvs(tvData);
       }
 
+      // Fetch ads for each TV
       const adPromises = tvData.map(async (tv) => {
         if (tv.adID) {
-            const adResponse = await fetch(`/advertisements/${tv.adID}`);
-            const adData = await adResponse.json();
-            return { [tv.tvID]: adData };
+          const adResponse = await fetch(`/advertisements/${tv.adID}`);
+          const adData = await adResponse.json();
+          return { [tv.tvID]: adData };
         }
         return null;
       });
+
       const adResults = await Promise.all(adPromises);
       const adMap = adResults.reduce((acc, ad) => {
         if (ad) {
@@ -47,9 +53,11 @@ const TVsList = () => {
       setAds(adMap);
     } catch (error) {
       console.error("Error fetching TVs or ads:", error);
+      setError("Failed to fetch TVs or ads. Please try again.");
     }
   };
 
+  // Add a new TV
   const handleAddTv = async () => {
     setError("");
     try {
@@ -62,7 +70,7 @@ const TVsList = () => {
       });
       const data = await response.json();
       if (response.ok) {
-        setTvs((prevTvs = []) => [...prevTvs, data.tvData]);
+        setTvs((prevTvs) => [...prevTvs, data.tvData]);
       } else {
         setError(data.error || "Failed to add TV");
       }
@@ -71,6 +79,7 @@ const TVsList = () => {
     }
   };
 
+  // Delete multiple TVs
   const handleDeleteMultipleTv = async () => {
     setError("");
     try {
@@ -95,6 +104,7 @@ const TVsList = () => {
     }
   };
 
+  // Delete a single TV
   const handleDeleteTv = async () => {
     setError("");
     try {
@@ -127,6 +137,7 @@ const TVsList = () => {
     }
   };
 
+  // Toggle pin for a TV
   const togglePin = (tvID) => {
     setPinnedTvs((prevPinned) => {
       if (prevPinned.includes(tvID)) {
@@ -137,12 +148,21 @@ const TVsList = () => {
     });
   };
 
+  // Group selected TVs
   const groupSelectedTvs = () => {
     navigate("/tv-groups", { state: { selectedTvs: pinnedTvs } });
   };
 
+  // Update ads for selected TVs
   const updateAllAds = () => {
     console.log("Updating ads for TVs:", pinnedTvs);
+    // Implement logic to update ads for selected TVs
+  };
+
+  // Update all TVs
+  const updateAllTvs = () => {
+    console.log("Updating all TVs");
+    // Implement logic to update all TVs
   };
 
   return (
@@ -153,14 +173,14 @@ const TVsList = () => {
           Group
         </Link>{" "}
         &gt;
-        <span> {state?.group?.groupName}</span>
+        <span> {state?.group?.groupName || "Unknown Group"}</span>
       </div>
 
       <div className="tvs-header-container">
         <div className="text">Available TVs</div>
         <div className="tv-button-container">
-          <button className="update-ad-button">
-            <p>Update All</p>
+          <button onClick={updateAllTvs}>
+            <UpdateAll />
           </button>
           <button onClick={handleAddTv}>
             <AddTvButton />
@@ -178,6 +198,7 @@ const TVsList = () => {
                 key={index}
                 className={`tv-card ${isPinned ? "pinned" : ""}`}
               >
+                {/* Pin Button (Outside the Link) */}
                 <label className="container">
                   <input
                     type="checkbox"
@@ -206,19 +227,19 @@ const TVsList = () => {
                   </svg>
                 </label>
 
-                <h1>{`TV ${tv.tvID}`}</h1>
-
-                {ad && ad.imageUrl ? (
-                  <a
-                    href={`/tvs/${tv.tvID}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
+                {/* Card Content (Inside the Link) */}
+                <Link
+                  to={`/advertisement-display/tvgroups/${groupID}/tvs/${tv.tvID}`}
+                  className="tv-card-link"
+                  state={{ group: { groupName: state?.group?.groupName } }}
+                >
+                  <h1>{`TV ${tv.tvID}`}</h1>
+                  {ad && ad.imageUrl ? (
                     <img src={ad.imageUrl} alt={`Ad for TV ${tv.tvID}`} />
-                  </a>
-                ) : (
-                  <p>No ad available</p>
-                )}
+                  ) : (
+                    <p>No ad available - Click to select an ad</p>
+                  )}
+                </Link>
               </div>
             );
           })
@@ -240,6 +261,8 @@ const TVsList = () => {
           )}
         </div>
       )}
+
+      {error && <div className="error-message">{error}</div>}
     </div>
   );
 };

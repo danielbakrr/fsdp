@@ -6,7 +6,8 @@ import TemplateManagement from './components/AdList';
 import TemplatePage from './components/templatePage';
 import ViewAllTemplates from "./components/viewAllTemplates";
 import AdvertisementDisplay from "./components/TVAdvertisements/TVGroups/advertisement";
-import TVsList from "./components/TVAdvertisements/IndividualTVs/TVsList";
+import TVsList from "./components/TVAdvertisements/IndividualGroup/TVsList";
+import TV from "./components/TVAdvertisements/IndividualTV/TV";
 import Calendar from './components/Calender';
 
 import Home from './components/home';
@@ -23,6 +24,7 @@ const App = () => {
         <Route path="/calendar" element={<Calendar />} />
         <Route path="/advertisement-display" element={<AdvertisementDisplay />} /> {/* New route */}
         <Route path="/advertisement-display/tvgroups/:groupID" element={<TVsList/>} />
+        <Route path="/advertisement-display/tvgroups/:groupID/tvs/:tvID" element={<TV />} />
         {/* Default route for undefined paths */}
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>

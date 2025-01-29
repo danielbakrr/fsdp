@@ -1,7 +1,7 @@
 /* TVs List Page */
 .tvs-page {
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  padding: 20px;
+  padding: 15px;
 }
 
 /* Breadcrumb */
@@ -45,6 +45,11 @@
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
+.tv-card-link{
+  display: block;
+  text-decoration: none;
+  color: inherit;
+}
 /* TV Card Title */
 .tv-card h1 {
   font-size: 18px;
@@ -71,11 +76,9 @@
 /* Buttons */
 .tv-button-container {
   display: flex;
-  gap: 10px;
-}
+  }
 
 .tv-button-container button {
-  padding: 10px 20px;
   color: white;
   border: none;
   border-radius: 5px;
