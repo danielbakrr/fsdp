@@ -19,6 +19,7 @@ const TVsList = () => {
     if (state?.group?.groupName) {
       localStorage.setItem("groupName", state.group.groupName);
     }
+
     fetchTvs(groupID);
     const intervalId = setInterval(() => {
       fetchTvs(groupID);

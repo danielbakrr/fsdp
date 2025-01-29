@@ -5,6 +5,7 @@ const {
   UpdateCommand,
   DeleteCommand,
   QueryCommand,
+  PutCommand,
   BatchWriteCommand,
 } = require("@aws-sdk/lib-dynamodb");
 
@@ -54,7 +55,7 @@ class TVs {
     };
 
     try {
-      await dynamoDb.send(new UpdateCommand(params));
+      await dynamoDb.send(new PutCommand(params));
     } catch (error) {
       throw new Error(`Error adding TV: ${error.message}`);
     }
