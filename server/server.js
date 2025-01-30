@@ -1,4 +1,4 @@
-require("dotenv").config();
+const dotenv = require("dotenv");
 const express = require("express");
 const cors = require("cors");
 const { dynamoDb } = require("./awsConfig");
@@ -42,6 +42,8 @@ const s3Client = new S3Client({
   },
 });
 
+dotenv.config();
+
 // Express App Setup
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -57,7 +59,6 @@ app.use(
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-
 // WebSocket Setup
 const server = http.createServer(app);
 const io = new Server(server, {
@@ -70,15 +71,27 @@ const io = new Server(server, {
 io.on("connection", (socket) => {
   console.log(`User Connected: ${socket.id}`);
 
+  // Handle TV connection
   socket.on("join_tv", (tvID) => {
     socket.join(tvID);
     console.log(`User ${socket.id} joined TV room: ${tvID}`);
+
+    // Notify all clients that a TV has connected
+    io.emit("tv_connected", { tvId: tvID });
   });
 
-  socket.on("send_message", (data) => {
-    const { tv, message } = data;
-    console.log(`Sending message to TV room: ${tv}`);
-    io.to(tv).emit("receive_message", { message, tv });
+  // Handle ad updates
+  socket.on("ad_update", (data) => {
+    const { tvId, ad } = data;
+    console.log(`Received ad update for TV: ${tvId}`);
+
+    // Broadcast the ad update to the relevant TV room
+    io.to(tvId).emit("ad_update", { ad });
+  });
+
+  // Handle disconnection
+  socket.on("disconnect", () => {
+    console.log(`User Disconnected: ${socket.id}`);
   });
 });
 
@@ -86,52 +99,51 @@ io.on("connection", (socket) => {
 const storage = multer.memoryStorage();
 
 const upload = multer({
-    storage,
-    fileFilter: (req, file, cb) => {
-        if (!file.mimetype.startsWith('image/')) {
-            return cb(new Error('Only image files are allowed!'), false);
-        }
-        cb(null, true);
-    },
-    limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+  storage,
+  fileFilter: (req, file, cb) => {
+    if (!file.mimetype.startsWith("image/")) {
+      return cb(new Error("Only image files are allowed!"), false);
+    }
+    cb(null, true);
+  },
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
 });
 
 // Upload and Save Ad
-app.post('/api/upload', upload.single('image'), async (req, res) => {
-    try {
-      const { adTitle, coordinates } = req.body;
-      const metadata = JSON.parse(coordinates);
-      const adID = Date.now().toString();
-  
-      // Upload image to S3
-      const s3Params = {
-        Bucket: process.env.S3_BUCKET_NAME,
-        Key: `${adID}-${req.file.originalname}`,
-        Body: req.file.buffer,
-        ContentType: req.file.mimetype,
-      };
-      await s3Client.send(new PutObjectCommand(s3Params));
-      const imageUrl = `https://${process.env.S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${s3Params.Key}`;
-  
-      // Save advertisement details in DynamoDB
-      const params = {
-        TableName: process.env.DYNAMODB_TABLE_ADVERTISEMENTS,
-        Item: {
-          adID,
-          adTitle,
-          imageUrl,
-          metadata,
-        },
-      };
-      await ddbDocClient.send(new PutCommand(params));
-  
-      res.json({ message: 'Advertisement uploaded successfully', adID });
-    } catch (error) {
-      console.error('Error uploading advertisement:', error);
-      res.status(500).json({ error: 'Failed to upload advertisement' });
-    }
-  });
+app.post("/api/upload", upload.single("image"), async (req, res) => {
+  try {
+    const { adTitle, coordinates } = req.body;
+    const metadata = JSON.parse(coordinates);
+    const adID = Date.now().toString();
 
+    // Upload image to S3
+    const s3Params = {
+      Bucket: process.env.S3_BUCKET_NAME,
+      Key: `${adID}-${req.file.originalname}`,
+      Body: req.file.buffer,
+      ContentType: req.file.mimetype,
+    };
+    await s3Client.send(new PutObjectCommand(s3Params));
+    const imageUrl = `https://${process.env.S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${s3Params.Key}`;
+
+    // Save advertisement details in DynamoDB
+    const params = {
+      TableName: process.env.DYNAMODB_TABLE_ADVERTISEMENTS,
+      Item: {
+        adID,
+        adTitle,
+        imageUrl,
+        metadata,
+      },
+    };
+    await ddbDocClient.send(new PutCommand(params));
+
+    res.json({ message: "Advertisement uploaded successfully", adID });
+  } catch (error) {
+    console.error("Error uploading advertisement:", error);
+    res.status(500).json({ error: "Failed to upload advertisement" });
+  }
+});
 
 // Retrieve Advertisements
 app.get("/api/Advertisements", async (req, res) => {
@@ -195,9 +207,9 @@ app.delete("/api/delete/:adID", async (req, res) => {
   }
 });
 
-  // update coordinates
-  app.post('/api/update-coordinates', async (req, res) => {
-    const { adID, coordinates } = req.body;
+// update coordinates
+app.post("/api/update-coordinates", async (req, res) => {
+  const { adID, coordinates } = req.body;
 
   if (!adID || !coordinates) {
     return res
@@ -270,13 +282,13 @@ app.post("/api/update-ad", upload.single("image"), async (req, res) => {
       expressionAttributeValues[":imageUrl"] = imageUrl;
     }
 
-        const params = {
-            TableName: process.env.DYNAMODB_TABLE_NAME,
-            Key: { adID },
-            UpdateExpression: updateExpression,
-            ExpressionAttributeValues: expressionAttributeValues,
-            ReturnValues: 'UPDATED_NEW',
-        };
+    const params = {
+      TableName: process.env.DYNAMODB_TABLE_NAME,
+      Key: { adID },
+      UpdateExpression: updateExpression,
+      ExpressionAttributeValues: expressionAttributeValues,
+      ReturnValues: "UPDATED_NEW",
+    };
 
     const response = await ddbDocClient.send(new UpdateCommand(params));
     res.json({
@@ -393,35 +405,28 @@ app.post("/api/upload-file", upload.single("file"), (req, res) => {
 
   const fileUrl = `http://localhost:${PORT}/uploads/${file.filename}`;
   // need get the presigned url
-  
 
   io.to(tv).emit("receive_message", { message: fileUrl, tv });
 
   res.status(200).json({ fileUrl });
 });
 
+// Routes for user authentication
+app.post("/api/userLogin", authController.login);
+app.post("/api/userSignUp", authController.signUp);
 
-// Routes for user authentication 
-app.post('/api/userLogin',authController.login);
-app.post('/api/userSignUp',authController.signUp);
+// Route for roles
 
-// Route for roles 
+app.get("/api/get-rolePermissions/:roleId", roleController.getPermissions);
+app.post("/api/create-userRole", roleController.createRole);
+app.get("/api/getAllRoles", roleController.getRoles);
 
-app.get('/api/get-rolePermissions/:roleId',roleController.getPermissions);
-app.post('/api/create-userRole',roleController.createRole);
-app.get('/api/getAllRoles',roleController.getRoles);
-
-
-// Route for Account 
-app.post('/api/edit-userRole/:uuid',accountController.editUserRole);
-app.get('/api/get-userById/:uuid',accountController.getUserById);
-app.get('/api/get-userByEmail',accountController.getUserByEmail);
-app.get('/api/get-allUsers',accountController.getAllUsers);
-app.delete('/api/delete-user/:uuid',accountController.deleteUser);
-
-
-
-
+// Route for Account
+app.post("/api/edit-userRole/:uuid", accountController.editUserRole);
+app.get("/api/get-userById/:uuid", accountController.getUserById);
+app.get("/api/get-userByEmail", accountController.getUserByEmail);
+app.get("/api/get-allUsers", accountController.getAllUsers);
+app.delete("/api/delete-user/:uuid", accountController.deleteUser);
 
 // Routes for TVs
 app.get("/tvgroups/:groupID/tvs/:tvID", TVController.getTvById);
