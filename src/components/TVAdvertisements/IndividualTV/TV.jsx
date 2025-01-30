@@ -50,7 +50,7 @@ const TV = () => {
     const newAdID = event.target.value;
     const selectedAdObject = adsList.find((ad) => ad.adID === newAdID);
     setSelectedAd(selectedAdObject);
-  };  
+  };
 
   const handleConfirm = async () => {
     if (!selectedAd) {
@@ -84,6 +84,10 @@ const TV = () => {
     }
   };
 
+  const isVideo = (url) => {
+    return url.match(/\.(mp4|webm|ogg)$/i);
+  };
+  
   return (
     <div className="TV">
       <Navbar />
@@ -115,17 +119,31 @@ const TV = () => {
         ) : selectedAd ? (
           <>
             <div className="ad-preview">
-              <img
-                src={selectedAd.imageUrl}
-                alt={`Ad for TV ${tvID}`}
-                className="ad-image"
-              />
+              {selectedAd && selectedAd.mediaUrl ? (
+                isVideo(selectedAd.mediaUrl) ? (
+                  <video controls autoPlay loop className="ad-video">
+                    <source src={selectedAd.mediaUrl} type="video/mp4" />
+                    Your browser does not support the video tag.
+                  </video>
+                ) : (
+                  <img
+                    src={selectedAd.mediaUrl}
+                    alt={`Ad for TV ${tvID}`}
+                    className="ad-image"
+                  />
+                )
+              ) : (
+                <p>No ad selected</p>
+              )}
             </div>
 
             <div className="ad-selector">
               <label htmlFor="ad-select">Select Advertisement:</label>
-              <select id="ad-select" value={selectedAd?.adID || ""} onChange={handleAdChange}>
-
+              <select
+                id="ad-select"
+                value={selectedAd?.adID || ""}
+                onChange={handleAdChange}
+              >
                 {adsList.map((ad) => (
                   <option key={ad.adID} value={ad.adID}>
                     {ad.adTitle}
