@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
-import '../styles/ImageEditor.css';
+import '../styles/AdForm.css';
 
-const ImageEditor = () => {
+const AdForm = () => {
   const [image, setImage] = useState(null);
   const [adTitle, setAdTitle] = useState('');
   const [isDragging, setIsDragging] = useState(false);
@@ -169,4 +169,4 @@ const ImageEditor = () => {
   );
 };
 
-export default ImageEditor;
+export default AdForm;

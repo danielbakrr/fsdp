@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import '../styles/ImageEditor.css';
+import '../styles/AdForm.css';
 
 const AdList = () => {
   const [ads, setAds] = useState([]);
