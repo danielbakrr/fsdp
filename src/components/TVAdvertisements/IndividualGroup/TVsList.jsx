@@ -187,6 +187,30 @@ const TVsList = () => {
     }
   };
 
+  const updateAllTvs = async (selectedAd) =>{
+    setError("");
+    try {
+      const tvIds = tvs.map((tv) => tv.tvID);
+      const response = await fetch(`/tvgroups/${groupID}/tvs/batch-update`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ tvIds, adID: selectedAd.adID }),
+        
+      });
+      if(response.ok){
+        fetchTvs(groupID);
+        console.log("Ads updated for all TVs");
+      }else{
+        const data = await response.json(); 
+        setError(data.error || "Failed to update all TVs");
+      }
+    }catch(error){
+      setError(error.message || "An error occurred while updating all TVs");
+    }
+  };
+
   return (
     <div className="tvs-page">
       <Navbar />
@@ -203,7 +227,7 @@ const TVsList = () => {
       <div className="tvs-header-container">
         <div className="text">Available TVs</div>
         <div className="tv-button-container">
-          <button onClick={handleAddTv}>
+        <button onClick={() => setShowModal(true)}>
             <UpdateAll />
           </button>
           <button onClick={handleAddTv}>
@@ -291,7 +315,7 @@ const TVsList = () => {
       <SelectAdModal
         isOpen={showModal}
         onClose={() => setShowModal(false)}
-        onUpdate={updateSelectedTvs}
+        onUpdate={updateAllTvs}
         groupID={groupID}
         pinnedTvs={pinnedTvs}
       />
