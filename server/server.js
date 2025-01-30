@@ -10,6 +10,9 @@ const bodyParser = require("body-parser");
 const { DynamoDBClient } = require("@aws-sdk/client-dynamodb");
 const TVGroupController = require("./controllers/tvGroupController");
 const TVController = require("./controllers/TVController");
+const roleController = require("./controllers/roleController");
+const accountController = require("./controllers/accountController");
+const authController = require("./controllers/authController");
 
 const {
   DynamoDBDocumentClient,
@@ -53,6 +56,7 @@ app.use(
 );
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+
 
 // WebSocket Setup
 const server = http.createServer(app);
@@ -356,31 +360,6 @@ app.get("/advertisements", async (req, res) => {
   }
 });
 
-// Delete File
-/*app.delete('/api/delete-file/:fileKey', async (req, res) => {
-    const { fileKey } = req.params;
-    try {
-        // Delete from S3
-        const deleteParams = {
-            Bucket: process.env.S3_BUCKET_NAME,
-            Key: fileKey,
-        };
-        await s3Client.send(new DeleteObjectCommand(deleteParams));
-
-        // Delete from DynamoDB
-        const deleteDynamoParams = {
-            TableName: process.env.DYNAMODB_TABLE_FILES,
-            Key: { FileId: fileKey },
-        };
-        await dynamoDBClient.send(new DeleteCommand(deleteDynamoParams));
-
-        res.json({ message: 'File deleted successfully' });
-    } catch (error) {
-        console.error('Error deleting file:', error);
-        res.status(500).json({ message: 'Internal server error' });
-    }
-});*/
-
 // Routes for tv groups
 app.get("/tvgroups/:id", TVGroupController.getTVGroupsById);
 app.get("/tvgroups", async (req, res) => {
@@ -403,6 +382,46 @@ app.get("/tvgroups", async (req, res) => {
 app.post("/tvgroups", TVGroupController.addTVGroup);
 app.put("/tvgroups/:groupID", TVGroupController.updateTVGroup);
 app.delete("/tvgroups/:groupID", TVGroupController.deleteTVGroup);
+
+app.post("/api/upload-file", upload.single("file"), (req, res) => {
+  const { tv } = req.body;
+  const file = req.file;
+
+  if (!file) {
+    return res.status(400).json({ message: "No file uploaded" });
+  }
+
+  const fileUrl = `http://localhost:${PORT}/uploads/${file.filename}`;
+  // need get the presigned url
+  
+
+  io.to(tv).emit("receive_message", { message: fileUrl, tv });
+
+  res.status(200).json({ fileUrl });
+});
+
+
+// Routes for user authentication 
+app.post('/api/userLogin',authController.login);
+app.post('/api/userSignUp',authController.signUp);
+
+// Route for roles 
+
+app.get('/api/get-rolePermissions/:roleId',roleController.getPermissions);
+app.post('/api/create-userRole',roleController.createRole);
+app.get('/api/getAllRoles',roleController.getRoles);
+
+
+// Route for Account 
+app.post('/api/edit-userRole/:uuid',accountController.editUserRole);
+app.get('/api/get-userById/:uuid',accountController.getUserById);
+app.get('/api/get-userByEmail',accountController.getUserByEmail);
+app.get('/api/get-allUsers',accountController.getAllUsers);
+app.delete('/api/delete-user/:uuid',accountController.deleteUser);
+
+
+
+
 
 // Routes for TVs
 app.get("/tvgroups/:groupID/tvs/:tvID", TVController.getTvById);

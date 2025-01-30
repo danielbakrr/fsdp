@@ -1,0 +1,36 @@
+{
+    "roleId": {
+        "S": "rId001"
+    },
+    "permissions": {
+        "L": [
+            {
+                "M": {
+                    "Actions": {
+                        "L": [
+                            {
+                                "S": "get"
+                            },
+                            {
+                                "S": "view"
+                            },
+                            {
+                                "S": "edit"
+                            }
+                        ]
+                    },
+                    "resource": {
+                        "S": "Advertisements"
+                    }
+                }
+            }
+        ]
+    },
+    "roleName": {
+        "S": "Admin"
+    }
+}
+
+
+
+

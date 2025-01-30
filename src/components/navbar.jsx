@@ -25,6 +25,9 @@ const Navbar = () => {
           <li>
             <Link to="/advertisement-display">Advertisement Display</Link> {/* New link */}
           </li>
+          <li>
+            <Link to="/manage-users">Manage Users</Link> {/* New link */}
+          </li>
         </ul>
       </nav>
     </div>

@@ -2,6 +2,7 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import TemplateEditor from './components/AdForm';
+import Login from './components/login';
 import TemplateManagement from './components/AdList';
 import TemplatePage from './components/templatePage';
 import ViewAllTemplates from "./components/viewAllTemplates";
@@ -11,12 +12,14 @@ import TV from "./components/TVAdvertisements/IndividualTV/TV";
 import Calendar from './components/Calender';
 
 import Home from './components/home';
+import DisplayUsers from './components/UserManagement/users';
 
 const App = () => {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Home />} />
+        <Route path = "/Home" element = {<Home/>} />
+        <Route path="/" element={<Login/>} />
         <Route path="/manage-templates" element={<TemplatePage />} />
         <Route path="/manage-templates/view-all" element={<ViewAllTemplates />} />
         <Route path="/template-management" element={<TemplateManagement />} />
@@ -25,6 +28,7 @@ const App = () => {
         <Route path="/advertisement-display" element={<AdvertisementDisplay />} /> {/* New route */}
         <Route path="/advertisement-display/tvgroups/:groupID" element={<TVsList/>} />
         <Route path="/advertisement-display/tvgroups/:groupID/tvs/:tvID" element={<TV />} />
+        <Route path= "/manage-users" element = {<DisplayUsers/>} />
         {/* Default route for undefined paths */}
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
