@@ -1,4 +1,3 @@
-const { NIL } = require("uuid");
 const Account = require("../models/Account")
 
 const getUserById = async(req,res) => {
@@ -6,7 +5,7 @@ const getUserById = async(req,res) => {
     console.log(userId)
     if (userId != null){
         try{
-            const user = await Account.getUserByUserId(userId);
+            const user = await Account.getUserById(userId);
             console.log(user);
             if(user != null){
                 const {userId,email,registeredDate,role} = user;

@@ -12,6 +12,7 @@ const TVGroupController = require("./controllers/tvGroupController");
 const TVController = require("./controllers/TVController");
 const roleController = require("./controllers/roleController");
 const accountController = require("./controllers/accountController");
+const authController = require("./controllers/authController");
 
 const {
   DynamoDBDocumentClient,

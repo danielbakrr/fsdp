@@ -11,6 +11,7 @@ import TV from "./components/TVAdvertisements/IndividualTV/TV";
 import Calendar from './components/Calender';
 
 import Home from './components/home';
+import DisplayUsers from './components/UserManagement/users';
 
 const App = () => {
   return (
@@ -25,6 +26,7 @@ const App = () => {
         <Route path="/advertisement-display" element={<AdvertisementDisplay />} /> {/* New route */}
         <Route path="/advertisement-display/tvgroups/:groupID" element={<TVsList/>} />
         <Route path="/advertisement-display/tvgroups/:groupID/tvs/:tvID" element={<TV />} />
+        <Route path= "/manage-users" element = {<DisplayUsers/>} />
         {/* Default route for undefined paths */}
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
