@@ -1,0 +1,153 @@
+/* TVs List Page */
+.tvs-page {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  padding: 15px;
+}
+
+/* Breadcrumb */
+.breadcrumb {
+  margin: 20px 0;
+  font-size: 16px;
+  color: #666;
+}
+
+.breadcrumb-link {
+  text-decoration: none;
+  color: #007bff;
+}
+
+.breadcrumb-link:hover {
+  text-decoration: underline;
+}
+
+.breadcrumb-current {
+  font-weight: bold;
+  color: #333;
+  text-decoration: none;
+
+}
+
+/* TVs Header */
+.tvs-header .text {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+/* TVs List Container */
+.tvs-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+/* TV Card */
+.tv-card {
+  position: relative;
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 14px;
+  text-align: center;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.tv-card-link{
+  display: block;
+  text-decoration: none;
+  color: inherit;
+}
+/* TV Card Title */
+.tv-card h1 {
+  font-size: 18px;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+/* TV Card Image */
+.tv-card img {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 0;
+  margin-bottom: 5px;
+  margin-top: 5px;
+}
+
+/* Fallback Text */
+.tv-card p {
+  font-size: 14px;
+  color: #888;
+}
+
+/* Buttons */
+.tv-button-container {
+  display: flex;
+  }
+
+.tv-button-container button {
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  background-color: white;
+}
+
+.update-ad-button {
+  color: #007bff;
+}
+.container input:checked ~ .pin {
+  fill: rgb(179, 139, 255);
+  stroke: white;
+}
+.container input:checked ~ .pin line {
+  stroke: rgb(179, 139, 255);
+}
+.container input:checked ~ .pin path {
+  stroke: rgb(179, 139, 255);
+}
+.container:active {
+  transform: scale(0.9);
+}
+.container input {
+  display: none;
+}
+.pin {
+  width: 15px;
+  height: auto;
+  transform: rotate(35deg);
+}
+.container {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 45px;
+  height: 45px;
+  background-color: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border-radius: 10px;
+}
+
+.container:hover {
+  background-color: rgb(244, 238, 255);
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.041);
+}
+
+.tv-card.pinned {
+  border: 2px solid #2260ff;
+  box-shadow: 0 5px 10px rgba(0, 0, 255, 0.2); 
+}
+.tv-card .pin:hover {
+  cursor: pointer;
+}
+
+.tvs-header-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}

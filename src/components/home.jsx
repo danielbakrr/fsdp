@@ -30,14 +30,6 @@ const Home = () => {
               <button className="dashboard-btn">Create Templates</button>
             </Link>
           </div>
-
-          <div className="dashboard-section">
-            <h2>User management</h2>
-            <p>Create custom roles, manage user roles and access to resources</p>
-            <Link to="/manage-users">
-              <button className="dashboard-btn">Manage users</button>
-            </Link>
-          </div>
         </div>
       </div>
     </div>
