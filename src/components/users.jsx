@@ -87,6 +87,28 @@ const DisplayUsers = () => {
         { value: 'delete', label: 'delete' },
     ]
 
+
+    const deleteUser = async(userId)=> {
+        try{
+            const response = await fetch(`/api/delete-user/${userId}`,{
+                'method':'DELETE',
+                'headers':{
+                    'content-type': 'application/json'
+                }
+            });
+            if(response.status == 200){
+                const message = await response.json();
+                console.log(message);
+                alert(message)
+            }
+            else{
+                alert("Unable to delete user");
+            }
+        }
+        catch(err){
+            console.error(err);
+        }
+    }
     const fetchAllRoles = async()=>{
         try {
             const response = await fetch("/api/getAllRoles");
@@ -228,7 +250,7 @@ const DisplayUsers = () => {
                             </td>
                             <td>
                                {/* A delete icon to put */}
-                               <div className = "delete-btn">
+                               <div className = "delete-btn" onClick = {(e)=> deleteUser(user.userId)}>
                                     <MdDelete/>
                                     <span>Delete user</span>
                                </div>
