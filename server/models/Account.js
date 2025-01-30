@@ -183,10 +183,7 @@ class Account {
 
         try {
             const deleteUser = await dynamoDb.send(new DeleteItemCommand(params));
-            console.log(JSON.stringify(deleteUser,null,2));
-            if (deleteUser.Attributes != null){
-                return deleteUser.Attributes.userId.S
-            }
+            return deleteUser.Attributes.email.S || null;
         }
 
         catch(err){

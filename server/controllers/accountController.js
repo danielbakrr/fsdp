@@ -1,3 +1,4 @@
+const { NIL } = require("uuid");
 const Account = require("../models/Account")
 
 const getUserById = async(req,res) => {
@@ -106,8 +107,9 @@ const deleteUser = async (req,res) => {
     if (userId != null){
         try {
             const deletedUser = await Account.deleteUser(userId);
+            console.log(deletedUser);
             if(deletedUser != null){
-                return res.status(200).json({"message": `The user with user id ${userId} has been sucessfully deleted`,"userId":deleteUser})
+                return res.status(200).send(`The user with email ${deletedUser} has been sucessfully removed`);
             }
             else {
                 return res.status(404).send("Unable to find the requested user please select an existing user")
