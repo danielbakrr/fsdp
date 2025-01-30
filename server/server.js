@@ -21,7 +21,6 @@ const {
     PutObjectCommand,
     DeleteObjectCommand,
     ListObjectsV2Command,
-    GetObjectCommand,
 } = require('@aws-sdk/client-s3');
 
 
@@ -73,51 +72,53 @@ io.on('connection', (socket) => {
 const storage = multer.memoryStorage();
 
 const upload = multer({
-    storage,
-    fileFilter: (req, file, cb) => {
-        if (!file.mimetype.startsWith('image/')) {
-            return cb(new Error('Only image files are allowed!'), false);
-        }
-        cb(null, true);
-    },
-    limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+  storage,
+  fileFilter: (req, file, cb) => {
+      if (!file.mimetype.startsWith('image/') && !file.mimetype.startsWith('video/')) {
+          return cb(new Error('Only image and video files are allowed!'), false);
+      }
+      cb(null, true);
+  },
+  limits: { fileSize: 200 * 1024 * 1024 }, // Increased to 50MB for videos
 });
 
 // Upload and Save Ad
-app.post('/api/upload', upload.single('image'), async (req, res) => {
-    try {
+app.post('/api/upload', upload.single('media'), async (req, res) => {
+  try {
       const { adTitle, coordinates } = req.body;
       const metadata = JSON.parse(coordinates);
       const adID = Date.now().toString();
-  
-      // Upload image to S3
+      const isVideo = req.file.mimetype.startsWith('video/');
+
+      // Upload media to S3
       const s3Params = {
-        Bucket: process.env.S3_BUCKET_NAME,
-        Key: `${adID}-${req.file.originalname}`,
-        Body: req.file.buffer,
-        ContentType: req.file.mimetype,
+          Bucket: process.env.S3_BUCKET_NAME,
+          Key: `${adID}-${req.file.originalname}`,
+          Body: req.file.buffer,
+          ContentType: req.file.mimetype,
       };
       await s3Client.send(new PutObjectCommand(s3Params));
-      const imageUrl = `https://${process.env.S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${s3Params.Key}`;
-  
+      const mediaUrl = `https://${process.env.S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${s3Params.Key}`;
+
       // Save advertisement details in DynamoDB
       const params = {
-        TableName: process.env.DYNAMODB_TABLE_ADVERTISEMENTS,
-        Item: {
-          adID,
-          adTitle,
-          imageUrl,
-          metadata,
-        },
+          TableName: process.env.DYNAMODB_TABLE_ADVERTISEMENTS,
+          Item: {
+              adID,
+              adTitle,
+              mediaUrl,
+              mediaType: isVideo ? 'video' : 'image',
+              metadata,
+          },
       };
       await ddbDocClient.send(new PutCommand(params));
-  
+
       res.json({ message: 'Advertisement uploaded successfully', adID });
-    } catch (error) {
+  } catch (error) {
       console.error('Error uploading advertisement:', error);
       res.status(500).json({ error: 'Failed to upload advertisement' });
-    }
-  });
+  }
+});
 
 
 // Retrieve Advertisements

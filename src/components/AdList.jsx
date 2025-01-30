@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import '../styles/AdForm.css';
 
 const AdList = () => {
@@ -201,15 +201,27 @@ const AdList = () => {
                 }}
                 onMouseDown={(e) => handleMouseDown(e, ad)}
               >
-                <img
-                  src={ad.imageUrl}
-                  alt={ad.adTitle}
-                  style={{
-                    width: `${ad.metadata?.width || 100}px`,
-                    height: `${ad.metadata?.height || 100}px`,
-                    objectFit: 'cover',
-                  }}
-                />
+                {ad.mediaType === 'video' ? (
+                  <video
+                    src={ad.mediaUrl}
+                    style={{
+                      width: `${ad.metadata?.width || 100}px`,
+                      height: `${ad.metadata?.height || 100}px`,
+                      objectFit: 'cover',
+                    }}
+                    controls
+                  />
+                ) : (
+                  <img
+                    src={ad.mediaUrl}
+                    alt={ad.adTitle}
+                    style={{
+                      width: `${ad.metadata?.width || 100}px`,
+                      height: `${ad.metadata?.height || 100}px`,
+                      objectFit: 'cover',
+                    }}
+                  />
+                )}
 
                 {['top-left', 'top-right', 'bottom-left', 'bottom-right', 'top', 'bottom', 'left', 'right'].map((dir) => (
                   <div
