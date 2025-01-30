@@ -57,6 +57,7 @@ app.use(
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
+
 // WebSocket Setup
 const server = http.createServer(app);
 const io = new Server(server, {
@@ -358,31 +359,6 @@ app.get("/advertisements", async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 });
-
-// Delete File
-/*app.delete('/api/delete-file/:fileKey', async (req, res) => {
-    const { fileKey } = req.params;
-    try {
-        // Delete from S3
-        const deleteParams = {
-            Bucket: process.env.S3_BUCKET_NAME,
-            Key: fileKey,
-        };
-        await s3Client.send(new DeleteObjectCommand(deleteParams));
-
-        // Delete from DynamoDB
-        const deleteDynamoParams = {
-            TableName: process.env.DYNAMODB_TABLE_FILES,
-            Key: { FileId: fileKey },
-        };
-        await dynamoDBClient.send(new DeleteCommand(deleteDynamoParams));
-
-        res.json({ message: 'File deleted successfully' });
-    } catch (error) {
-        console.error('Error deleting file:', error);
-        res.status(500).json({ message: 'Internal server error' });
-    }
-});*/
 
 // Routes for tv groups
 app.get("/tvgroups/:id", TVGroupController.getTVGroupsById);

@@ -2,6 +2,7 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import TemplateEditor from './components/AdForm';
+import Login from './components/login';
 import TemplateManagement from './components/AdList';
 import TemplatePage from './components/templatePage';
 import ViewAllTemplates from "./components/viewAllTemplates";
@@ -17,7 +18,8 @@ const App = () => {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Home />} />
+        <Route path = "/Home" element = {<Home/>} />
+        <Route path="/" element={<Login/>} />
         <Route path="/manage-templates" element={<TemplatePage />} />
         <Route path="/manage-templates/view-all" element={<ViewAllTemplates />} />
         <Route path="/template-management" element={<TemplateManagement />} />

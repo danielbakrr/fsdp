@@ -75,14 +75,14 @@ class Account {
         }
         try {
             const response = await dynamoDb.send(new ScanCommand(params));
-            if(response.Items[0] != null){
-                const user = response.Items[0];
-                console.log(JSON.stringify(user,null,2));
-                return user;
+            if (response.Items[0] != null){
+                console.log(JSON.stringify(response.Items[0],null,2));
+                return response.Items[0]
             }
             else {
                 return null;
             }
+           
         }
         catch (err){
             console.log(err);
@@ -121,13 +121,19 @@ class Account {
             KeyConditionExpression: 'userId = :partKeyVal',
             // Define the alias value 
             ExpressionAttributeValues:{
-                ':partKeyVal': userId
+                ':partKeyVal': marshall(userId),
             },
-            ProjectionExpression: 'role'
+            ExpressionAttributeNames:{
+                '#roleName': "role"
+            },
+            ProjectionExpression: "#roleName"
         }
+        const command = new QueryCommand(params);
+        console.log(JSON.stringify(command,null,2));
         try {
             const response = await dynamoDb.send(new QueryCommand(params));
-            return response.Item[0].role.S || null;
+            return response.Items[0].role.S || null;
+            
         }
         catch (err){
             console.log(err);

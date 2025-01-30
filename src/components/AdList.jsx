@@ -202,7 +202,7 @@ const AdList = () => {
                 onMouseDown={(e) => handleMouseDown(e, ad)}
               >
                 <img
-                  src={ad.imageUrl}
+                  src={ad.mediaUrl}
                   alt={ad.adTitle}
                   style={{
                     width: `${ad.metadata?.width || 100}px`,

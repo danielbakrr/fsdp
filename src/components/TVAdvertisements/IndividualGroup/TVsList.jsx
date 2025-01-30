@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate, Link, useParams } from "react-router-dom";
 import Navbar from "../../navbar";
-import "./TvsList.css";
+import "./TVsList.css";
 import AddTvButton from "./addTVButton";
 import UpdateAll from "./updateAllButton";
 import SelectAdModal from "./selectAdModal";
@@ -211,6 +211,10 @@ const TVsList = () => {
     }
   };
 
+  const isVideo = (url) => {
+    return url.match(/\.(mp4|webm|ogg)$/i);
+  };
+  
   return (
     <div className="tvs-page">
       <Navbar />
@@ -282,8 +286,15 @@ const TVsList = () => {
                   state={{ group: { groupName: state?.group?.groupName } }}
                 >
                   <h1>{`TV ${tv.tvID}`}</h1>
-                  {ad && ad.imageUrl ? (
-                    <img src={ad.imageUrl} alt={`Ad for TV ${tv.tvID}`} />
+                  {ad && ad.mediaUrl ? (
+                    isVideo(ad.mediaUrl) ? (
+                      <video controls autoPlay loop>
+                        <source src={ad.mediaUrl} type="video/mp4" />
+                        Your browser does not support the video tag.
+                      </video>
+                    ) : (
+                      <img src={ad.mediaUrl} alt={`Ad for TV ${tv.tvID}`} />
+                    )
                   ) : (
                     <p>No ad available - Click to select an ad</p>
                   )}

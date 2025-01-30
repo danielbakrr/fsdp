@@ -2,12 +2,14 @@
 const bcrypt = require('bcrypt');
 const Account = require('../models/Account');
 const {Role} = require('../models/role');
-const {jwt} = require("jsonwebtoken");
+const jwt = require("jsonwebtoken");
 const { json } = require('body-parser');
 const { v4: uuidv4 } = require('uuid');
 const dotenv = require("dotenv")
 // Export the account class 
 dotenv.config();
+
+console.log(process.env.JWT_SECRET);
 const login = async(req,res) => {
     // get the user with the password and generate the JWT Token 
     // Add 2FA (MFA) when logging in 
@@ -28,22 +30,26 @@ const login = async(req,res) => {
         const userRole = await Account.getRole(user.userId);
         if (userRole != null){
             // retrieve the corresponding role's permissions
-            const permissions = Role.getPermissions(userRole);
+            const permissions = await Role.getPermissions(userRole);
+            console.log(userRole);
+            console.log(JSON.stringify(permissions,null,2));
             const payload = {
                 "userId": user.userId,
                 "userName": `${user.firstName} + " " + ${user.lastName}`,
                 "role": user.role,
                 "permissions": permissions
             }
+
+            console.log(payload);
             // jwt sign 
-            const accessToken = jwt.sign(process.env.JWT_SECRET,payload);
+            const accessToken = jwt.sign(payload,process.env.JWT_SECRET,{expiresIn: '1h'});
             res.status(200).json({message: "The user has sucessfully logged in",token:accessToken});
         }
         
  
     }
     catch (err){
-        console.errror(err);
+        console.error(err);
         return res.status(500).send("Internal Server Error");
     }
 }

@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import "../styles/login.css"; 
 import logo from "../assets/githubbies-logo.jpg";
+import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
+    let navigate = useNavigate();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
@@ -13,7 +15,7 @@ const Login = () => {
         setLoading(true);
         setError('');
         try {
-            const response = await fetch('userLogin/', { // Update to the correct endpoint
+            const response = await fetch('/api/userLogin', { // Update to the correct endpoint
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',               
@@ -30,6 +32,7 @@ const Login = () => {
 
             console.log('Login successful', data);
             localStorage.setItem('token', data.token); // Save token
+            navigate('/Home');
 
             
         
