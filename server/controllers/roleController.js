@@ -2,6 +2,7 @@ const {Role} = require("../models/role");
 
 const createRole = async (req,res) => {
     const {roleName,permissions} = req.body;
+    console.log(roleName,permissions);
     try {
         const newRole = new Role(roleName,permissions);
         const roleCreated = await Role.createRole(newRole);

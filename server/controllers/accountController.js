@@ -1,8 +1,7 @@
 const Account = require("../models/Account")
 
 const getUserById = async(req,res) => {
-    const {uuid} = req.params;
-    const userId = uuid.split(":")[1]
+    const userId = req.params.uuid;
     console.log(userId)
     if (userId != null){
         try{
@@ -62,13 +61,13 @@ const getUserByEmail = async (req,res) => {
 // promise is resolved 
 
 const editUserRole = async(req,res) => {
-    const {uuid} = req.params;
-    const userId = uuid.split(":")[1]
-    console.log(userId)
-    const {newRole} = req.body
+    const userId = req.params.uuid;
+    const newRole = req.body.role;
     if (userId && newRole != null){
         // call the async function
         try {
+            console.log(userId);
+            console.log(newRole);
             const roleUpdateResult = await Account.editUserRole(userId,newRole);
             console.log(roleUpdateResult);
             if (roleUpdateResult == null){
@@ -102,9 +101,29 @@ const getAllUsers = async(req,res) => {
     }
 }
 
+const deleteUser = async (req,res) => {
+    const userId = req.params.uuid;
+    if (userId != null){
+        try {
+            const deletedUser = await Account.deleteUser(userId);
+            if(deletedUser != null){
+                return res.status(200).json({"message": `The user with user id ${userId} has been sucessfully deleted`,"userId":deleteUser})
+            }
+            else {
+                return res.status(404).send("Unable to find the requested user please select an existing user")
+            }
+        }
+
+        catch (err){
+            console.error(err);
+            return res.status(500).send("Internal server error");
+        }
+    }
+}
 module.exports = {
     getUserById,
     getUserByEmail,
     editUserRole,
-    getAllUsers
+    getAllUsers,
+    deleteUser
 }

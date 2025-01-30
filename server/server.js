@@ -281,11 +281,13 @@ app.get('/api/get-rolePermissions/:roleId',roleController.getPermissions);
 app.post('/api/create-userRole',roleController.createRole);
 app.get('/api/getAllRoles',roleController.getRoles);
 
+
 // Route for Account 
 app.post('/api/edit-userRole/:uuid',accountController.editUserRole);
 app.get('/api/get-userById/:uuid',accountController.getUserById);
 app.get('/api/get-userByEmail',accountController.getUserByEmail);
 app.get('/api/get-allUsers',accountController.getAllUsers);
+app.delete('/api/delete-user/:uuid',accountController.deleteUser);
 
 
 

@@ -14,7 +14,7 @@ const DisplayUsers = () => {
     const [userPermissions,setUserPermissions] = useState([]);
     const [templatePermissions,setTemplatePermissions] = useState([]);
     const [roleName,setRoleName] = useState("");
-    const [newRole,selectRole] = useState("");
+    const [newRole,selectRole] = useState({});
     const [roles,setRoles] = useState([]);
     // Custom styles for react-select
     const customStyles = {
@@ -36,6 +36,38 @@ const DisplayUsers = () => {
         }),
     };
 
+    const handleSelectedRole = (dropdownId,role,oldRole) => {
+        selectRole((prevRoles)=> ({
+            ...prevRoles,
+            [dropdownId]:role
+        }))
+        if (role != oldRole){
+            console.log(role);
+            editRole(dropdownId,role);
+        }
+        else {
+            alert("New role selected is the same")
+        }
+    }
+
+    const editRole = async (userId,newRole)=> {
+        const response = await fetch(`/api/edit-userRole/${userId}`,{
+            method: "POST",
+            headers: {
+                "content-type": "application/json"
+            },
+            body: JSON.stringify({
+                role: newRole
+            })
+        });
+        if (response.status == 200){
+            alert("User role has been sucessfully updated");
+
+        }
+        else {
+            alert("Internal server error");
+        }
+    }
     const handleAdPermissions = (selected)=> {
         setAdPermissions(selected); // Set selected items in the array
     }    
@@ -49,9 +81,10 @@ const DisplayUsers = () => {
     }
 
     const options = [
+        {value: 'create', label:'create'},
         { value: 'view', label: 'view' },
         { value: 'update', label: 'update' },
-        { value: 'delete', label: 'delete' }
+        { value: 'delete', label: 'delete' },
     ]
 
     const fetchAllRoles = async()=>{
@@ -64,7 +97,6 @@ const DisplayUsers = () => {
             console.error(err);
         }
     }
-
     const createNewRole = async ()=> {
         const newPermissions = [];
         if (adPermissions.length > 0){
@@ -94,11 +126,28 @@ const DisplayUsers = () => {
         console.log(JSON.stringify(newPermissions,null,2));
 
         const request = {
-            role: roleName,
-            newPermissions
+            roleName: roleName,
+            permissions: newPermissions
         }
-        
-        console.log(JSON.stringify(request,null,2));
+
+        console.log(request);
+
+        const response = await fetch('/api/create-userRole',{
+            'method': 'POST',
+            'headers': {
+                'content-type': 'application/json',
+            },
+            'body': JSON.stringify(request)
+        })
+
+        if (response.status == 200){
+            // alert the user of sucessful role creation 
+            alert(`The role ${roleName} has been created sucessfully`);
+
+        }
+        else {
+            alert("Internal server error");
+        }
 
         
     }
@@ -135,9 +184,6 @@ const DisplayUsers = () => {
        
     }
 
-
-    createNewRole();
-
     // return the react component 
     return (
         <div className = "usersTableContainer">
@@ -167,11 +213,11 @@ const DisplayUsers = () => {
                             <td>
                                 <Dropdown
                                     id = {user.userId}
-                                    buttonText= {newRole} // set it to the currentRole 
+                                    buttonText={newRole[user.userId] || user.role} // Show selected role for each dropdown
                                     content={
                                         <>
                                         {roles.map((role, id) => (
-                                            <DropdownItem key={id} onClick={() => selectRole(role)}>{role}
+                                            <DropdownItem key={id} onClick={() => handleSelectedRole(user.userId,role,user.role)}>{role}
                                                 
                                             </DropdownItem>
                                         ))}
@@ -246,7 +292,7 @@ const DisplayUsers = () => {
                                 onChange={setTemplatePermissions}
                             />
                         </div>
-                        <button className = "submit-btn">
+                        <button className = "submit-btn" onClick = {(e) => createNewRole()}>
                             Submit
                         </button>
                     </div>

@@ -1,7 +1,7 @@
-const { QueryCommand, DynamoDBServiceException, GetItemCommand, ReturnValue, UpdateItemCommand } = require('@aws-sdk/client-dynamodb');
+const { QueryCommand, DynamoDBServiceException, GetItemCommand, ReturnValue, UpdateItemCommand, DeleteItemCommand } = require('@aws-sdk/client-dynamodb');
 const {dynamoDb} = require('../awsConfig')
 const { marshall, unmarshall } = require("@aws-sdk/util-dynamodb");
-const {PutCommand, ScanCommand, DeleteCommand} = require('@aws-sdk/lib-dynamodb')
+const {PutCommand, ScanCommand} = require('@aws-sdk/lib-dynamodb')
 class Account {
     constructor(userId, registeredDate, email, hashedPassword, firstName, lastName,role){
         this.userId = userId;
@@ -170,6 +170,29 @@ class Account {
             return null;
         }
 
+    }
+
+    static async deleteUser(userId){
+        const params = {
+            TableName: 'Users',
+            Key:{
+                userId:marshall(userId),
+            },
+            ReturnValues: "ALL_OLD"
+        }
+
+        try {
+            const deleteUser = await dynamoDb.send(new DeleteItemCommand(params));
+            console.log(JSON.stringify(deleteUser,null,2));
+            if (deleteUser.Attributes != null){
+                return deleteUser.Attributes.userId.S
+            }
+        }
+
+        catch(err){
+            console.log(err);
+            return null;
+        }
     }
 
 

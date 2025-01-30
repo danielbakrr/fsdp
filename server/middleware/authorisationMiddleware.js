@@ -24,11 +24,11 @@ function verifyJWT(req,res,next){
 
         // List of authorizedRoutes for each user
         const authorizedRoutes = {
-            "/get-advertisments" : {"action": "view", "resource": "Advertisements"},
-            "/upload-advertisement/^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i": {"action": "create", "resource": "Advertisements"},
-            "/update-userRole": {"action": "update", "resource":"User"},
-            "/update-campaigns": {"action": "update", "resource": "Campaigns"},
-            "/view-campaigns": {"action": "view", "resource": "Campaigns"}
+            "/api/get-advertisments" : {"action": "view", "resource": "Advertisements"},
+            "/api/upload-advertisement/^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i": {"action": "create", "resource": "Advertisements"},
+            "/api/update-userRole": {"action": "update", "resource":"User"},
+            "/api/update-campaigns": {"action": "update", "resource": "Campaigns"},
+            "/api/view-campaigns": {"action": "view", "resource": "Campaigns"}
         }
         // match the permissions of each use to a route in authroized role  
         const requestedEndpoint = req.url;
