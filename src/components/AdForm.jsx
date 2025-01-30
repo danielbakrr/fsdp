@@ -2,51 +2,97 @@ import React, { useState, useRef } from 'react';
 import '../styles/ImageEditor.css';
 
 const ImageEditor = () => {
-  const [media, setMedia] = useState([]); // Store multiple media files
+  const [image, setImage] = useState(null);
   const [adTitle, setAdTitle] = useState('');
-  const [draggingIndex, setDraggingIndex] = useState(null);
+  const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
-  const [resizingIndex, setResizingIndex] = useState(null);
-  const imageRefs = useRef([]); // References for each media item for resizing
+  const [imagePosition, setImagePosition] = useState({ x: 200, y: 200 });
+  const [imageSize, setImageSize] = useState({ width: 200, height: 200 });
+  const [resizing, setResizing] = useState(false);
+  const [resizeDirection, setResizeDirection] = useState(null);
+  const imageRef = useRef(null);
 
-  const handleMediaUpload = (e) => {
-    const files = Array.from(e.target.files);
-    const mediaData = files.map((file) => {
-      return {
-        url: URL.createObjectURL(file),
-        type: file.type.startsWith('image') ? 'image' : 'video',
-        file,
-        position: { x: 100, y: 100 },
-        size: { width: 200, height: 200 },
-      };
-    });
-    setMedia([...media, ...mediaData]);
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => setImage(e.target.result);
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleMouseDown = (e) => {
+    if (e.target.classList.contains('resize-handle')) {
+      setResizing(true);
+      setResizeDirection(e.target.dataset.direction);
+    } else {
+      setIsDragging(true);
+      setDragOffset({
+        x: e.clientX - imagePosition.x,
+        y: e.clientY - imagePosition.y,
+      });
+    }
+  };
+
+  const handleMouseMove = (e) => {
+    if (isDragging) {
+      setImagePosition({
+        x: e.clientX - dragOffset.x,
+        y: e.clientY - dragOffset.y,
+      });
+    } else if (resizing && resizeDirection) {
+      const deltaX = e.clientX - imagePosition.x;
+      const deltaY = e.clientY - imagePosition.y;
+
+      let newWidth = imageSize.width;
+      let newHeight = imageSize.height;
+
+      if (resizeDirection.includes('right')) newWidth = deltaX;
+      if (resizeDirection.includes('bottom')) newHeight = deltaY;
+      if (resizeDirection.includes('left')) {
+        newWidth = imageSize.width - (e.movementX);
+        setImagePosition((prev) => ({ ...prev, x: prev.x + e.movementX }));
+      }
+      if (resizeDirection.includes('top')) {
+        newHeight = imageSize.height - (e.movementY);
+        setImagePosition((prev) => ({ ...prev, y: prev.y + e.movementY }));
+      }
+
+      setImageSize({
+        width: Math.max(newWidth, 50),
+        height: Math.max(newHeight, 50),
+      });
+    }
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+    setResizing(false);
+    setResizeDirection(null);
   };
 
   const handleSave = async () => {
-    if (media.length === 0 || !adTitle) {
-      alert('Please upload media and provide an ad title.');
+    if (!image || !adTitle) {
+      alert('Please upload an image and provide an ad title.');
       return;
     }
-
+  
     const formData = new FormData();
-    media.forEach((item) => formData.append('mediaFiles', item.file));
+    formData.append('image', dataURLtoFile(image, `${adTitle}.png`));
     formData.append('adTitle', adTitle);
-    formData.append('coordinates', JSON.stringify(
-      media.map((item) => ({
-        x: item.position.x,
-        y: item.position.y,
-        width: item.size.width,
-        height: item.size.height,
-      }))
-    ));
-
+    formData.append('coordinates', JSON.stringify({
+      x: imagePosition.x,
+      y: imagePosition.y,
+      width: imageSize.width,
+      height: imageSize.height,
+    }));
+  
     try {
       const response = await fetch('http://localhost:5000/api/upload', {
         method: 'POST',
         body: formData,
       });
-
+  
       const data = await response.json();
       if (response.ok) {
         alert('Ad uploaded successfully!');
@@ -59,106 +105,66 @@ const ImageEditor = () => {
       alert('An error occurred while uploading the ad.');
     }
   };
+  
+  // Helper to convert data URL to a File object
+  const dataURLtoFile = (dataurl, filename) => {
+    const arr = dataurl.split(',');
+    const mime = arr[0].match(/:(.*?);/)[1];
+    const bstr = atob(arr[1]);
+    let n = bstr.length;
+    const u8arr = new Uint8Array(n);
+    while (n--) {
+      u8arr[n] = bstr.charCodeAt(n);
+    }
+    return new File([u8arr], filename, { type: mime });
+  };
+  
 
   const handleDelete = () => {
-    setMedia([]);
+    setImage(null);
+    setImagePosition({ x: 100, y: 100 });
+    setImageSize({ width: 200, height: 200 });
     setAdTitle('');
-  };
-
-  const handleDragStart = (index, e) => {
-    setDraggingIndex(index);
-    setDragOffset({ x: e.clientX, y: e.clientY });
-  };
-
-  const handleDragMove = (e) => {
-    if (draggingIndex !== null) {
-      const deltaX = e.clientX - dragOffset.x;
-      const deltaY = e.clientY - dragOffset.y;
-      setDragOffset({ x: e.clientX, y: e.clientY });
-
-      setMedia((prevMedia) => {
-        const updatedMedia = [...prevMedia];
-        updatedMedia[draggingIndex].position.x += deltaX;
-        updatedMedia[draggingIndex].position.y += deltaY;
-        return updatedMedia;
-      });
-    }
-  };
-
-  const handleDragEnd = () => {
-    setDraggingIndex(null);
-  };
-
-  const handleResizeStart = (index, e) => {
-    setResizingIndex(index);
-    e.stopPropagation();
-  };
-
-  const handleResizeMove = (e) => {
-    if (resizingIndex !== null) {
-      setMedia((prevMedia) => {
-        const updatedMedia = [...prevMedia];
-        const mediaItem = updatedMedia[resizingIndex];
-        mediaItem.size = {
-          width: Math.max(mediaItem.size.width + e.movementX, 50),
-          height: Math.max(mediaItem.size.height + e.movementY, 50),
-        };
-        return updatedMedia;
-      });
-    }
-  };
-
-  const handleResizeEnd = () => {
-    setResizingIndex(null);
   };
 
   return (
     <div
       className="editor-container"
-      onMouseMove={(e) => { handleDragMove(e); handleResizeMove(e); }}
-      onMouseUp={() => { handleDragEnd(); handleResizeEnd(); }}
-      onMouseLeave={() => { handleDragEnd(); handleResizeEnd(); }}
+      onMouseMove={handleMouseMove}
+      onMouseUp={handleMouseUp}
+      onMouseLeave={handleMouseUp}
     >
-      <input type="file" multiple onChange={handleMediaUpload} />
+      <input type="file" onChange={handleImageUpload} />
       <input
         type="text"
         placeholder="Enter Advertisement Title"
         value={adTitle}
         onChange={(e) => setAdTitle(e.target.value)}
       />
-      <button onClick={handleSave} disabled={media.length === 0}>Save Advertisement</button>
-      <button onClick={handleDelete} disabled={media.length === 0}>Delete All Media</button>
-      {media.map((item, index) => (
+      <button onClick={handleSave} disabled={!image}>Save Image</button>
+      <button onClick={handleDelete} disabled={!image}>Delete Image</button>
+      {image && (
         <div
-          key={index}
-          className="media-container"
+          className="image-container"
           style={{
-            top: item.position.y,
-            left: item.position.x,
-            width: item.size.width,
-            height: item.size.height,
-            position: 'absolute',
+            top: imagePosition.y,
+            left: imagePosition.x,
+            width: imageSize.width,
+            height: imageSize.height,
           }}
-          onMouseDown={(e) => handleDragStart(index, e)}
+          onMouseDown={handleMouseDown}
+          ref={imageRef}
         >
-          {item.type === 'image' ? (
-            <img
-              src={item.url}
-              alt={`Media ${index}`}
-              style={{ width: '100%', height: '100%' }}
+          <img src={image} alt="Uploaded" style={{ width: '100%', height: '100%' }} />
+          {['top-left', 'top-right', 'bottom-left', 'bottom-right', 'top', 'bottom', 'left', 'right'].map((dir) => (
+            <div
+              key={dir}
+              className={`resize-handle ${dir}`}
+              data-direction={dir}
             />
-          ) : (
-            <video controls style={{ width: '100%', height: '100%' }}>
-              <source src={item.url} type={item.file.type} />
-              Your browser does not support the video tag.
-            </video>
-          )}
-          <div
-            className="resize-handle"
-            onMouseDown={(e) => handleResizeStart(index, e)}
-          />
+          ))}
         </div>
-      ))}
+      )}
     </div>
   );
 };

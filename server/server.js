@@ -75,47 +75,38 @@ const storage = multer.memoryStorage();
 const upload = multer({
     storage,
     fileFilter: (req, file, cb) => {
-      if (!file.mimetype.startsWith('image/') && !file.mimetype.startsWith('video/')) {
-        return cb(new Error('Only image and video files are allowed!'), false);
-      }
-      cb(null, true);
+        if (!file.mimetype.startsWith('image/')) {
+            return cb(new Error('Only image files are allowed!'), false);
+        }
+        cb(null, true);
     },
-    limits: { fileSize: 50 * 1024 * 1024 }, // Increased limit to 50MB for videos
-  });
-  
-  app.post('/api/upload', upload.array('mediaFiles', 10), async (req, res) => {
+    limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+});
+
+// Upload and Save Ad
+app.post('/api/upload', upload.single('image'), async (req, res) => {
     try {
       const { adTitle, coordinates } = req.body;
       const metadata = JSON.parse(coordinates);
       const adID = Date.now().toString();
   
-      if (!req.files || req.files.length === 0) {
-        return res.status(400).json({ error: 'No media files uploaded.' });
-      }
+      // Upload image to S3
+      const s3Params = {
+        Bucket: process.env.S3_BUCKET_NAME,
+        Key: `${adID}-${req.file.originalname}`,
+        Body: req.file.buffer,
+        ContentType: req.file.mimetype,
+      };
+      await s3Client.send(new PutObjectCommand(s3Params));
+      const imageUrl = `https://${process.env.S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${s3Params.Key}`;
   
-      const mediaUrls = [];
-  
-      // Process and upload all media files
-      for (const file of req.files) {
-        const mediaType = file.mimetype.startsWith('image') ? 'images' : 'videos';
-        const s3Params = {
-          Bucket: process.env.S3_BUCKET_NAME,
-          Key: `${adID}-${file.originalname}`,
-          Body: file.buffer,
-          ContentType: file.mimetype,
-        };
-        await s3Client.send(new PutObjectCommand(s3Params));
-        const mediaUrl = `https://${process.env.S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${s3Params.Key}`;
-        mediaUrls.push({ mediaUrl, type: mediaType });
-      }
-  
-      // Save ad with media URLs in DynamoDB
+      // Save advertisement details in DynamoDB
       const params = {
         TableName: process.env.DYNAMODB_TABLE_ADVERTISEMENTS,
         Item: {
           adID,
           adTitle,
-          mediaUrls,
+          imageUrl,
           metadata,
         },
       };
@@ -127,7 +118,8 @@ const upload = multer({
       res.status(500).json({ error: 'Failed to upload advertisement' });
     }
   });
-  
+
+
 // Retrieve Advertisements
 app.get('/api/Advertisements', async (req, res) => {
     try {
@@ -188,6 +180,7 @@ app.delete('/api/delete/:adID', async (req, res) => {
     }
   });
 
+  // update coordinates
   app.post('/api/update-coordinates', async (req, res) => {
     const { adID, coordinates } = req.body;
 
@@ -256,7 +249,7 @@ app.post('/api/update-ad', upload.single('image'), async (req, res) => {
         }
 
         const params = {
-            TableName: process.env.DYNAMODB_TABLE_ADVERTISEMENTS,
+            TableName: process.env.DYNAMODB_TABLE_NAME,
             Key: { adID },
             UpdateExpression: updateExpression,
             ExpressionAttributeValues: expressionAttributeValues,
