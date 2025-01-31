@@ -1,19 +1,18 @@
-/* TVs List Page */
+/* General Styles */
 .tvs-page {
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  padding: 15px;
+  padding: 20px;
+  font-family: Arial, sans-serif;
 }
 
-/* Breadcrumb */
 .breadcrumb {
-  margin: 20px 0;
-  font-size: 16px;
-  color: #666;
+  margin-bottom: 20px;
+  font-size: 14px;
+  color: #555;
 }
 
 .breadcrumb-link {
-  text-decoration: none;
   color: #007bff;
+  text-decoration: none;
 }
 
 .breadcrumb-link:hover {
@@ -21,104 +20,125 @@
 }
 
 .breadcrumb-current {
-  font-weight: bold;
   color: #333;
-  text-decoration: none;
-
+  font-weight: bold;
 }
 
-/* TVs Header */
-.tvs-header .text {
-  font-size: 24px;
-  font-weight: bold;
+.tvs-header-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 20px;
 }
 
-/* TVs List Container */
+.tvs-header-container .text {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.tv-button-container {
+  display: flex;
+  gap: 10px;
+}
+
+.tv-button-container button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.tv-button-container button:hover {
+  opacity: 0.8;
+}
+
+/* TV List Styles */
 .tvs-list {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
   gap: 20px;
 }
 
-/* TV Card */
 .tv-card {
   position: relative;
-  background-color: white;
   border: 1px solid #ddd;
   border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  padding: 14px;
-  text-align: center;
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  overflow: hidden;
+  background-color: #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s, box-shadow 0.2s;
 }
 
-.tv-card-link{
-  display: block;
+.tv-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.tv-card.pinned {
+  border: 2px solid #2260ff;
+  box-shadow: 0 5px 10px rgba(0, 0, 255, 0.2);
+}
+
+.tv-card-link {
   text-decoration: none;
   color: inherit;
+  display: block;
+  padding: 15px;
 }
-/* TV Card Title */
+
 .tv-card h1 {
   font-size: 18px;
+  margin: 0 0 10px;
   color: #333;
-  margin-bottom: 10px;
 }
 
-/* TV Card Image */
-.tv-card img,
-.tv-card video {
-  width: 100%;
-  height: 150px;
-  object-fit: cover;
-  border-radius: 0;
-  margin-bottom: 5px;
-  margin-top: 5px;
-}
-
-/* Fallback Text */
-.tv-card p {
-  font-size: 14px;
-  color: #888;
-}
-
-/* Buttons */
-.tv-button-container {
+.ad-mini-view {
   display: flex;
-  }
-
-.tv-button-container button {
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  background-color: white;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 10px;
 }
 
-.update-ad-button {
-  color: #007bff;
+.media-item {
+  width: 100px;
+  height: 100px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
 }
-.container input:checked ~ .pin {
-  fill: rgb(179, 139, 255);
-  stroke: white;
+
+.media-item:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
-.container input:checked ~ .pin line {
-  stroke: rgb(179, 139, 255);
+
+.media-item img,
+.media-item video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
-.container input:checked ~ .pin path {
-  stroke: rgb(179, 139, 255);
+
+.media-item div {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f0f0f0;
+  font-size: 12px;
+  color: #333;
+  padding: 5px;
 }
-.container:active {
-  transform: scale(0.9);
-}
-.container input {
-  display: none;
-}
+
+/* Pin Button Styles */
 .pin {
   width: 15px;
   height: auto;
   transform: rotate(35deg);
 }
+
 .container {
   position: absolute;
   top: 10px;
@@ -138,34 +158,41 @@
   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.041);
 }
 
-.tv-card.pinned {
-  border: 2px solid #2260ff;
-  box-shadow: 0 5px 10px rgba(0, 0, 255, 0.2); 
-}
 .tv-card .pin:hover {
   cursor: pointer;
 }
 
-.tvs-header-container {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
+.container input:checked ~ .pin {
+  fill: rgb(179, 139, 255);
+  stroke: white;
 }
 
-.ad-media-container {
+.container input:checked ~ .pin line {
+  stroke: rgb(179, 139, 255);
+}
+
+.container input:checked ~ .pin path {
+  stroke: rgb(179, 139, 255);
+}
+
+.container:active {
+  transform: scale(0.9);
+}
+
+.container input {
+  display: none;
+}
+
+/* Selection Mode Styles */
+.selection-mode {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
   display: flex;
-  flex-wrap: wrap;
   gap: 10px;
-}
-
-.media-item {
-  flex: 1 1 calc(33.333% - 10px); /* Adjust the width as needed */
-  max-width: calc(33.333% - 10px); /* Adjust the width as needed */
-}
-
-.media-item img, .media-item video {
-  width: 100%;
-  height: auto;
+  background-color: #fff;
+  padding: 10px 20px;
   border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0);
 }

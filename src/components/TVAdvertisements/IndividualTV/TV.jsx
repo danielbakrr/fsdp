@@ -31,6 +31,7 @@ const TV = () => {
     socketClient.current.joinTV(tvID);
 
     fetchAllAds();
+
     // Handle incoming ad updates
     socketClient.current.onMessage((data) => {
       if (data.ad.tvID === tvID) {
@@ -153,8 +154,6 @@ const TV = () => {
             <div className="ad-preview">
               <div style={{ userSelect: "none" }}>
                 <h2>Ad Preview</h2>
-                <div>
-                </div>
                 <div
                   style={{
                     position: "relative",
@@ -163,52 +162,53 @@ const TV = () => {
                     border: "1px solid #000",
                     justifyContent: "center",
                   }}
-                ></div>
-                {adsList.map((ad) => {
-                  const mediaUrl = ad.mediaUrl || ""; // Ensure mediaUrl is a string
-                  return (
-                    <div
-                      key={ad.adID}
-                      style={{
-                        position: "absolute",
-                        left: `${ad.metadata?.x || 0}px`,
-                        top: `${ad.metadata?.y || 0}px`,
-                        width: `${ad.metadata?.width || 100}px`,
-                        height: `${ad.metadata?.height || 100}px`,
-                        border: "1px solid #000",
-                        overflow: "hidden",
-                      }}
-                    >
-                      {mediaUrl.endsWith(".mp4") ||
-                      mediaUrl.endsWith(".webm") ||
-                      mediaUrl.endsWith(".ogg") ? (
-                        <video
-                          controls
-                          autoPlay
-                          loop
-                          style={{
-                            width: "100%",
-                            height: "100%",
-                            objectFit: "cover",
-                          }}
-                        >
-                          <source src={mediaUrl} type="video/mp4" />
-                          Your browser does not support the video tag.
-                        </video>
-                      ) : (
-                        <img
-                          src={mediaUrl}
-                          alt={ad.adTitle || "Advertisement"}
-                          style={{
-                            width: "100%",
-                            height: "100%",
-                            objectFit: "cover",
-                          }}
-                        />
-                      )}
-                    </div>
-                  );
-                })}
+                >
+                  {selectedAd.mediaItems.map((mediaItem) => {
+                    const mediaUrl = mediaItem.url || ""; // Ensure mediaUrl is a string
+                    return (
+                      <div
+                        key={mediaItem.id}
+                        style={{
+                          position: "absolute",
+                          left: `${mediaItem.metadata?.x || 0}px`,
+                          top: `${mediaItem.metadata?.y || 0}px`,
+                          width: `${mediaItem.metadata?.width || 100}px`,
+                          height: `${mediaItem.metadata?.height || 100}px`,
+                          border: "1px solid #000",
+                          overflow: "hidden",
+                        }}
+                      >
+                        {mediaUrl.endsWith(".mp4") ||
+                        mediaUrl.endsWith(".webm") ||
+                        mediaUrl.endsWith(".ogg") ? (
+                          <video
+                            controls
+                            autoPlay
+                            loop
+                            style={{
+                              width: "100%",
+                              height: "100%",
+                              objectFit: "cover",
+                            }}
+                          >
+                            <source src={mediaUrl} type="video/mp4" />
+                            Your browser does not support the video tag.
+                          </video>
+                        ) : (
+                          <img
+                            src={mediaUrl}
+                            alt={selectedAd.adTitle || "Advertisement"}
+                            style={{
+                              width: "100%",
+                              height: "100%",
+                              objectFit: "cover",
+                            }}
+                          />
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             </div>
 

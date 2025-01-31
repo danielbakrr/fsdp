@@ -24,49 +24,37 @@ const TVsList = () => {
     }
 
     fetchTvs(groupID);
+    fetchAds(); // Fetch all ads
     const intervalId = setInterval(() => {
       fetchTvs(groupID);
+      fetchAds(); // Refresh ads every 3 seconds
     }, 3000);
     return () => clearInterval(intervalId);
   }, [state, groupID]);
 
-  // Fetch TVs and their associated ads
+  // Fetch TVs
   const fetchTvs = async (groupID) => {
     try {
       const response = await fetch(`/tvgroups/${groupID}/tvs`);
       const tvData = await response.json();
-
       if (Array.isArray(tvData)) {
         setTvs(tvData);
       }
-
-      const tvsWithAds = tvData.filter((tv) => tv.adID);
-      // Fetch ads for each TV
-      const adPromises = tvsWithAds.map(async (tv) => {
-        try {
-          const adResponse = await fetch(`/advertisements/${tv.adID}`);
-          if (!adResponse.ok) {
-            throw new Error(`Failed to fetch ad for TV ${tv.tvID}`);
-          }
-          const adData = await adResponse.json();
-          return { [tv.tvID]: adData };
-        } catch (err) {
-          console.error(`Error fetching ad for TV ${tv.tvID}:`, err);
-          return null;
-        }
-      });
-
-      const adResults = await Promise.all(adPromises);
-      const adMap = adResults.reduce((acc, ad) => {
-        if (ad) {
-          acc = { ...acc, ...ad };
-        }
-        return acc;
-      }, {});
-      setAds(adMap);
     } catch (error) {
-      console.error("Error fetching TVs or ads:", error);
-      setError("Failed to fetch TVs or ads. Please try again.");
+      console.error("Error fetching TVs:", error);
+      setError("Failed to fetch TVs. Please try again.");
+    }
+  };
+
+  // Fetch all ads
+  const fetchAds = async () => {
+    try {
+      const response = await fetch("http://localhost:5000/api/Advertisements");
+      const data = await response.json();
+      setAds(data.reduce((acc, ad) => ({ ...acc, [ad.adID]: ad }), {}));
+    } catch (error) {
+      console.error("Error fetching ads:", error);
+      setError("Failed to fetch ads. Please try again.");
     }
   };
 
@@ -170,7 +158,6 @@ const TVsList = () => {
   const updateSelectedTvs = async (selectedAd, pinnedTvs) => {
     setError("");
     try {
-      // Send a request to update ads for the pinned TVs
       const response = await fetch(`/tvgroups/${groupID}/tvs/batch-update`, {
         method: "POST",
         headers: {
@@ -187,12 +174,11 @@ const TVsList = () => {
         setError(data.error || "Failed to update selected TVs");
       }
     } catch (error) {
-      setError(
-        error.message || "An error occurred while updating selected TVs"
-      );
+      setError(error.message || "An error occurred while updating selected TVs");
     }
   };
 
+  // Update ads for all TVs
   const updateAllTvs = async (selectedAd) => {
     setError("");
     try {
@@ -216,9 +202,10 @@ const TVsList = () => {
     }
   };
 
+  // Check if a URL is a video
   const isVideo = (url) => {
-    const videoExtensions = ['.mp4', '.webm', '.ogg'];
-    return videoExtensions.some(ext => url.endsWith(ext));
+    const videoExtensions = [".mp4", ".webm", ".ogg"];
+    return videoExtensions.some((ext) => url.endsWith(ext));
   };
 
   return (
@@ -230,7 +217,6 @@ const TVsList = () => {
         </Link>{" "}
         &gt;{" "}
         <span className="breadcrumb-current">
-          {" "}
           {localStorage.getItem("groupName") || "Unknown Group"}
         </span>
       </div>
@@ -249,7 +235,7 @@ const TVsList = () => {
       <div className="tvs-list">
         {tvs.length > 0 ? (
           tvs.map((tv, index) => {
-            const ad = ads[tv.tvID];
+            const ad = ads[tv.adID]; // Get the ad for the current TV
             const isPinned = pinnedTvs.includes(tv.tvID);
             return (
               <div
@@ -293,22 +279,58 @@ const TVsList = () => {
                 >
                   <h1>{`TV ${tv.tvID}`}</h1>
                   {ad && ad.mediaItems?.length > 0 ? (
-                    <div className="ad-media-container">
+                    <div className="ad-mini-view">
                       {ad.mediaItems.map((mediaItem, index) => {
                         const mediaUrl = mediaItem.url;
                         return (
-                          <div key={index} className="media-item">
-                            {isVideo(mediaUrl) ? (
-                              <video controls autoPlay loop>
-                                <source src={mediaUrl} type="video/mp4" />
-                                Your browser does not support the video tag.
-                              </video>
+                          <div
+                            key={index}
+                            className="media-item"
+                            style={{
+                              width: "100px", // Fixed width for mini view
+                              height: "100px", // Fixed height for mini view
+                              border: "1px solid #ddd",
+                              borderRadius: "8px",
+                              overflow: "hidden",
+                              margin: "5px",
+                            }}
+                          >
+                            {mediaItem.type === "text" ? (
+                              <div
+                                style={{
+                                  width: "100%",
+                                  height: "100%",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  justifyContent: "center",
+                                  backgroundColor: "#f0f0f0",
+                                  fontSize: "12px",
+                                  padding: "5px",
+                                }}
+                              >
+                                <p>{mediaItem.text}</p>
+                              </div>
+                            ) : isVideo(mediaUrl) ? (
+                              <video
+                                src={mediaUrl}
+                                style={{
+                                  width: "100%",
+                                  height: "100%",
+                                  objectFit: "cover",
+                                }}
+                                controls={false}
+                                muted
+                                loop
+                              />
                             ) : (
                               <img
                                 src={mediaUrl}
-                                alt={`Ad media item ${index + 1} for TV ${
-                                  tv.tvID
-                                }`}
+                                alt={`Ad media item ${index + 1} for TV ${tv.tvID}`}
+                                style={{
+                                  width: "100%",
+                                  height: "100%",
+                                  objectFit: "cover",
+                                }}
                               />
                             )}
                           </div>
@@ -346,7 +368,7 @@ const TVsList = () => {
       <SelectAdModal
         isOpen={showModal}
         onClose={() => setShowModal(false)}
-        onUpdate={updateSelectedTvs || updateAllTvs}
+        onUpdate={pinnedTvs.length > 0 ? updateSelectedTvs : updateAllTvs}
         groupID={groupID}
         pinnedTvs={pinnedTvs}
       />
