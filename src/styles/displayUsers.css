@@ -1,0 +1,137 @@
+/* Styling for the main container */
+.userTable {
+  width: 90%;             /* Table width */
+  margin: 30px auto;      /* Center the table */
+  font-family: "Space Mono", monospace; /* Font for table */
+}
+
+.createnew-role-container{
+  font-family: "Space Mono", monospace;
+  display:flex;
+  width:100%;
+  justify-content:right;
+}
+.create-new-role-btn{
+  font-family: "Space Mono", monospace;
+  background-color: rgb(66, 194, 66);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+  color:whitesmoke;
+}
+/* Title styling */
+.userTable h2 {
+  text-align: center;        /* Center the title */
+  color: #333;               /* Dark color for the title */
+  margin-bottom: 20px;       /* Spacing below the title */
+  font-size: 24px;           /* Font size */
+}
+
+/* Basic table styling */
+.styledUserTable {
+  width: 100%;               /* Full width */
+  margin-top: 20px;          /* Margin from the title */
+  border-collapse: collapse; /* Remove space between borders */
+  border-radius: 10px;       /* Rounded corners */
+  overflow: hidden;          /* Ensure rounded corners are visible */
+}
+
+/* Header styling */
+.styledUserTable th {
+  background-color: rgb(255, 228, 196);
+  color: rgb(209, 170, 123);              /* White text */
+  text-align: left;          /* Left-align text */
+  padding: 12px 15px;        /* Padding inside header cells */
+  font-size: 16px;           /* Font size for header */
+  text-transform: uppercase; /* Uppercase text */
+}
+
+/* Table data cell styling */
+.styledUserTable td {
+  padding: 12px 15px;        /* Padding inside data cells */
+  text-align: left;          /* Left-align data text */
+  border-bottom: 1px solid #ddd; /* Light gray border under rows */
+  font-size: 14px;           /* Font size for data cells */
+}
+
+/* Styling for even rows */
+.styledUserTable tr:nth-child(even) {
+  background-color:whitesmoke; /* Light gray background for even rows */
+}
+
+.delete-btn{
+  border-radius:0.5rem;
+  background-color:white;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+  display:flex;
+  align-items:center;
+  padding:0.5rem;
+  justify-content:center;
+}
+
+.delete-btn:hover{
+  background-color: rgb(214, 65, 55);
+  color:white;
+}
+
+.add-roleModal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.364);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.add-roleModalContent{
+  position:relative;
+  display:flex;
+  justify-content: center;
+  align-items:ceter;
+  padding:1rem;
+  width:500px;
+  height:auto;
+  flex-direction: column;
+  border-radius:0.5rem;
+  background-color: white;
+}
+
+
+.role-name-edit{
+  display:flex;
+  flex-direction: column;
+}
+
+.role-name-edit input{
+  margin-top: 20px;
+}
+
+.submit-btn{
+  margin-top: 20px;
+  background-color: white;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+  font-family: "Space Mono", monospace; /* Font for table */
+}
+
+.submit-btn:hover{
+  background-color: rgb(66, 194, 66);
+  color:whitesmoke;
+}
+
+.close-btn{
+  width:100%;
+  display:flex;
+  height:50px;
+  justify-content: flex-end;
+}
+
+.close-btn button{
+  font-family:"Space Mono", monospace;
+  
+}
+
+.close-btn:hover button{
+  background-color: #d64137;
+  color:white;
+}

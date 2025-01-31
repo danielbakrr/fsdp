@@ -1,0 +1,89 @@
+/* Modal Overlay */
+.select-ad-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    backdrop-filter: blur(10px); /* Glassmorphism effect */
+  }
+  
+  /* Modal Content */
+  .select-ad-modal-content {
+    background: rgba(255, 255, 255, 0.8); /* Semi-transparent white */
+    border-radius: 10px;
+    padding: 20px;
+    width: 400px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    backdrop-filter: blur(5px); /* Glassmorphism effect */
+    transition: all 0.3s ease;
+  }
+  
+  .select-ad-modal-content h2 {
+    font-size: 24px;
+    margin-bottom: 20px;
+    color: #333;
+  }
+  
+  .select-ad-modal-ads-list select {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    font-size: 16px;
+    background-color: #f9f9f9;
+    transition: background-color 0.3s ease;
+  }
+  
+  .select-ad-modal-ads-list select:hover {
+    background-color: #f0f0f0;
+  }
+  
+  .select-ad-modal-error-message {
+    color: #e74c3c;
+    background-color: #f8d7da;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+  }
+  
+  .select-ad-modal-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+  }
+  
+  .select-ad-modal-actions button {
+    padding: 10px 20px;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  .select-ad-modal-actions .cancel-btn {
+    background-color: #e74c3c;
+    color: white;
+  }
+  
+  .select-ad-modal-actions .cancel-btn:hover {
+    background-color: #c0392b;
+  }
+  
+  .select-ad-modal-actions .update-btn {
+    background-color: #2ecc71;
+    color: white;
+  }
+  
+  .select-ad-modal-actions .update-btn:hover {
+    background-color: #27ae60;
+  }
+  

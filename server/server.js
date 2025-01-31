@@ -1,12 +1,18 @@
-require('dotenv').config();
-const express = require('express');
-const cors = require('cors');
-const multer = require('multer');
-const sharp = require('sharp');
-const { Server } = require('socket.io');
-const http = require('http');
-const bodyParser = require('body-parser');
-const { DynamoDBClient } = require('@aws-sdk/client-dynamodb');
+const dotenv = require("dotenv");
+const express = require("express");
+const cors = require("cors");
+const { dynamoDb } = require("./awsConfig");
+const multer = require("multer");
+const sharp = require("sharp");
+const { Server } = require("socket.io");
+const http = require("http");
+const bodyParser = require("body-parser");
+const { DynamoDBClient } = require("@aws-sdk/client-dynamodb");
+const TVGroupController = require("./controllers/tvGroupController");
+const TVController = require("./controllers/TVController");
+const roleController = require("./controllers/roleController");
+const accountController = require("./controllers/accountController");
+const authController = require("./controllers/authController");
 
 const {
     DynamoDBDocumentClient,
@@ -29,44 +35,64 @@ const {
 const dynamoDBClient = new DynamoDBClient({ region: process.env.AWS_REGION });
 const ddbDocClient = DynamoDBDocumentClient.from(dynamoDBClient);
 const s3Client = new S3Client({
-    region: process.env.AWS_REGION,
-    credentials: {
-        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-    },
+  region: process.env.AWS_REGION,
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  },
 });
+
+dotenv.config();
 
 // Express App Setup
 const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Middleware
-app.use(cors({ origin: 'http://localhost:3000', methods: ['GET', 'POST', 'DELETE'], credentials: true }));
+app.use(
+  cors({
+    origin: "http://localhost:3000",
+    methods: ["GET", "POST", "DELETE"],
+    credentials: true,
+  })
+);
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 // WebSocket Setup
 const server = http.createServer(app);
 const io = new Server(server, {
-    cors: {
-        origin: 'http://localhost:3000',
-        methods: ['GET', 'POST', 'DELETE'],
-    },
+  cors: {
+    origin: "http://localhost:3000",
+    methods: ["GET", "POST", "DELETE"],
+  },
 });
 
-io.on('connection', (socket) => {
-    console.log(`User Connected: ${socket.id}`);
+io.on("connection", (socket) => {
+  console.log(`User Connected: ${socket.id}`);
 
-    socket.on('join_tv', (tvID) => {
-        socket.join(tvID);
-        console.log(`User ${socket.id} joined TV room: ${tvID}`);
-    });
+  // Handle TV connection
+  socket.on("join_tv", (tvID) => {
+    socket.join(tvID);
+    console.log(`User ${socket.id} joined TV room: ${tvID}`);
 
-    socket.on('send_message', (data) => {
-        const { tv, message } = data;
-        console.log(`Sending message to TV room: ${tv}`);
-        io.to(tv).emit('receive_message', { message, tv });
-    });
+    // Notify all clients that a TV has connected
+    io.emit("tv_connected", { tvId: tvID });
+  });
+
+  // Handle ad updates
+  socket.on("ad_update", (data) => {
+    const { tvId, ad } = data;
+    console.log(`Received ad update for TV: ${tvId}`);
+
+    // Broadcast the ad update to the relevant TV room
+    io.to(tvId).emit("ad_update", { ad });
+  });
+
+  // Handle disconnection
+  socket.on("disconnect", () => {
+    console.log(`User Disconnected: ${socket.id}`);
+  });
 });
 
 // Configure Multer for File Upload
@@ -144,25 +170,50 @@ app.post('/api/upload', (req, res) => {
   });
 });
 
-
 // Retrieve Advertisements
-app.get('/api/Advertisements', async (req, res) => {
-    try {
-        const params = {
-            TableName: process.env.DYNAMODB_TABLE_ADVERTISEMENTS,
-        };
-        const data = await dynamoDBClient.send(new ScanCommand(params));
-        
-        // For each advertisement, add the direct S3 image URL
-        data.Items.forEach((item) => {
-            item.FileUrl = `https://${process.env.S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${item.adID}-${item.adTitle}`;
-        });
+app.get("/api/Advertisements", async (req, res) => {
+  try {
+    const params = {
+      TableName: process.env.DYNAMODB_TABLE_ADVERTISEMENTS,
+    };
+    const data = await dynamoDBClient.send(new ScanCommand(params));
 
-        res.json(data.Items);
-    } catch (error) {
-        console.error('Error fetching advertisements:', error);
-        res.status(500).json({ message: 'Internal server error' });
+    // For each advertisement, add the direct S3 image URL
+    data.Items.forEach((item) => {
+      item.FileUrl = `https://${process.env.S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${item.adID}-${item.adTitle}`;
+    });
+
+    res.json(data.Items);
+  } catch (error) {
+    console.error("Error fetching advertisements:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+// retrieve an advertisement by adID
+app.get("/advertisements/:adID", async (req, res) => {
+  try {
+    const { adID } = req.params;
+
+    const params = {
+      TableName: process.env.DYNAMODB_TABLE_ADVERTISEMENTS,
+      Key: {
+        adID,
+      },
+    };
+
+    const adData = await dynamoDBClient.send(new GetCommand(params));
+
+    if (!adData.Item) {
+      return res.status(404).json({ message: "Advertisement not found" });
     }
+
+    // Return the advertisement data
+    res.json(adData.Item);
+  } catch (error) {
+    console.error("Error fetching advertisement:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
 });
 
 // Delete Advertisement
@@ -205,16 +256,18 @@ app.delete('/api/delete/:adID', async (req, res) => {
     }
   });
 
-  // update coordinates
-  app.post('/api/update-coordinates', async (req, res) => {
-    const { adID, coordinates } = req.body;
+// update coordinates
+app.post("/api/update-coordinates", async (req, res) => {
+  const { adID, coordinates } = req.body;
 
-    if (!adID || !coordinates) {
-        return res.status(400).json({ error: 'adID and coordinates are required.' });
-    }
+  if (!adID || !coordinates) {
+    return res
+      .status(400)
+      .json({ error: "adID and coordinates are required." });
+  }
 
     try {
-        // First, get the current ad data
+        // get the current ad data
         const getParams = {
             TableName: process.env.DYNAMODB_TABLE_ADVERTISEMENTS,
             Key: { adID }
@@ -334,7 +387,55 @@ app.post('/api/update-ad', (req, res) => {
   });
 });
 
+// Routes for tv groups
+app.get("/tvgroups/:id", TVGroupController.getTVGroupsById);
+app.get("/tvgroups", async (req, res) => {
+  try {
+    const params = {
+      TableName: "TVGroups",
+    };
+
+    // Fetch data from DynamoDB
+    const data = await dynamoDb.send(new ScanCommand(params));
+
+    // Return the tvgroups as JSON
+    res.json(data.Items);
+  } catch (error) {
+    console.error("Error fetching TV Groups:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+app.post("/tvgroups", TVGroupController.addTVGroup);
+app.put("/tvgroups/:groupID", TVGroupController.updateTVGroup);
+app.delete("/tvgroups/:groupID", TVGroupController.deleteTVGroup);
+
+// Routes for user authentication
+app.post("/api/userLogin", authController.login);
+app.post("/api/userSignUp", authController.signUp);
+
+// Route for roles
+app.get("/api/get-rolePermissions/:roleId", roleController.getPermissions);
+app.post("/api/create-userRole", roleController.createRole);
+app.get("/api/getAllRoles", roleController.getRoles);
+
+// Route for Account
+app.post("/api/edit-userRole/:uuid", accountController.editUserRole);
+app.get("/api/get-userById/:uuid", accountController.getUserById);
+app.get("/api/get-userByEmail", accountController.getUserByEmail);
+app.get("/api/get-allUsers", accountController.getAllUsers);
+app.delete("/api/delete-user/:uuid", accountController.deleteUser);
+
+// Routes for TVs
+app.get("/tvgroups/:groupID/tvs/:tvID", TVController.getTvById);
+app.get("/tvgroups/:groupID/tvs", TVController.getAllTvsByTVGroup);
+app.post("/tvgroups/:groupID/tvs", TVController.addTv);
+app.delete("/tvgroups/:groupID/tvs/:tvID", TVController.deleteTv);
+app.put("/tvgroups/:groupID/tvs/:tvID", TVController.updateAdForTv);
+app.post("/tvgroups/:groupID/tvs/batch-delete", TVController.deleteTvs);
+app.post("/tvgroups/:groupID/tvs/batch-update", TVController.updateBatchTvs);
+
 // Start Server
 server.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });
