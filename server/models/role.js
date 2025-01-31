@@ -74,7 +74,6 @@ class Role {
             
         }
         const result = await dynamoDb.send(new GetItemCommand(params));
-        console.log(JSON.stringify(result.Item,null,2));
         // the returned result is items followed by something else 
         const permissions = result.Item.permissions.L;
         if(Array.isArray(permissions)){

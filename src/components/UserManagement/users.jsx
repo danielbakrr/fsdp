@@ -13,9 +13,15 @@ const DisplayUsers = () => {
     const [adPermissions,setAdPermissions] = useState([]);
     const [userPermissions,setUserPermissions] = useState([]);
     const [templatePermissions,setTemplatePermissions] = useState([]);
+    const [tvGroupPermissions,setTvGroupPermissions] = useState([]);
+    const [metricsPermissions, setMetricsPermissions] = useState([]);
+    const [schedulingPermissions,setSchedulingPermissions] = useState([]);
+    const [tvGroupIds,setTvGroupIds] = useState([]);
+    const [selectedTvIds,setSelectedIds] = useState([]);
     const [roleName,setRoleName] = useState("");
     const [newRole,selectRole] = useState({});
     const [roles,setRoles] = useState([]);
+    const token = localStorage.getItem('token');
     // Custom styles for react-select
     const customStyles = {
         control: (provided) => ({
@@ -145,6 +151,32 @@ const DisplayUsers = () => {
             newPermissions.push(tempObject)
         }
 
+        if(schedulingPermissions.length > 0){
+            const tempObject = {
+                "actions": schedulingPermissions.map(schedulePerm => schedulePerm.value),
+                "resource": "Schedule Ads"
+            }
+            newPermissions.push(tempObject)
+        }
+
+        
+        if(tvGroupPermissions.length > 0){
+            const tempObject = {
+                "actions": tvGroupPermissions.map(tvGrpPerm => tvGrpPerm.value),
+                "resource": "Tv Group"
+            }
+            newPermissions.push(tempObject)
+        }
+
+        if(metricsPermissions.length > 0){
+            const tempObject = {
+                 "actions": metricsPermissions.map(metPerm => metPerm.value),
+                "resource": "Metrics"
+            }
+
+            newPermissions.push(tempObject);
+        }
+
         console.log(JSON.stringify(newPermissions,null,2));
 
         const request = {
@@ -190,7 +222,12 @@ const DisplayUsers = () => {
     }
     const fetchUsers = async ()=> {
         try{
-            const response = await fetch("/api/get-allUsers");
+            const response = await fetch("/api/get-allUsers",{
+                'headers':{
+                    "Authorization": `Bearer ${token}`,
+                    'content-type': "application/json",
+                }
+            });
             const users = await response.json();
             console.log(users);
             if (users.retrievedUsers != null){
@@ -209,7 +246,7 @@ const DisplayUsers = () => {
     // return the react component 
     return (
         <div className = "usersTableContainer">
-            <Navbar/>
+            {/* <Navbar/> */}
             {/* the rest of the html elements */}
             <div className = "userTable">
                 <h2>Users table</h2>
@@ -220,7 +257,6 @@ const DisplayUsers = () => {
                 </div>
                 <table className = "styledUserTable">
                     <tr>
-                        <th>userId</th>
                         <th>userName</th>
                         <th>email</th>
                         <th>role</th>
@@ -229,7 +265,6 @@ const DisplayUsers = () => {
                     <tbody>
                     {users.map((user) => (
                         <tr key={user.userId}>
-                            <td>{user.userId}</td>
                             <td>{user.userName}</td>
                             <td>{user.email}</td>
                             <td>
@@ -265,12 +300,11 @@ const DisplayUsers = () => {
             {isModalOpen && (
                 <div className = "add-roleModal">
                     {/* modal content for displaying */}
+
                     <div className = "add-roleModalContent">
-                        <div className = "close-btn">
-                            <button onClick={closeAddRoleModal}>
+                        <button className="close-modal-btn-user" onClick={(e) => closeAddRoleModal()}>
                                 Close
-                            </button>
-                        </div>
+                        </button>
                         <div className = "role-name-edit">
                             <label>Role Name:</label>
                             <input type = "text" value={roleName} onChange={(e) => setRoleName(e.target.value)}></input>
@@ -290,7 +324,7 @@ const DisplayUsers = () => {
                         </div>
 
                         <div className = "permissions">
-                            <h4>Users permissions</h4>
+                            <h4>User permissions</h4>
                             <Select
                                 isMulti
                                 name="names"
@@ -312,6 +346,45 @@ const DisplayUsers = () => {
                                 classNamePrefix="select"
                                 styles={customStyles}
                                 onChange={setTemplatePermissions}
+                            />
+                        </div>
+
+                        <div className = "permissions">
+                            <h4>Tv Group Permissions</h4>
+                            <Select
+                                isMulti
+                                name="names"
+                                options={options}
+                                className="basic-multi-select"
+                                classNamePrefix="select"
+                                styles={customStyles}
+                                onChange={setTvGroupPermissions}
+                            />
+                        </div>
+
+                        <div className = "permissions">
+                            <h4>Scheduling Permissions</h4>
+                            <Select
+                                isMulti
+                                name="names"
+                                options={options}
+                                className="basic-multi-select"
+                                classNamePrefix="select"
+                                styles={customStyles}
+                                onChange={setSchedulingPermissions}
+                            />
+                        </div>
+
+                        <div className = "permissions">
+                            <h4>Metrics</h4>
+                            <Select
+                                isMulti
+                                name="names"
+                                options={options}
+                                className="basic-multi-select"
+                                classNamePrefix="select"
+                                styles={customStyles}
+                                onChange={setMetricsPermissions}
                             />
                         </div>
                         <button className = "submit-btn" onClick = {(e) => createNewRole()}>

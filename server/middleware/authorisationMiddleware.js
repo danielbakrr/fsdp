@@ -1,14 +1,12 @@
 // Method to verify JWT and extract payload info 
 const jwt = require('jsonwebtoken');
-const { Role } = require('../models/role');
 require('dotenv').config();
-const secretKey = process.env.JWT_SECRET_KEY;
 function verifyJWT(req,res,next){
     // Extract headers from incoming request 
-    const token = req.headers.authorization && req.headers.authorization && req.headers.authorization.split(" ")[1];
+    const token = req.headers.authorization && req.headers.authorization.split(" ")[1];
     console.log(JSON.stringify(token,null,2));
     if(!token){
-        return res.status(401).json({message: "Forbidden"});
+        return res.status(401).json({message: "Unauthorised"});
     }
     // Verify the jwt token signature using the private key (secret key)
     jwt.verify(token,process.env.JWT_SECRET_KEY,(err,decoded)=>{
@@ -26,9 +24,31 @@ function verifyJWT(req,res,next){
         const authorizedRoutes = {
             "/api/get-advertisments" : {"action": "view", "resource": "Advertisements"},
             "/api/upload-advertisement/^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i": {"action": "create", "resource": "Advertisements"},
-            "/api/update-userRole": {"action": "update", "resource":"User"},
-            "/api/update-campaigns": {"action": "update", "resource": "Campaigns"},
-            "/api/view-campaigns": {"action": "view", "resource": "Campaigns"}
+            "/api/edit-userRole/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i": {"action" : "edit", "resource" : "User"},
+            "/api/get-allUsers" : {"action": "view", "resource": "User"},
+            "/api/delete-user/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i" : {"action": "delete", "resource": "User"},
+            // Routes for TvGroup
+            "/tvgroups" : {"action": "create", "resource": "TvGroup"},
+            "/tvgroups/^grp\d{6}$/i:" : {"action": "view", "resource": "TvGroup"}, // Get all tvGroups 
+            "/tvgroups/^grp\d{6}$/i" : {"action": "delete", "resource": "TvGroup"}, // Delete tvGroup 
+            "/tvgroups" : {"action" : "view", "resource": "TvGroup"},
+            "/tvgroups/^grp\d{6}$/i" : {"action" : "view", "resource": "TvGroup"},
+
+            // Thinking whether it needs to be deleted 
+            "/tvgroups/:groupID/tvs": {"action": "view", "resource": "Tv"},
+            "/tvgroups/:groupID/tvs/^tv\d{6}$/i": {"action" : "delete"},
+            "/tvgroups/:groupID/tvs/batch-delete": {"action" : "delete", "resource": "Tv"},
+            "/tvgroups/:groupID/tvs/batch-update": {"action": "edit", "resource": "Tv"},
+
+            // Advertisements 
+            "/advertisements" : {"action" : "view", "resource": "Advertisement"}, // Retrieve all advertisements 
+            "/api/delete/^\d{13}$/i" : {"action" : "delete", "resource": "Advertisment"}, // Delete ads by ad id 
+            "/advertisements/^\d{13}$/i" : {"action": "view", "resource": "Advertisement"},
+            "/api/update-ad" : {"action": "edit", "resource": "Advertisement"},
+            "/advertisements/:adID/^\d{13}$/i" : {"action": "view", "resource": "Advertisement"},
+            // Template editor routes 
+            "/api/update-coordinates": {"action": "edit", "resource": "Template"}
+            
         }
         // match the permissions of each use to a route in authroized role  
         const requestedEndpoint = req.url;

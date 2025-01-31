@@ -72,6 +72,24 @@
   color:white;
 }
 
+
+.close-modal-btn-user{
+  margin: 20px;
+  padding:0.5rem;
+  display: flex;
+  width:500px;
+  background-color: white;
+  color:black;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+  justify-content:center;
+  align-items: center;
+}
+
+.close-modal-btn-user:hover{
+  background-color: #d64137;
+  color:white;
+}
+
 .add-roleModal {
   position: fixed;
   top: 0;
@@ -85,13 +103,13 @@
 }
 
 .add-roleModalContent{
-  position:relative;
   display:flex;
-  justify-content: center;
-  align-items:ceter;
+  justify-content: start;
+  overflow: scroll;
+  align-items:center;
   padding:1rem;
   width:500px;
-  height:auto;
+  height:500px;
   flex-direction: column;
   border-radius:0.5rem;
   background-color: white;
@@ -99,19 +117,28 @@
 
 
 .role-name-edit{
-  display:flex;
+  align-items:center;
   flex-direction: column;
+  width:500px;
 }
 
 .role-name-edit input{
   margin-top: 20px;
 }
 
+.permissions{
+  justify-content: center;
+  flex-direction: column;
+  align-items:center;
+  width: 500px;
+}
+
 .submit-btn{
   margin-top: 20px;
+  width:500px;
   background-color: white;
+  color:black;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow */
-  font-family: "Space Mono", monospace; /* Font for table */
 }
 
 .submit-btn:hover{
@@ -119,19 +146,4 @@
   color:whitesmoke;
 }
 
-.close-btn{
-  width:100%;
-  display:flex;
-  height:50px;
-  justify-content: flex-end;
-}
 
-.close-btn button{
-  font-family:"Space Mono", monospace;
-  
-}
-
-.close-btn:hover button{
-  background-color: #d64137;
-  color:white;
-}

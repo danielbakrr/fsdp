@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import "../../../styles/advDisplay.css";
 import Navbar from "../../navbar";
 import { FaChevronRight, FaTrashAlt } from "react-icons/fa";
+import { jwtDecode } from "jwt-decode";
 import AddTVGroupModal from "./addTVGroupModal";
 import UpdateGroupModal from "./updateTVGroupModal";
 import AddButton from "./addButton";
@@ -21,10 +22,36 @@ const AdvertisementDisplay = () => {
   const [notifications, setNotifications] = useState([]); // Store notifications
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
   const [selectedUpdateGroup, setSelectedUpdateGroup] = useState(null);
+  const [userFeatures,setUserFeatures] = useState([]);
+  const features = ["Advertisement Display", "Template Editor", "Advertisement Management", "File Management"];
 
+
+   const decodeToken = ()=> {
+      const token = localStorage.getItem('token');
+      if(token != null){
+        const decodedToken = jwtDecode(token);
+        console.log(JSON.stringify(decodedToken,null,2));
+        const role = decodedToken.permissions;
+        const temp = [];
+        const permissions = role.permissions;
+        if(Array.isArray(permissions) && permissions.length > 0){
+          permissions.forEach(element => {
+            console.log(element.resource);
+            for(let i = 0; i< features.length; i++){
+              if(features[i].includes(element.resource)){
+                temp.push(features[i]);
+              }
+            }
+          });
+        }
+        setUserFeatures(temp);
+  
+      }
+  }
   const navigate = useNavigate();
 
   useEffect(() => {
+    decodeToken();
     fetchTVGroups();
     const intervalId = setInterval(() => {
       fetchTVGroups();
@@ -149,7 +176,9 @@ const AdvertisementDisplay = () => {
 
   return (
     <div className="Ad">
-      <Navbar />
+      <Navbar
+        navItems={userFeatures} 
+      />
       {/* TVGroups Header and Add Button */}
       <div className="tvgroup-header">
         <h3>TV Groups:</h3>
