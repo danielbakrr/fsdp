@@ -16,11 +16,11 @@ const TV = () => {
     storedGroupName ||
     "Unknown Group";
 
-  const [adsList, setAdsList] = useState([]);
-  const [selectedAd, setSelectedAd] = useState(null);
+  const [adsList, setAdsList] = useState([]); // List of all ads
+  const [currentAd, setCurrentAd] = useState(null); // Current ad being displayed on the TV
+  const [selectedAd, setSelectedAd] = useState(null); // Selected ad in the dropdown
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [connectedTVs, setConnectedTVs] = useState([]);
   const socketClient = useRef(null);
 
   useEffect(() => {
@@ -30,32 +30,16 @@ const TV = () => {
 
     socketClient.current.joinTV(tvID);
 
+    // Fetch the current ad for the TV
+    fetchCurrentAd();
+    // Fetch all ads for the dropdown
     fetchAllAds();
 
     // Handle incoming ad updates
     socketClient.current.onMessage((data) => {
-      if (data.ad.tvID === tvID) {
-        setAdsList((prevAds) => {
-          const existingAdIndex = prevAds.findIndex(
-            (ad) => ad.adID === data.ad.adID
-          );
-          if (existingAdIndex !== -1) {
-            const newAds = [...prevAds];
-            newAds[existingAdIndex] = data.ad;
-            return newAds;
-          } else {
-            return [...prevAds, data.ad];
-          }
-        });
-      }
-    });
-
-    // Handle TV connection changes
-    socketClient.current.onConnectionChange((isConnected, tvID) => {
-      if (isConnected) {
-        setConnectedTVs((prev) => [...prev, tvID]);
-      } else {
-        setConnectedTVs((prev) => prev.filter((id) => id !== tvID));
+      if (data.ad.adID === currentAd?.adID) {
+        // If the updated ad is the current ad, update the preview
+        setCurrentAd(data.ad);
       }
     });
 
@@ -63,6 +47,37 @@ const TV = () => {
       socketClient.current.disconnect();
     };
   }, [tvID]);
+
+  // Fetch the current ad for the TV
+  const fetchCurrentAd = async () => {
+    setLoading(true);
+    setError("");
+    try {
+      // Fetch the TV object to get the current adID
+      const tvResponse = await fetch(`/tvgroups/${groupID}/tvs/${tvID}`);
+      if (!tvResponse.ok) {
+        throw new Error("Failed to fetch TV details");
+      }
+      const tvData = await tvResponse.json();
+
+      // Fetch all ads
+      const adsResponse = await fetch("/api/Advertisements");
+      if (!adsResponse.ok) {
+        throw new Error("Failed to fetch advertisements");
+      }
+      const adsData = await adsResponse.json();
+
+      // Find the current ad using the adID from the TV object
+      const currentAd = adsData.find((ad) => ad.adID === tvData.adID);
+      setCurrentAd(currentAd);
+      setAdsList(adsData); // Set the ads list for the dropdown
+    } catch (error) {
+      console.error("Error fetching current ad:", error);
+      setError("Failed to load current ad. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const fetchAllAds = async () => {
     setLoading(true);
@@ -84,13 +99,15 @@ const TV = () => {
       setLoading(false);
     }
   };
-
+  
+  // Handle ad selection in the dropdown
   const handleAdChange = (event) => {
     const newAdID = event.target.value;
     const selectedAdObject = adsList.find((ad) => ad.adID === newAdID);
     setSelectedAd(selectedAdObject);
   };
 
+  // Handle confirmation of the selected ad
   const handleConfirm = async () => {
     if (!selectedAd) {
       setError("Please select an advertisement.");
@@ -114,6 +131,7 @@ const TV = () => {
 
       const result = await response.json();
       console.log(result.message);
+      setCurrentAd(selectedAd); // Update the current ad
       alert("Advertisement updated successfully!");
     } catch (error) {
       console.error("Error updating advertisement:", error);
@@ -149,7 +167,7 @@ const TV = () => {
           <p>Loading advertisements...</p>
         ) : error ? (
           <p className="error-message">{error}</p>
-        ) : selectedAd ? (
+        ) : currentAd ? (
           <>
             <div className="ad-preview">
               <div style={{ userSelect: "none" }}>
@@ -161,53 +179,45 @@ const TV = () => {
                     height: "450px",
                     border: "1px solid #000",
                     justifyContent: "center",
+                    overflow: "hidden", // Ensure nothing exceeds the preview
                   }}
                 >
-                  {selectedAd.mediaItems.map((mediaItem) => {
-                    const mediaUrl = mediaItem.url || ""; // Ensure mediaUrl is a string
-                    return (
-                      <div
-                        key={mediaItem.id}
-                        style={{
-                          position: "absolute",
-                          left: `${mediaItem.metadata?.x || 0}px`,
-                          top: `${mediaItem.metadata?.y || 0}px`,
-                          width: `${mediaItem.metadata?.width || 100}px`,
-                          height: `${mediaItem.metadata?.height || 100}px`,
-                          border: "1px solid #000",
-                          overflow: "hidden",
-                        }}
-                      >
-                        {mediaUrl.endsWith(".mp4") ||
-                        mediaUrl.endsWith(".webm") ||
-                        mediaUrl.endsWith(".ogg") ? (
-                          <video
-                            controls
-                            autoPlay
-                            loop
-                            style={{
-                              width: "100%",
-                              height: "100%",
-                              objectFit: "cover",
-                            }}
-                          >
-                            <source src={mediaUrl} type="video/mp4" />
-                            Your browser does not support the video tag.
-                          </video>
-                        ) : (
-                          <img
-                            src={mediaUrl}
-                            alt={selectedAd.adTitle || "Advertisement"}
-                            style={{
-                              width: "100%",
-                              height: "100%",
-                              objectFit: "cover",
-                            }}
-                          />
-                        )}
-                      </div>
-                    );
-                  })}
+                  {currentAd.mediaItems.map((mediaItem) => (
+                    <div
+                      key={mediaItem.id}
+                      style={{
+                        position: "absolute",
+                        left: `${mediaItem.metadata.x}px`,
+                        top: `${mediaItem.metadata.y}px`,
+                        width: `${mediaItem.metadata.width}px`,
+                        height: `${mediaItem.metadata.height}px`,
+                        border: "1px solid #000",
+                        overflow: "hidden",
+                      }}
+                    >
+                      {mediaItem.type === "video" ? (
+                        <video
+                          src={mediaItem.url}
+                          style={{
+                            width: "100%",
+                            height: "100%",
+                            objectFit: "cover",
+                          }}
+                          controls
+                        />
+                      ) : (
+                        <img
+                          src={mediaItem.url}
+                          alt={`${currentAd.adTitle} - ${mediaItem.id}`}
+                          style={{
+                            width: "100%",
+                            height: "100%",
+                            objectFit: "cover",
+                          }}
+                        />
+                      )}
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
