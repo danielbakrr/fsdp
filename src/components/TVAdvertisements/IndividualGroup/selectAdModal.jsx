@@ -1,35 +1,33 @@
-import React, { useEffect, useState } from "react";
-import './selectAdModal.css'; // Import the scoped CSS file for styling
-import AlertMessage from "../successMessage"; // Import the AlertMessage component
+import React, { useEffect, useState, useCallback } from "react";
+import "./selectAdModal.css";
+import AlertMessage from "../successMessage";
 
 const SelectAdModal = ({ isOpen, onClose, onUpdate, groupID, pinnedTvs }) => {
   const [ads, setAds] = useState([]);
   const [selectedAd, setSelectedAd] = useState(null);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
-  const [alertType, setAlertType] = useState(""); // 'Success' or 'Error'
+  const [notifications, setNotifications] = useState([]);
 
-  // Fetch all ads when the modal opens
-  useEffect(() => {
-    if (isOpen) {
-      fetchAllAds();
-    }
-  }, [isOpen]);
-
-  // Fetch all advertisements
-  const fetchAllAds = async () => {
+  // Memoize fetchAllAds
+  const fetchAllAds = useCallback(async () => {
     try {
       const response = await fetch("/api/advertisements");
       const data = await response.json();
       if (response.ok) {
         setAds(data);
       } else {
-        setError(data.error || "Failed to fetch ads");
+        throw new Error(data.error || "Failed to fetch ads");
       }
     } catch (error) {
-      setError(error.message || "An error occurred while fetching ads");
+      addNotification("Error", error.message || "An error occurred while fetching ads");
     }
-  };
+  }, []);
+
+  // Fetch all ads when the modal opens
+  useEffect(() => {
+    if (isOpen) {
+      fetchAllAds();
+    }
+  }, [isOpen, fetchAllAds]);
 
   // Handle ad selection
   const handleAdSelect = (event) => {
@@ -39,25 +37,48 @@ const SelectAdModal = ({ isOpen, onClose, onUpdate, groupID, pinnedTvs }) => {
   };
 
   // Handle update
-  const handleUpdate = async () => {
-    if (selectedAd) {
-      try {
-        await onUpdate(selectedAd, pinnedTvs); // Pass selected ad and pinned TVs to the update function
-        setAlertType("Success");
-        setSuccess("TVs updated successfully!");
-        setError(""); // Clear error if successful
-        onClose();
-      } catch (err) {
-        setAlertType("Error");
-        setError(err.message || "Failed to update TVs.");
-        setSuccess(""); // Clear success message if error occurs
-      }
-    } else {
-      setAlertType("Error");
-      setError("Please select an ad to update.");
-      setSuccess(""); // Clear success message if no ad is selected
+  const handleUpdate = async (e) => {
+    e.preventDefault();
+    if (!selectedAd) {
+      addNotification("Error", "Please select an ad.");
+      return;
+    }
+
+    try {
+      await onUpdate(selectedAd, pinnedTvs);
+      onClose();
+      addNotification("Success", "Advertisement updated successfully!");
+    } catch (error) {
+      addNotification("Error", error.message || "Failed to update group.");
     }
   };
+
+  // Add a notification
+  const addNotification = (type, message) => {
+    const newNotification = {
+      id: Date.now(),
+      type,
+      message,
+    };
+    setNotifications((prevNotifications) => [...prevNotifications, newNotification]);
+  };
+
+  // Remove a notification
+  const handleCloseNotification = (id) => {
+    setNotifications((prevNotifications) =>
+      prevNotifications.filter((notification) => notification.id !== id)
+    );
+  };
+
+  // Automatically remove notifications after 5 seconds
+  useEffect(() => {
+    if (notifications.length > 0) {
+      const timer = setTimeout(() => {
+        setNotifications((prevNotifications) => prevNotifications.slice(1));
+      }, 5000);
+      return () => clearTimeout(timer); // Cleanup timer
+    }
+  }, [notifications]);
 
   if (!isOpen) return null;
 
@@ -65,20 +86,19 @@ const SelectAdModal = ({ isOpen, onClose, onUpdate, groupID, pinnedTvs }) => {
     <div className="select-ad-modal-overlay">
       <div className="select-ad-modal-content">
         <h2>Select Advertisement</h2>
-        {alertType && (
+        {notifications.map((notification) => (
           <AlertMessage
-            type={alertType}
-            message={alertType === "Success" ? success : error}
-            onClose={() => {
-              setAlertType("");
-              setSuccess("");
-              setError("");
-            }}
+            key={notification.id}
+            type={notification.type}
+            message={notification.message}
+            onClose={() => handleCloseNotification(notification.id)}
           />
-        )}
+        ))}
         <div className="select-ad-modal-ads-list">
           <select onChange={handleAdSelect} value={selectedAd?.adID || ""}>
-            <option value="" disabled>Select an advertisement</option>
+            <option value="" disabled>
+              Select an advertisement
+            </option>
             {ads.map((ad) => (
               <option key={ad.adID} value={ad.adID}>
                 {ad.adTitle}
@@ -87,8 +107,12 @@ const SelectAdModal = ({ isOpen, onClose, onUpdate, groupID, pinnedTvs }) => {
           </select>
         </div>
         <div className="select-ad-modal-actions">
-          <button onClick={onClose} className="cancel-btn">Cancel</button>
-          <button onClick={handleUpdate} className="update-btn">Update All</button>
+          <button onClick={onClose} className="cancel-btn">
+            Cancel
+          </button>
+          <button onClick={handleUpdate} className="update-btn">
+            Update All
+          </button>
         </div>
       </div>
     </div>

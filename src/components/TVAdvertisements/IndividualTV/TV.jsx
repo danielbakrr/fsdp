@@ -37,8 +37,7 @@ const TV = () => {
 
     // Handle incoming ad updates
     socketClient.current.onMessage((data) => {
-      if (data.ad.adID === currentAd?.adID) {
-        // If the updated ad is the current ad, update the preview
+      if (data.type === "ad_update" && data.ad) {
         setCurrentAd(data.ad);
       }
     });
@@ -139,7 +138,7 @@ const TV = () => {
 
       // Broadcast the update via WebSocket
       if (socketClient.current && socketClient.current.send) {
-        socketClient.current.send({ type: "ad_update", ad: selectedAd });
+        socketClient.current.send({ type: "ad_update", tvID: tvID, ad: selectedAd });
       }
 
       alert("Advertisement updated successfully!");

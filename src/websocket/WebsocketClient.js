@@ -56,9 +56,9 @@ class SocketIOClient {
   }
 
   // Send an ad update
-  sendAdUpdate(tvId, ad) {
+  sendAdUpdate(message) {
     if (this.socket) {
-      this.socket.emit('ad_update', { tvId, ad });
+      this.socket.emit(message.type, message.tvID, message.ad);
     }
   }
 
