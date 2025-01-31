@@ -1,12 +1,62 @@
-.editor-container {
-  position: relative;
-  width: 100%;
+.editor-wrapper {
+  display: flex;
+  flex-direction: column;
   height: 100vh;
-  background-color: #f0f0f0;
   overflow: hidden;
-  padding-bottom: 60px; /* Add padding to create space below the navbar */
 }
 
+.editor-container {
+  position: relative;
+  flex-grow: 1;
+  background-color: #f0f0f0;
+  overflow: hidden;
+}
+
+/* Sidebar styles */
+.sidebar {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 300px;
+  background-color: white;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+  z-index: 1000;
+}
+
+.sidebar.closed {
+  transform: translateX(-100%);
+}
+
+.sidebar-content {
+  padding: 20px;
+  height: 100%;
+  overflow-y: auto;
+}
+
+.sidebar-toggle {
+  position: absolute;
+  right: -40px;
+  top: 20px;
+  width: 40px;
+  height: 40px;
+  background-color: white;
+  border: 1px solid #ddd;
+  border-left: none;
+  border-radius: 0 4px 4px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+}
+
+.control-group {
+  margin-bottom: 20px;
+}
+
+/* Media container styles */
 .media-container {
   position: absolute;
   cursor: move;
@@ -22,6 +72,34 @@
   pointer-events: none;
 }
 
+/* Delete button styles */
+.delete-button {
+  position: absolute;
+  top: -40px;
+  right: -10px;
+  width: 20px;
+  height: 20px;
+  background-color: #ff0000;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: bold;
+  line-height: 1;
+  padding: 0;
+  transform: scale(1);
+  transition: transform 0.2s ease;
+}
+
+.delete-button:hover {
+  transform: scale(1.1);
+}
+
+/* Resize handle styles */
 .resize-handle {
   position: absolute;
   width: 10px;
@@ -35,12 +113,6 @@
   top: -5px;
   left: -5px;
   cursor: nwse-resize;
-}
-
-.resize-handle.top-right {
-  top: -5px;
-  right: -5px;
-  cursor: nesw-resize;
 }
 
 .resize-handle.bottom-left {
