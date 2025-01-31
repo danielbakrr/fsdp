@@ -106,14 +106,11 @@ const TVsList = () => {
       const data = await response.json();
       if (response.ok) {
         setTvs((prevTvs) => [...prevTvs, data.tvData]);
-        createNotification("success", "TV added successfully");
       } else {
         setError(data.error || "Failed to add TV");
-        createNotification("error", "Failed to add TV");
       }
     } catch (error) {
       setError(error.message || "An error occurred");
-      createNotification("error", "An error occurred");
     }
   };
 
@@ -164,15 +161,12 @@ const TVsList = () => {
           const updatedTvs = tvs.filter((tv) => tv.tvID !== tvID);
           setTvs(updatedTvs);
           setPinnedTvs([]);
-          createNotification("success", "TV deleted successfully");
         } else {
           const data = await response.json();
-          createNotification("error", "Error deleting TV");
         }
       }
     } catch (error) {
       console.error("Error deleting TV:", error);
-      createNotification("error", "Error deleting TV");
     }
   };
 
