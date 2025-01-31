@@ -19,7 +19,7 @@ const SelectAdModal = ({ isOpen, onClose, onUpdate, groupID, pinnedTvs }) => {
   // Fetch all advertisements
   const fetchAllAds = async () => {
     try {
-      const response = await fetch("/advertisements");
+      const response = await fetch("/api/advertisements");
       const data = await response.json();
       if (response.ok) {
         setAds(data);

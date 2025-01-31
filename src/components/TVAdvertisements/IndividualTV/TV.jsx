@@ -24,23 +24,13 @@ const TV = () => {
   const socketClient = useRef(null);
 
   useEffect(() => {
-    fetchAllAds();
     // Initialize WebSocket client
     socketClient.current = new SocketIOClient("http://localhost:5000");
     socketClient.current.connect();
 
     socketClient.current.joinTV(tvID);
 
-    // Fetch initial ads for this TV
-    const fetchAds = async () => {
-      const response = await fetch(
-        `http://localhost:5000/advertisement?tvID=${tvID}`
-      );
-      const data = await response.json();
-      setAdsList(data);
-    };
-    fetchAds();
-
+    fetchAllAds();
     // Handle incoming ad updates
     socketClient.current.onMessage((data) => {
       if (data.ad.tvID === tvID) {
@@ -72,11 +62,12 @@ const TV = () => {
       socketClient.current.disconnect();
     };
   }, [tvID]);
+
   const fetchAllAds = async () => {
     setLoading(true);
     setError("");
     try {
-      const response = await fetch("/advertisements");
+      const response = await fetch("/api/Advertisements");
       if (!response.ok) {
         throw new Error("Failed to fetch advertisements");
       }

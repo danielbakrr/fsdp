@@ -152,3 +152,20 @@
   align-items: center;
   margin-bottom: 20px;
 }
+
+.ad-media-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.media-item {
+  flex: 1 1 calc(33.333% - 10px); /* Adjust the width as needed */
+  max-width: calc(33.333% - 10px); /* Adjust the width as needed */
+}
+
+.media-item img, .media-item video {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+}

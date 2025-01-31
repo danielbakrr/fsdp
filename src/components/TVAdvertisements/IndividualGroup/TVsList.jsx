@@ -40,14 +40,20 @@ const TVsList = () => {
         setTvs(tvData);
       }
 
+      const tvsWithAds = tvData.filter((tv) => tv.adID);
       // Fetch ads for each TV
-      const adPromises = tvData.map(async (tv) => {
-        if (tv.adID) {
+      const adPromises = tvsWithAds.map(async (tv) => {
+        try {
           const adResponse = await fetch(`/advertisements/${tv.adID}`);
+          if (!adResponse.ok) {
+            throw new Error(`Failed to fetch ad for TV ${tv.tvID}`);
+          }
           const adData = await adResponse.json();
           return { [tv.tvID]: adData };
+        } catch (err) {
+          console.error(`Error fetching ad for TV ${tv.tvID}:`, err);
+          return null;
         }
-        return null;
       });
 
       const adResults = await Promise.all(adPromises);
@@ -187,7 +193,7 @@ const TVsList = () => {
     }
   };
 
-  const updateAllTvs = async (selectedAd) =>{
+  const updateAllTvs = async (selectedAd) => {
     setError("");
     try {
       const tvIds = tvs.map((tv) => tv.tvID);
@@ -197,24 +203,24 @@ const TVsList = () => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ tvIds, adID: selectedAd.adID }),
-        
       });
-      if(response.ok){
+      if (response.ok) {
         fetchTvs(groupID);
         console.log("Ads updated for all TVs");
-      }else{
-        const data = await response.json(); 
+      } else {
+        const data = await response.json();
         setError(data.error || "Failed to update all TVs");
       }
-    }catch(error){
+    } catch (error) {
       setError(error.message || "An error occurred while updating all TVs");
     }
   };
 
   const isVideo = (url) => {
-    return url.match(/\.(mp4|webm|ogg)$/i);
+    const videoExtensions = ['.mp4', '.webm', '.ogg'];
+    return videoExtensions.some(ext => url.endsWith(ext));
   };
-  
+
   return (
     <div className="tvs-page">
       <Navbar />
@@ -231,7 +237,7 @@ const TVsList = () => {
       <div className="tvs-header-container">
         <div className="text">Available TVs</div>
         <div className="tv-button-container">
-        <button onClick={() => setShowModal(true)}>
+          <button onClick={() => setShowModal(true)}>
             <UpdateAll />
           </button>
           <button onClick={handleAddTv}>
@@ -286,15 +292,29 @@ const TVsList = () => {
                   state={{ group: { groupName: state?.group?.groupName } }}
                 >
                   <h1>{`TV ${tv.tvID}`}</h1>
-                  {ad && ad.mediaUrl ? (
-                    isVideo(ad.mediaUrl) ? (
-                      <video controls autoPlay loop>
-                        <source src={ad.mediaUrl} type="video/mp4" />
-                        Your browser does not support the video tag.
-                      </video>
-                    ) : (
-                      <img src={ad.mediaUrl} alt={`Ad for TV ${tv.tvID}`} />
-                    )
+                  {ad && ad.mediaItems?.length > 0 ? (
+                    <div className="ad-media-container">
+                      {ad.mediaItems.map((mediaItem, index) => {
+                        const mediaUrl = mediaItem.url;
+                        return (
+                          <div key={index} className="media-item">
+                            {isVideo(mediaUrl) ? (
+                              <video controls autoPlay loop>
+                                <source src={mediaUrl} type="video/mp4" />
+                                Your browser does not support the video tag.
+                              </video>
+                            ) : (
+                              <img
+                                src={mediaUrl}
+                                alt={`Ad media item ${index + 1} for TV ${
+                                  tv.tvID
+                                }`}
+                              />
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
                   ) : (
                     <p>No ad available - Click to select an ad</p>
                   )}
@@ -326,7 +346,7 @@ const TVsList = () => {
       <SelectAdModal
         isOpen={showModal}
         onClose={() => setShowModal(false)}
-        onUpdate={updateAllTvs}
+        onUpdate={updateSelectedTvs || updateAllTvs}
         groupID={groupID}
         pinnedTvs={pinnedTvs}
       />
