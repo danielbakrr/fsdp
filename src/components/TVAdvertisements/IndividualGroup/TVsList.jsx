@@ -5,6 +5,7 @@ import "./TVsList.css";
 import AddTvButton from "./addTVButton";
 import UpdateAll from "./updateAllButton";
 import SelectAdModal from "./selectAdModal";
+import AlertMessage from "../successMessage"; // Ensure this is imported
 
 const TVsList = () => {
   const { groupID } = useParams();
@@ -13,9 +14,42 @@ const TVsList = () => {
   const [pinnedTvs, setPinnedTvs] = useState([]);
   const [error, setError] = useState("");
   const [showModal, setShowModal] = useState(false);
-  const [selectedAd, setSelectedAd] = useState(null);
+  const [notifications, setNotifications] = useState([]); // Store notifications
   const { state } = useLocation();
   const navigate = useNavigate();
+
+  // Create a notification
+  const createNotification = (type, message) => {
+    const newNotification = {
+      id: Date.now(),
+      type,
+      message,
+    };
+    setNotifications((prevNotifications) => [...prevNotifications, newNotification]);
+  };
+
+  // Close a notification
+  const handleCloseNotification = (id) => {
+    setNotifications((prevNotifications) =>
+      prevNotifications.filter((notification) => notification.id !== id)
+    );
+  };
+
+  // Automatically remove notifications after 5 seconds
+  useEffect(() => {
+    if (notifications.length > 0) {
+      const timer = setTimeout(() => {
+        setNotifications((prevNotifications) => prevNotifications.slice(1));
+      }, 5000);
+      return () => clearTimeout(timer); // Cleanup timer
+    }
+  }, [notifications]);
+
+  // Check if a URL is a video
+  const isVideo = (url) => {
+    const videoExtensions = [".mp4", ".webm", ".ogg"];
+    return videoExtensions.some((ext) => url.endsWith(ext));
+  };
 
   // Fetch TVs and ads on component mount and every 3 seconds
   useEffect(() => {
@@ -72,11 +106,14 @@ const TVsList = () => {
       const data = await response.json();
       if (response.ok) {
         setTvs((prevTvs) => [...prevTvs, data.tvData]);
+        createNotification("success", "TV added successfully");
       } else {
         setError(data.error || "Failed to add TV");
+        createNotification("error", "Failed to add TV");
       }
     } catch (error) {
       setError(error.message || "An error occurred");
+      createNotification("error", "An error occurred");
     }
   };
 
@@ -96,12 +133,13 @@ const TVsList = () => {
         const updatedTvs = tvs.filter((tv) => !pinnedTvs.includes(tv.tvID));
         setTvs(updatedTvs);
         setPinnedTvs([]);
+        createNotification("success", "TVs deleted successfully");
       } else {
         const data = await response.json();
-        setError(data.error || "Failed to delete TVs");
+        createNotification("error", "Error deleting TVs");
       }
     } catch (error) {
-      setError(error.message || "An error occurred");
+      createNotification("error", "Error deleting TVs");
     }
   };
 
@@ -126,15 +164,15 @@ const TVsList = () => {
           const updatedTvs = tvs.filter((tv) => tv.tvID !== tvID);
           setTvs(updatedTvs);
           setPinnedTvs([]);
+          createNotification("success", "TV deleted successfully");
         } else {
           const data = await response.json();
-          setError(data.error || "Failed to delete TV");
+          createNotification("error", "Error deleting TV");
         }
-      } else {
-        setError("Please select only one TV to delete.");
       }
     } catch (error) {
-      setError(error.message || "An error occurred");
+      console.error("Error deleting TV:", error);
+      createNotification("error", "Error deleting TV");
     }
   };
 
@@ -147,11 +185,6 @@ const TVsList = () => {
         return [...prevPinned, tvID];
       }
     });
-  };
-
-  // Group selected TVs
-  const groupSelectedTvs = () => {
-    navigate("/tv-groups", { state: { selectedTvs: pinnedTvs } });
   };
 
   // Update ads for selected TVs
@@ -168,13 +201,11 @@ const TVsList = () => {
 
       if (response.ok) {
         fetchTvs(groupID);
-        console.log("Ads updated for selected TVs");
       } else {
         const data = await response.json();
-        setError(data.error || "Failed to update selected TVs");
       }
     } catch (error) {
-      setError(error.message || "An error occurred while updating selected TVs");
+      console.error("Error updating ad:", error);
     }
   };
 
@@ -192,20 +223,10 @@ const TVsList = () => {
       });
       if (response.ok) {
         fetchTvs(groupID);
-        console.log("Ads updated for all TVs");
-      } else {
-        const data = await response.json();
-        setError(data.error || "Failed to update all TVs");
       }
     } catch (error) {
-      setError(error.message || "An error occurred while updating all TVs");
+      console.error("Error updating all TVs:", error);
     }
-  };
-
-  // Check if a URL is a video
-  const isVideo = (url) => {
-    const videoExtensions = [".mp4", ".webm", ".ogg"];
-    return videoExtensions.some((ext) => url.endsWith(ext));
   };
 
   return (
@@ -230,6 +251,25 @@ const TVsList = () => {
             <AddTvButton />
           </button>
         </div>
+      </div>
+
+      {/* Notifications */}
+      <div className="notifications-container">
+        {notifications.map((notification, index) => (
+          <div
+            key={notification.id}
+            className={`notification ${notification.type}`}
+            style={{
+              transform: `translateY(${index * 16}px)`,
+            }}
+          >
+            <AlertMessage
+              type={notification.type}
+              message={notification.message}
+              onClose={() => handleCloseNotification(notification.id)}
+            />
+          </div>
+        ))}
       </div>
 
       <div className="tvs-list">
@@ -287,8 +327,8 @@ const TVsList = () => {
                             key={index}
                             className="media-item"
                             style={{
-                              width: "100px", 
-                              height: "100px", 
+                              width: "100px",
+                              height: "100px",
                               border: "1px solid #ddd",
                               borderRadius: "8px",
                               overflow: "hidden",
@@ -357,20 +397,19 @@ const TVsList = () => {
             <>
               <button onClick={handleDeleteMultipleTv}>Delete Selected</button>
               <button onClick={() => setShowModal(true)}>Update All</button>
-              <button onClick={groupSelectedTvs}>Group TVs</button>
             </>
           )}
         </div>
       )}
 
-      {error && <div className="error-message">{error}</div>}
       {/* Render the SelectAdModal */}
       <SelectAdModal
         isOpen={showModal}
         onClose={() => setShowModal(false)}
-        onUpdate={pinnedTvs.length > 0 ? updateSelectedTvs : updateAllTvs}
+        onUpdate={pinnedTvs.length > 1 ? updateSelectedTvs : updateAllTvs}
         groupID={groupID}
         pinnedTvs={pinnedTvs}
+        createNotification={createNotification}
       />
     </div>
   );
