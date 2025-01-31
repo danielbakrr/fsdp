@@ -5,9 +5,9 @@ const AdList = () => {
   const [ads, setAds] = useState([]);
   const [activeTab, setActiveTab] = useState(null);
   const [fullscreenAd, setFullscreenAd] = useState(null);
-  const [draggingAdID, setDraggingAdID] = useState(null);
+  const [draggingItem, setDraggingItem] = useState(null);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
-  const [resizingAdID, setResizingAdID] = useState(null);
+  const [resizingItem, setResizingItem] = useState(null);
   const [resizeDirection, setResizeDirection] = useState(null);
 
   useEffect(() => {
@@ -38,75 +38,100 @@ const AdList = () => {
     setFullscreenAd(null);
   };
 
-  const handleMouseDown = (e, ad, isResize = false, direction = null) => {
+  const handleMouseDown = (e, ad, mediaItem, isResize = false, direction = null) => {
     e.stopPropagation();
     if (isResize) {
-      setResizingAdID(ad.adID);
+      setResizingItem({ adID: ad.adID, mediaID: mediaItem.id });
       setResizeDirection(direction);
     } else {
-      setDraggingAdID(ad.adID);
+      setDraggingItem({ adID: ad.adID, mediaID: mediaItem.id });
       setDragOffset({
-        x: e.clientX - (ad.metadata?.x || 0),
-        y: e.clientY - (ad.metadata?.y || 0),
+        x: e.clientX - mediaItem.metadata.x,
+        y: e.clientY - mediaItem.metadata.y,
       });
     }
   };
 
   const handleMouseMove = (e) => {
-    if (draggingAdID) {
+    if (draggingItem) {
       setAds((prevAds) =>
-        prevAds.map((ad) =>
-          ad.adID === draggingAdID
-            ? {
-                ...ad,
+        prevAds.map((ad) => {
+          if (ad.adID !== draggingItem.adID) return ad;
+          
+          return {
+            ...ad,
+            mediaItems: ad.mediaItems.map((item) => {
+              if (item.id !== draggingItem.mediaID) return item;
+              
+              return {
+                ...item,
                 metadata: {
-                  ...ad.metadata,
+                  ...item.metadata,
                   x: e.clientX - dragOffset.x,
                   y: e.clientY - dragOffset.y,
                 },
-              }
-            : ad
-        )
+              };
+            }),
+          };
+        })
       );
-    } else if (resizingAdID && resizeDirection) {
+    } else if (resizingItem && resizeDirection) {
       setAds((prevAds) =>
         prevAds.map((ad) => {
-          if (ad.adID !== resizingAdID) return ad;
+          if (ad.adID !== resizingItem.adID) return ad;
 
-          const newMetadata = { ...ad.metadata };
-          const deltaX = e.movementX;
-          const deltaY = e.movementY;
+          return {
+            ...ad,
+            mediaItems: ad.mediaItems.map((item) => {
+              if (item.id !== resizingItem.mediaID) return item;
 
-          if (resizeDirection.includes('right')) newMetadata.width = Math.max(newMetadata.width + deltaX, 50);
-          if (resizeDirection.includes('bottom')) newMetadata.height = Math.max(newMetadata.height + deltaY, 50);
-          if (resizeDirection.includes('left')) {
-            newMetadata.x += deltaX;
-            newMetadata.width = Math.max(newMetadata.width - deltaX, 50);
-          }
-          if (resizeDirection.includes('top')) {
-            newMetadata.y += deltaY;
-            newMetadata.height = Math.max(newMetadata.height - deltaY, 50);
-          }
+              const newMetadata = { ...item.metadata };
+              const deltaX = e.movementX;
+              const deltaY = e.movementY;
 
-          return { ...ad, metadata: newMetadata };
+              if (resizeDirection.includes('right')) {
+                newMetadata.width = Math.max(newMetadata.width + deltaX, 50);
+              }
+              if (resizeDirection.includes('bottom')) {
+                newMetadata.height = Math.max(newMetadata.height + deltaY, 50);
+              }
+              if (resizeDirection.includes('left')) {
+                newMetadata.x += deltaX;
+                newMetadata.width = Math.max(newMetadata.width - deltaX, 50);
+              }
+              if (resizeDirection.includes('top')) {
+                newMetadata.y += deltaY;
+                newMetadata.height = Math.max(newMetadata.height - deltaY, 50);
+              }
+
+              return {
+                ...item,
+                metadata: newMetadata,
+              };
+            }),
+          };
         })
       );
     }
   };
 
   const handleMouseUp = async () => {
-    if (draggingAdID || resizingAdID) {
-      setDraggingAdID(null);
-      setResizingAdID(null);
-      setResizeDirection(null);
-
-      const adToUpdate = ads.find((ad) => ad.adID === (draggingAdID || resizingAdID));
+    if (draggingItem || resizingItem) {
+      const itemToUpdate = draggingItem || resizingItem;
+      const adToUpdate = ads.find((ad) => ad.adID === itemToUpdate.adID);
+      
       if (adToUpdate) {
         try {
           const response = await fetch('http://localhost:5000/api/update-coordinates', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ adID: adToUpdate.adID, coordinates: adToUpdate.metadata }),
+            body: JSON.stringify({
+              adID: adToUpdate.adID,
+              coordinates: adToUpdate.mediaItems.reduce((acc, item) => {
+                acc[item.id] = item.metadata;
+                return acc;
+              }, {}),
+            }),
           });
 
           if (!response.ok) {
@@ -118,6 +143,10 @@ const AdList = () => {
           alert('Failed to update coordinates');
         }
       }
+
+      setDraggingItem(null);
+      setResizingItem(null);
+      setResizeDirection(null);
     }
   };
 
@@ -187,51 +216,54 @@ const AdList = () => {
                 </button>
               )}
 
-              <div
-                className="draggable-resizable"
-                style={{
-                  position: 'absolute',
-                  left: `${ad.metadata?.x || 0}px`,
-                  top: `${ad.metadata?.y || 0}px`,
-                  width: `${ad.metadata?.width || 100}px`,
-                  height: `${ad.metadata?.height || 100}px`,
-                  border: '1px solid #000',
-                  overflow: 'hidden',
-                  cursor: draggingAdID === ad.adID ? 'grabbing' : 'grab',
-                }}
-                onMouseDown={(e) => handleMouseDown(e, ad)}
-              >
-                {ad.mediaType === 'video' ? (
-                  <video
-                    src={ad.mediaUrl}
-                    style={{
-                      width: `${ad.metadata?.width || 100}px`,
-                      height: `${ad.metadata?.height || 100}px`,
-                      objectFit: 'cover',
-                    }}
-                    controls
-                  />
-                ) : (
-                  <img
-                    src={ad.mediaUrl}
-                    alt={ad.adTitle}
-                    style={{
-                      width: `${ad.metadata?.width || 100}px`,
-                      height: `${ad.metadata?.height || 100}px`,
-                      objectFit: 'cover',
-                    }}
-                  />
-                )}
+              {ad.mediaItems && ad.mediaItems.map((mediaItem) => (
+                <div
+                  key={mediaItem.id}
+                  className="draggable-resizable"
+                  style={{
+                    position: 'absolute',
+                    left: `${mediaItem.metadata.x}px`,
+                    top: `${mediaItem.metadata.y}px`,
+                    width: `${mediaItem.metadata.width}px`,
+                    height: `${mediaItem.metadata.height}px`,
+                    border: '1px solid #000',
+                    overflow: 'hidden',
+                    cursor: draggingItem?.mediaID === mediaItem.id ? 'grabbing' : 'grab',
+                  }}
+                  onMouseDown={(e) => handleMouseDown(e, ad, mediaItem)}
+                >
+                  {mediaItem.type === 'video' ? (
+                    <video
+                      src={mediaItem.url}
+                      style={{
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'cover',
+                      }}
+                      controls
+                    />
+                  ) : (
+                    <img
+                      src={mediaItem.url}
+                      alt={`${ad.adTitle} - ${mediaItem.id}`}
+                      style={{
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'cover',
+                      }}
+                    />
+                  )}
 
-                {['top-left', 'top-right', 'bottom-left', 'bottom-right', 'top', 'bottom', 'left', 'right'].map((dir) => (
-                  <div
-                    key={dir}
-                    className={`resize-handle ${dir}`}
-                    data-direction={dir}
-                    onMouseDown={(e) => handleMouseDown(e, ad, true, dir)}
-                  />
-                ))}
-              </div>
+                  {['top-left', 'top-right', 'bottom-left', 'bottom-right', 'top', 'bottom', 'left', 'right'].map((dir) => (
+                    <div
+                      key={dir}
+                      className={`resize-handle ${dir}`}
+                      data-direction={dir}
+                      onMouseDown={(e) => handleMouseDown(e, ad, mediaItem, true, dir)}
+                    />
+                  ))}
+                </div>
+              ))}
             </div>
           </div>
         ) : null

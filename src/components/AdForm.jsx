@@ -1,71 +1,100 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import '../styles/AdForm.css';
 
 const AdForm = () => {
-  const [media, setMedia] = useState(null);
-  const [mediaType, setMediaType] = useState(null);
+  const [mediaItems, setMediaItems] = useState([]);
   const [adTitle, setAdTitle] = useState('');
+  const [selectedItemId, setSelectedItemId] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
-  const [mediaPosition, setMediaPosition] = useState({ x: 200, y: 200 });
-  const [mediaSize, setMediaSize] = useState({ width: 200, height: 200 });
   const [resizing, setResizing] = useState(false);
   const [resizeDirection, setResizeDirection] = useState(null);
-  const mediaRef = useRef(null);
 
   const handleMediaUpload = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                setMedia(e.target.result);
-                setMediaType(file.type.startsWith('video/') ? 'video' : 'image');
-            };
-            reader.readAsDataURL(file);
-        }
-    };
+    const files = Array.from(e.target.files);
+    
+    files.forEach(file => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const newMediaItem = {
+          id: Date.now() + Math.random(), // Unique ID for each media item
+          file: file,
+          preview: e.target.result,
+          type: file.type.startsWith('video/') ? 'video' : 'image',
+          position: { x: 200, y: 200 },
+          size: { width: 200, height: 200 }
+        };
+        setMediaItems(prev => [...prev, newMediaItem]);
+      };
+      reader.readAsDataURL(file);
+    });
+  };
 
-  const handleMouseDown = (e) => {
+  const handleMouseDown = (e, itemId) => {
+    e.stopPropagation();
+    setSelectedItemId(itemId);
+    
     if (e.target.classList.contains('resize-handle')) {
       setResizing(true);
       setResizeDirection(e.target.dataset.direction);
     } else {
       setIsDragging(true);
+      const item = mediaItems.find(item => item.id === itemId);
       setDragOffset({
-        x: e.clientX - mediaPosition.x,
-        y: e.clientY - mediaPosition.y,
+        x: e.clientX - item.position.x,
+        y: e.clientY - item.position.y,
       });
     }
   };
 
   const handleMouseMove = (e) => {
+    if (!selectedItemId) return;
+
     if (isDragging) {
-      setMediaPosition({
-        x: e.clientX - dragOffset.x,
-        y: e.clientY - dragOffset.y,
-      });
+      setMediaItems(prev => prev.map(item => {
+        if (item.id === selectedItemId) {
+          return {
+            ...item,
+            position: {
+              x: e.clientX - dragOffset.x,
+              y: e.clientY - dragOffset.y,
+            }
+          };
+        }
+        return item;
+      }));
     } else if (resizing && resizeDirection) {
-      const deltaX = e.clientX - mediaPosition.x;
-      const deltaY = e.clientY - mediaPosition.y;
+      setMediaItems(prev => prev.map(item => {
+        if (item.id === selectedItemId) {
+          const deltaX = e.clientX - item.position.x;
+          const deltaY = e.clientY - item.position.y;
+          let newWidth = item.size.width;
+          let newHeight = item.size.height;
+          let newX = item.position.x;
+          let newY = item.position.y;
 
-      let newWidth = mediaSize.width;
-      let newHeight = mediaSize.height;
+          if (resizeDirection.includes('right')) newWidth = deltaX;
+          if (resizeDirection.includes('bottom')) newHeight = deltaY;
+          if (resizeDirection.includes('left')) {
+            newWidth = item.size.width - (e.movementX);
+            newX = item.position.x + e.movementX;
+          }
+          if (resizeDirection.includes('top')) {
+            newHeight = item.size.height - (e.movementY);
+            newY = item.position.y + e.movementY;
+          }
 
-      if (resizeDirection.includes('right')) newWidth = deltaX;
-      if (resizeDirection.includes('bottom')) newHeight = deltaY;
-      if (resizeDirection.includes('left')) {
-        newWidth = mediaSize.width - (e.movementX);
-        setMediaPosition((prev) => ({ ...prev, x: prev.x + e.movementX }));
-      }
-      if (resizeDirection.includes('top')) {
-        newHeight = mediaSize.height - (e.movementY);
-        setMediaPosition((prev) => ({ ...prev, y: prev.y + e.movementY }));
-      }
-
-      setMediaSize({
-        width: Math.max(newWidth, 50),
-        height: Math.max(newHeight, 50),
-      });
+          return {
+            ...item,
+            position: { x: newX, y: newY },
+            size: {
+              width: Math.max(newWidth, 50),
+              height: Math.max(newHeight, 50),
+            }
+          };
+        }
+        return item;
+      }));
     }
   };
 
@@ -73,107 +102,122 @@ const AdForm = () => {
     setIsDragging(false);
     setResizing(false);
     setResizeDirection(null);
+    setSelectedItemId(null);
   };
 
   const handleSave = async () => {
-    if (!media || !adTitle) {
-        alert('Please upload a media file and provide an ad title.');
-        return;
+    if (mediaItems.length === 0 || !adTitle) {
+      alert('Please upload at least one media file and provide an ad title.');
+      return;
     }
 
     const formData = new FormData();
-    formData.append('media', dataURLtoFile(media, `${adTitle}.${mediaType === 'video' ? 'mp4' : 'png'}`));
     formData.append('adTitle', adTitle);
-    formData.append('coordinates', JSON.stringify({
-        x: mediaPosition.x,
-        y: mediaPosition.y,
-        width: mediaSize.width,
-        height: mediaSize.height,
-    }));
+
+    // Add all media files and their metadata
+    mediaItems.forEach((item, index) => {
+      formData.append(`media_${index}`, item.file);
+      formData.append(`metadata_${index}`, JSON.stringify({
+        id: item.id,
+        type: item.type,
+        x: item.position.x,
+        y: item.position.y,
+        width: item.size.width,
+        height: item.size.height
+      }));
+    });
 
     try {
-        const response = await fetch('http://localhost:5000/api/upload', {
-            method: 'POST',
-            body: formData,
-        });
+      const response = await fetch('http://localhost:5000/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
 
-        const data = await response.json();
-        if (response.ok) {
-            alert('Ad uploaded successfully!');
-            handleDelete();
-        } else {
-            alert(`Upload failed: ${data.error}`);
-        }
+      const data = await response.json();
+      if (response.ok) {
+        alert('Ad uploaded successfully!');
+        handleDelete();
+      } else {
+        alert(`Upload failed: ${data.error}`);
+      }
     } catch (error) {
-        console.error('Error uploading ad:', error);
-        alert('An error occurred while uploading the ad.');
+      console.error('Error uploading ad:', error);
+      alert('An error occurred while uploading the ad.');
     }
-};
-  
-  // Helper to convert data URL to a File object
-  const dataURLtoFile = (dataurl, filename) => {
-    const arr = dataurl.split(',');
-    const mime = arr[0].match(/:(.*?);/)[1];
-    const bstr = atob(arr[1]);
-    let n = bstr.length;
-    const u8arr = new Uint8Array(n);
-    while (n--) {
-      u8arr[n] = bstr.charCodeAt(n);
-    }
-    return new File([u8arr], filename, { type: mime });
   };
-  
 
-  const handleDelete = () => {
-    setMedia(null);
-    setMediaPosition({ x: 100, y: 100 });
-    setMediaSize({ width: 200, height: 200 });
-    setAdTitle('');
+  const handleDelete = (itemId = null) => {
+    if (itemId) {
+      setMediaItems(prev => prev.filter(item => item.id !== itemId));
+    } else {
+      setMediaItems([]);
+      setAdTitle('');
+    }
   };
 
   return (
     <div className="editor-container" onMouseMove={handleMouseMove} onMouseUp={handleMouseUp} onMouseLeave={handleMouseUp}>
-        <input type="file" accept="image/*,video/*" onChange={handleMediaUpload} />
-        <input
-            type="text"
-            placeholder="Enter Advertisement Title"
-            value={adTitle}
-            onChange={(e) => setAdTitle(e.target.value)}
-        />
-        <button onClick={handleSave} disabled={!media}>Save Media</button>
-        <button onClick={handleDelete} disabled={!media}>Delete Media</button>
-        {media && (
+      <input type="file" multiple accept="image/*,video/*" onChange={handleMediaUpload} />
+      <input
+        type="text"
+        placeholder="Enter Advertisement Title"
+        value={adTitle}
+        onChange={(e) => setAdTitle(e.target.value)}
+      />
+      <button onClick={handleSave} disabled={mediaItems.length === 0}>Save Advertisement</button>
+      <button onClick={() => handleDelete()} disabled={mediaItems.length === 0}>Delete All</button>
+      
+      {mediaItems.map((item) => (
+        <div
+          key={item.id}
+          className="media-container"
+          style={{
+            position: 'absolute',
+            top: item.position.y,
+            left: item.position.x,
+            width: item.size.width,
+            height: item.size.height,
+            border: selectedItemId === item.id ? '2px solid blue' : '1px solid #ccc'
+          }}
+          onMouseDown={(e) => handleMouseDown(e, item.id)}
+        >
+          {item.type === 'video' ? (
+            <video
+              src={item.preview}
+              controls
+              style={{ width: '100%', height: '100%' }}
+            />
+          ) : (
+            <img src={item.preview} alt="Uploaded" style={{ width: '100%', height: '100%' }} />
+          )}
+          <button 
+            className="delete-button"
+            onClick={() => handleDelete(item.id)}
+            style={{
+              position: 'absolute',
+              top: '-20px',
+              right: '-20px',
+              padding: '4px 8px',
+              background: 'red',
+              color: 'white',
+              border: 'none',
+              borderRadius: '50%',
+              cursor: 'pointer'
+            }}
+          >
+            ×
+          </button>
+          {['top-left', 'top-right', 'bottom-left', 'bottom-right', 'top', 'bottom', 'left', 'right'].map((dir) => (
             <div
-                className="media-container"
-                style={{
-                    top: mediaPosition.y,
-                    left: mediaPosition.x,
-                    width: mediaSize.width,
-                    height: mediaSize.height,
-                }}
-                onMouseDown={handleMouseDown}
-                ref={mediaRef}
-            >
-                {mediaType === 'video' ? (
-                    <video
-                        src={media}
-                        controls
-                        style={{ width: '100%', height: '100%' }}
-                    />
-                ) : (
-                    <img src={media} alt="Uploaded" style={{ width: '100%', height: '100%' }} />
-                )}
-                {['top-left', 'top-right', 'bottom-left', 'bottom-right', 'top', 'bottom', 'left', 'right'].map((dir) => (
-                    <div
-                        key={dir}
-                        className={`resize-handle ${dir}`}
-                        data-direction={dir}
-                    />
-                ))}
-            </div>
-        )}
+              key={dir}
+              className={`resize-handle ${dir}`}
+              data-direction={dir}
+            />
+          ))}
+        </div>
+      ))}
     </div>
-);
+  );
 };
 
 export default AdForm;
