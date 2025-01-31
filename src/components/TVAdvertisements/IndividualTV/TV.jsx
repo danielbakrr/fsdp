@@ -48,37 +48,6 @@ const TV = () => {
     };
   }, [tvID]);
 
-  // Fetch the current ad for the TV
-  const fetchCurrentAd = async () => {
-    setLoading(true);
-    setError("");
-    try {
-      // Fetch the TV object to get the current adID
-      const tvResponse = await fetch(`/tvgroups/${groupID}/tvs/${tvID}`);
-      if (!tvResponse.ok) {
-        throw new Error("Failed to fetch TV details");
-      }
-      const tvData = await tvResponse.json();
-
-      // Fetch all ads
-      const adsResponse = await fetch("/api/Advertisements");
-      if (!adsResponse.ok) {
-        throw new Error("Failed to fetch advertisements");
-      }
-      const adsData = await adsResponse.json();
-
-      // Find the current ad using the adID from the TV object
-      const currentAd = adsData.find((ad) => ad.adID === tvData.adID);
-      setCurrentAd(currentAd);
-      setAdsList(adsData); // Set the ads list for the dropdown
-    } catch (error) {
-      console.error("Error fetching current ad:", error);
-      setError("Failed to load current ad. Please try again.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const fetchAllAds = async () => {
     setLoading(true);
     setError("");
@@ -99,7 +68,40 @@ const TV = () => {
       setLoading(false);
     }
   };
-  
+
+  // Fetch the current ad for the TV
+  const fetchCurrentAd = async () => {
+    setLoading(true);
+    setError("");
+    try {
+      // Fetch the TV object to get the current adID
+      const tvResponse = await fetch(`/tvgroups/${groupID}/tvs/${tvID}`);
+      if (!tvResponse.ok) {
+        throw new Error("Failed to fetch TV details");
+      }
+      const tvData = await tvResponse.json();
+
+      // Fetch all ads
+      const adsResponse = await fetch("/api/Advertisements");
+      if (!adsResponse.ok) {
+        throw new Error("Failed to fetch advertisements");
+      }
+      const adsData = await adsResponse.json();
+
+      // Find the current ad using the adID from the TV object
+      const currentAd = tvData.adID
+        ? adsData.find((ad) => ad.adID === tvData.adID)
+        : null;
+      setCurrentAd(currentAd);
+      setAdsList(adsData); // Set the ads list for the dropdown
+    } catch (error) {
+      console.error("Error fetching current ad:", error);
+      setError("Failed to load current ad. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Handle ad selection in the dropdown
   const handleAdChange = (event) => {
     const newAdID = event.target.value;
@@ -131,7 +133,15 @@ const TV = () => {
 
       const result = await response.json();
       console.log(result.message);
-      setCurrentAd(selectedAd); // Update the current ad
+
+      // Update the current ad state
+      setCurrentAd(selectedAd);
+
+      // Broadcast the update via WebSocket
+      if (socketClient.current && socketClient.current.send) {
+        socketClient.current.send({ type: "ad_update", ad: selectedAd });
+      }
+
       alert("Advertisement updated successfully!");
     } catch (error) {
       console.error("Error updating advertisement:", error);
@@ -149,8 +159,8 @@ const TV = () => {
       <div className="breadcrumb">
         <Link to="/advertisement-display" className="breadcrumb-link">
           Group
-        </Link>{" "}
-        &gt;{" "}
+        </Link>
+        &gt;
         <Link
           to={`/advertisement-display/tvgroups/${groupID}?groupName=${encodeURIComponent(
             groupName
@@ -158,7 +168,7 @@ const TV = () => {
           className="breadcrumb-link"
         >
           {groupName}
-        </Link>{" "}
+        </Link>
         &gt; <span className="breadcrumb-current">TV {tvID}</span>
       </div>
 
@@ -167,33 +177,24 @@ const TV = () => {
           <p>Loading advertisements...</p>
         ) : error ? (
           <p className="error-message">{error}</p>
-        ) : currentAd ? (
+        ) : (
           <>
             <div className="ad-preview">
-              <div style={{ userSelect: "none" }}>
-                <h2>Ad Preview</h2>
-                <div
-                  style={{
-                    position: "relative",
-                    width: "830px",
-                    height: "450px",
-                    border: "1px solid #000",
-                    justifyContent: "center",
-                    overflow: "hidden", // Ensure nothing exceeds the preview
-                  }}
-                >
-                  {currentAd.mediaItems.map((mediaItem) => (
+              <h2>Ad Preview</h2>
+              <div className="ad-preview-container">
+                {currentAd ? (
+                  currentAd.mediaItems.map((mediaItem) => (
                     <div
                       key={mediaItem.id}
                       style={{
+                        scale: "0.8",
                         position: "absolute",
                         left: `${mediaItem.metadata.x}px`,
                         top: `${mediaItem.metadata.y}px`,
                         width: `${mediaItem.metadata.width}px`,
                         height: `${mediaItem.metadata.height}px`,
-                        border: "1px solid #000",
-                        overflow: "hidden",
                       }}
+                      className="ad-media-item"
                     >
                       {mediaItem.type === "video" ? (
                         <video
@@ -217,8 +218,10 @@ const TV = () => {
                         />
                       )}
                     </div>
-                  ))}
-                </div>
+                  ))
+                ) : (
+                  <p>No ad selected</p>
+                )}
               </div>
             </div>
 
@@ -229,6 +232,7 @@ const TV = () => {
                 value={selectedAd?.adID || ""}
                 onChange={handleAdChange}
               >
+                <option value="">Select an ad</option>
                 {adsList.map((ad) => (
                   <option key={ad.adID} value={ad.adID}>
                     {ad.adTitle}
@@ -240,13 +244,11 @@ const TV = () => {
             <button
               className="confirm-button"
               onClick={handleConfirm}
-              disabled={loading}
+              disabled={loading || !selectedAd}
             >
               {loading ? "Updating..." : "Confirm Advertisement"}
             </button>
           </>
-        ) : (
-          <p>No advertisements available.</p>
         )}
       </div>
     </div>

@@ -1,7 +1,8 @@
 /* General Styles */
 .tvs-page {
-  padding: 20px;
-  font-family: Arial, sans-serif;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  letter-spacing: 1px;
+  padding: 15px;
 }
 
 .breadcrumb {

@@ -287,8 +287,8 @@ const TVsList = () => {
                             key={index}
                             className="media-item"
                             style={{
-                              width: "100px", // Fixed width for mini view
-                              height: "100px", // Fixed height for mini view
+                              width: "100px", 
+                              height: "100px", 
                               border: "1px solid #ddd",
                               borderRadius: "8px",
                               overflow: "hidden",
