@@ -11,7 +11,10 @@ class SocketIOClient {
 
   // Connect to the Socket.IO server
   connect() {
-    this.socket = io(this.url);
+    this.socket = io(this.url, {
+      withCredentials: true, // Allow credentials (cookies, authorization headers)
+      transports: ['websocket'], // Use WebSocket transport only
+    });
 
     this.socket.on('connect', () => {
       console.log('Socket.IO connected');
@@ -25,6 +28,10 @@ class SocketIOClient {
       if (this.onConnectionChangeCallback) {
         this.onConnectionChangeCallback(false);
       }
+    });
+
+    this.socket.on('connect_error', (error) => {
+      console.error('Socket.IO connection error:', error);
     });
 
     this.socket.on('tv_connected', (data) => {
@@ -58,7 +65,7 @@ class SocketIOClient {
   // Send an ad update
   sendAdUpdate(message) {
     if (this.socket) {
-      this.socket.emit(message.type, message.tvID, message.ad);
+      this.socket.emit('ad_update', message); // Emit the entire message object
     }
   }
 

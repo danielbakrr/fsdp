@@ -19,37 +19,71 @@ const TV = () => {
   const [adsList, setAdsList] = useState([]); // List of all ads
   const [currentAd, setCurrentAd] = useState(null); // Current ad being displayed on the TV
   const [selectedAd, setSelectedAd] = useState(null); // Selected ad in the dropdown
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const socketClient = useRef(null);
+  const [loading, setLoading] = useState(true); // Loading state
+  const [error, setError] = useState(""); // Error message
+  const socketClient = useRef(null); // WebSocket client
 
   useEffect(() => {
+    const fetchCurrentAd = async () => {
+      setError("");
+      try {
+        const tvResponse = await fetch(`/tvgroups/${groupID}/tvs/${tvID}`);
+        if (!tvResponse.ok) {
+          throw new Error("Failed to fetch TV details");
+        }
+        const tvData = await tvResponse.json();
+  
+        const adsResponse = await fetch("/api/Advertisements");
+        if (!adsResponse.ok) {
+          throw new Error("Failed to fetch advertisements");
+        }
+        const adsData = await adsResponse.json();
+  
+        const currentAd = tvData.adID
+          ? adsData.find((ad) => ad.adID === tvData.adID)
+          : null;
+        setCurrentAd(currentAd);
+        setAdsList(adsData);
+      } catch (error) {
+        console.error("Error fetching current ad:", error);
+        setError("Failed to load current ad. Please try again.");
+      }
+    };
+  
     // Initialize WebSocket client
     socketClient.current = new SocketIOClient("http://localhost:5000");
     socketClient.current.connect();
-
+  
+    // Join the TV room
     socketClient.current.joinTV(tvID);
-
-    // Fetch the current ad for the TV
-    fetchCurrentAd();
+  
     // Fetch all ads for the dropdown
     fetchAllAds();
-
+  
     // Handle incoming ad updates
     socketClient.current.onMessage((data) => {
       if (data.type === "ad_update" && data.ad) {
         setCurrentAd(data.ad);
       }
     });
-
+  
+    // Fetch the current ad periodically
+    const intervalId = setInterval(() => {
+      fetchCurrentAd();
+    }, 5000);
+  
+    // Cleanup on unmount
     return () => {
       socketClient.current.disconnect();
+      clearInterval(intervalId);
     };
-  }, [tvID]);
+  }, [tvID, groupID]); // Add groupID to the dependency array
 
+
+  // Fetch all ads
   const fetchAllAds = async () => {
-    setLoading(true);
     setError("");
+    setLoading(true);
     try {
       const response = await fetch("/api/Advertisements");
       if (!response.ok) {
@@ -63,39 +97,6 @@ const TV = () => {
     } catch (error) {
       console.error("Error fetching ads:", error);
       setError("Failed to load advertisements. Please try again.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Fetch the current ad for the TV
-  const fetchCurrentAd = async () => {
-    setLoading(true);
-    setError("");
-    try {
-      // Fetch the TV object to get the current adID
-      const tvResponse = await fetch(`/tvgroups/${groupID}/tvs/${tvID}`);
-      if (!tvResponse.ok) {
-        throw new Error("Failed to fetch TV details");
-      }
-      const tvData = await tvResponse.json();
-
-      // Fetch all ads
-      const adsResponse = await fetch("/api/Advertisements");
-      if (!adsResponse.ok) {
-        throw new Error("Failed to fetch advertisements");
-      }
-      const adsData = await adsResponse.json();
-
-      // Find the current ad using the adID from the TV object
-      const currentAd = tvData.adID
-        ? adsData.find((ad) => ad.adID === tvData.adID)
-        : null;
-      setCurrentAd(currentAd);
-      setAdsList(adsData); // Set the ads list for the dropdown
-    } catch (error) {
-      console.error("Error fetching current ad:", error);
-      setError("Failed to load current ad. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -115,7 +116,6 @@ const TV = () => {
       return;
     }
 
-    setLoading(true);
     setError("");
     try {
       const response = await fetch(`/tvgroups/${groupID}/tvs/${tvID}`, {
@@ -138,15 +138,15 @@ const TV = () => {
 
       // Broadcast the update via WebSocket
       if (socketClient.current && socketClient.current.send) {
-        socketClient.current.send({ type: "ad_update", tvID: tvID, ad: selectedAd });
+        socketClient.current.send({
+          type: "ad_update",
+          tvID: tvID,
+          ad: selectedAd,
+        });
       }
-
-      alert("Advertisement updated successfully!");
     } catch (error) {
       console.error("Error updating advertisement:", error);
       setError("Failed to update advertisement. Please try again.");
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -243,9 +243,9 @@ const TV = () => {
             <button
               className="confirm-button"
               onClick={handleConfirm}
-              disabled={loading || !selectedAd}
+              disabled={!selectedAd}
             >
-              {loading ? "Updating..." : "Confirm Advertisement"}
+              Push Advertisement
             </button>
           </>
         )}
