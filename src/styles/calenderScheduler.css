@@ -1,203 +1,209 @@
-.schedule-form-container {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
+.scheduler-container {
+    min-height: 100vh;
+    background-color: rgb(243, 244, 246);
     padding: 1rem;
   }
   
-  .schedule-form-modal {
+  .scheduler-modal {
     background-color: white;
-    border-radius: 12px;
-    padding: 1.5rem;
-    width: 100%;
-    max-width: 448px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 0.75rem;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    max-width: 28rem;
+    margin: 0 auto;
   }
   
+  .scheduler-content {
+    padding: 1rem;
+  }
+  
+  /* Header Styles */
   .modal-header {
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    justify-content: space-between;
     margin-bottom: 1rem;
   }
   
-  .header-left {
+  .header-title {
     display: flex;
     align-items: center;
     gap: 0.5rem;
   }
   
-  .calendar-icon {
-    width: 20px;
-    height: 20px;
-    color: #6B7280;
+  .header-icon {
+    color: rgb(31, 41, 55);
   }
   
-  .modal-header h2 {
+  .header-title h2 {
     font-size: 1.125rem;
     font-weight: 500;
-    color: #111827;
     margin: 0;
   }
   
   .close-button {
+    color: rgb(156, 163, 175);
+    font-size: 1.5rem;
     background: none;
     border: none;
-    color: #9CA3AF;
     cursor: pointer;
     padding: 0.25rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    line-height: 1;
   }
   
   .close-button:hover {
-    color: #6B7280;
+    color: rgb(107, 114, 128);
   }
   
   .subtitle {
-    color: #6B7280;
     font-size: 0.875rem;
+    color: rgb(107, 114, 128);
     margin-bottom: 1.5rem;
   }
   
-  .form-group {
-    margin-bottom: 1rem;
+  /* Form Content Styles */
+  .form-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
   }
   
-  .form-group label {
-    display: block;
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: #374151;
+  /* Frequency Section */
+  .frequency-section {
     margin-bottom: 0.5rem;
   }
   
-  .select-input,
-  .text-input,
-  .time-input {
-    width: 100%;
-    padding: 0.5rem;
-    border: 1px solid #E5E7EB;
-    border-radius: 6px;
-    font-size: 0.875rem;
-    color: #111827;
-    background-color: white;
+  .frequency-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
   }
   
-  .select-input:focus,
-  .text-input:focus,
-  .time-input:focus {
-    outline: none;
-    border-color: #2563EB;
-    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+  .frequency-trigger {
+    background-color: rgb(249, 250, 251);
+    border-color: rgb(229, 231, 235);
   }
   
   .color-picker-container {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
+    gap: 0.5rem;
   }
   
-  .color-picker {
-    width: 80px;
-    height: 32px;
-    padding: 2px;
-    border: 1px solid #E5E7EB;
-    border-radius: 6px;
-    background-color: white;
+  .color-input {
+    width: 4rem;
+    height: 2rem;
+    padding: 0.25rem;
+    border-radius: 0.375rem;
   }
   
   .percentage {
     font-size: 0.875rem;
-    color: #6B7280;
+    color: rgb(75, 85, 99);
+  }
+  
+  /* Campaign Name Section */
+  .campaign-name-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .campaign-name-section label {
+    font-size: 0.875rem;
+    color: rgb(75, 85, 99);
+  }
+  
+  .campaign-input {
+    width: 100%;
+    background-color: rgb(249, 250, 251);
+    border-color: rgb(229, 231, 235);
+  }
+  
+  /* Date & Time Section */
+  .datetime-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .datetime-section label {
+    font-size: 0.875rem;
+    color: rgb(75, 85, 99);
+  }
+  
+  .datetime-container {
+    background-color: rgb(249, 250, 251);
+    border-radius: 0.5rem;
+    padding: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  .date-input-container,
+  .time-input-container {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: white;
+    padding: 0.5rem;
+    border-radius: 0.375rem;
+    border: 1px solid rgb(229, 231, 235);
+  }
+  
+  .input-icon {
+    color: rgb(107, 114, 128);
+  }
+  
+  .date-input,
+  .time-input {
+    border: none;
+    padding: 0;
+    font-size: 0.875rem;
+  }
+  
+  .date-input:focus,
+  .time-input:focus {
+    outline: none;
+    box-shadow: none;
   }
   
   .time-inputs {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-  }
-  
-  .time-input {
-    width: 120px;
-  }
-  
-  .time-separator {
-    color: #9CA3AF;
-  }
-  
-  .progress-bar {
-    width: 100%;
-    height: 4px;
-    background-color: #F3F4F6;
-    border-radius: 2px;
-    margin: 1.5rem 0;
-    overflow: hidden;
-  }
-  
-  .progress-fill {
-    width: 33.33%;
-    height: 100%;
-    background-color: #2563EB;
-    border-radius: 2px;
-  }
-  
-  .button-group {
-    display: flex;
-    justify-content: flex-end;
     gap: 0.75rem;
   }
   
-  .cancel-button,
-  .continue-button {
-    padding: 0.5rem 1rem;
-    border-radius: 6px;
-    font-size: 0.875rem;
-    font-weight: 500;
-    cursor: pointer;
+  .time-separator {
+    color: rgb(156, 163, 175);
+  }
+  
+  /* Progress Bar */
+  .progress-bar {
+    height: 0.25rem;
+    background-color: rgb(59, 130, 246);
+    width: 33.333333%;
+    border-radius: 9999px;
+  }
+  
+  /* Button Container */
+  .button-container {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    margin-top: 1rem;
   }
   
   .cancel-button {
-    background-color: white;
-    border: 1px solid #E5E7EB;
-    color: #374151;
-  }
-  
-  .cancel-button:hover {
-    background-color: #F9FAFB;
+    color: rgb(75, 85, 99);
   }
   
   .continue-button {
-    background-color: #2563EB;
-    border: none;
+    background-color: rgb(59, 130, 246);
     color: white;
   }
   
   .continue-button:hover {
-    background-color: #1D4ED8;
+    background-color: rgb(37, 99, 235);
   }
-  
-  /* Responsive adjustments */
-  @media (max-width: 640px) {
-    .schedule-form-modal {
-      padding: 1rem;
-      margin: 0.5rem;
-    }
-  
-    .time-inputs {
-      flex-direction: column;
-      gap: 0.5rem;
-    }
-  
-    .time-input {
-      width: 100%;
-    }
-  };
-  
