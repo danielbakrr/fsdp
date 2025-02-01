@@ -4,10 +4,13 @@ import "../../styles/displayUsers.css"
 import Select from 'react-select';
 import { MdDelete } from "react-icons/md";
 import Navbar from "../navbar";
+import { useNavigate } from 'react-router-dom';
 import Dropdown from "../Dropdown/dropdown";
 import DropdownItem from "../DropdownItem/dropdownItem"
+import { ToastContainer, toast } from 'react-toastify';
 
 const DisplayUsers = () => {
+    let navigate = useNavigate();
     const [users,setUsers] = useState([]);
     const [isModalOpen,setModalOpen] = useState(false);
     const [adPermissions,setAdPermissions] = useState([]);
@@ -56,10 +59,31 @@ const DisplayUsers = () => {
         }
     }
 
+    const retrieveAllTvGroups = async()=> {
+        const response = await fetch('/tvGroups');
+        if (response.status == 200){
+            toast.success("Retrieved all tvGroups sucessfully");
+            const data = await response.json();
+            const tvGroupOptions = [];
+            data.map((tvObj)=> {
+                const opt = {
+                    "value": tvObj.groupID,
+                    "label": tvObj.groupName
+                }
+                tvGroupOptions.push(opt);
+            })
+            setTvGroupIds(tvGroupOptions);
+        }
+        else{
+            toast.error("Unable to retrieve all tv Groups");
+        }
+    }
+
     const editRole = async (userId,newRole)=> {
         const response = await fetch(`/api/edit-userRole/${userId}`,{
             method: "POST",
             headers: {
+                "Authorization": `Bearer ${token}`, 
                 "content-type": "application/json"
             },
             body: JSON.stringify({
@@ -103,9 +127,10 @@ const DisplayUsers = () => {
                 }
             });
             if(response.status == 200){
+                setUsers(prevUsers => prevUsers.filter(user => user.userId !== userId));
                 const message = await response.json();
-                console.log(message);
-                alert(message)
+                toast.success(message);
+                
             }
             else{
                 alert("Unable to delete user");
@@ -118,8 +143,11 @@ const DisplayUsers = () => {
     const fetchAllRoles = async()=>{
         try {
             const response = await fetch("/api/getAllRoles");
-            const roles = await response.json();
-            setRoles(roles.roles);
+            if (response.status == 200){
+
+                const roles = await response.json();
+                setRoles(roles.roles);
+            }
         }
         catch (err){
             console.error(err);
@@ -161,11 +189,23 @@ const DisplayUsers = () => {
 
         
         if(tvGroupPermissions.length > 0){
-            const tempObject = {
-                "actions": tvGroupPermissions.map(tvGrpPerm => tvGrpPerm.value),
-                "resource": "Tv Group"
+            if (selectedTvIds.length > 0){
+                const tvIds = selectedTvIds.map(selectedTvIds => selectedTvIds.value);
+                const tempObject = {
+                    "actions": tvGroupPermissions.map(tvGrpPerm => tvGrpPerm.value),
+                    "resource": "Tv Group",
+                    "tvIds": tvIds
+                }
+
+                newPermissions.push(tempObject)
             }
-            newPermissions.push(tempObject)
+            else {
+                const tempObject = {
+                    "actions": tvGroupPermissions.map(tvGrpPerm => tvGrpPerm.value),
+                    "resource": "Tv Group",
+                }
+                newPermissions.push(tempObject)
+            }
         }
 
         if(metricsPermissions.length > 0){
@@ -176,6 +216,8 @@ const DisplayUsers = () => {
 
             newPermissions.push(tempObject);
         }
+
+        
 
         console.log(JSON.stringify(newPermissions,null,2));
 
@@ -194,13 +236,14 @@ const DisplayUsers = () => {
             'body': JSON.stringify(request)
         })
 
-        if (response.status == 200){
-            // alert the user of sucessful role creation 
-            alert(`The role ${roleName} has been created sucessfully`);
-
+        if (response.status == 201){
+            toast.success("Sucessfully created user role");
+        }
+        else if (response.status == 403){
+            toast.warn("User is forbidden from creating user roles");
         }
         else {
-            alert("Internal server error");
+            toast.error("Unable to create user roles");
         }
 
         
@@ -211,6 +254,8 @@ const DisplayUsers = () => {
         fetchUsers();
         // call fetch api to set the roles 
         fetchAllRoles();
+
+        retrieveAllTvGroups();
     },[])
 
     const openAddRoleModal = () => {
@@ -228,13 +273,21 @@ const DisplayUsers = () => {
                     'content-type': "application/json",
                 }
             });
-            const users = await response.json();
-            console.log(users);
-            if (users.retrievedUsers != null){
-                setUsers(users.retrievedUsers);
+            if (response.status == 200){
+                const users = await response.json();
+                if (users.retrievedUsers != null){
+                    setUsers(users.retrievedUsers); // Creates a new array
+                    toast.success("Users retrieved sucessfully");
+                }
+            }
+            else if (response.status == 403){
+                toast.warn("User is forbidden from accessing this feature")
+                setTimeout(()=>{
+                    navigate('/Home')
+                },5000)
             }
             else {
-                console.log("Error fetching users");
+                toast.error("Unable to retrieve users")
             }
         }
         catch(err){
@@ -246,6 +299,8 @@ const DisplayUsers = () => {
     // return the react component 
     return (
         <div className = "usersTableContainer">
+            <ToastContainer>
+            </ToastContainer>
             {/* <Navbar/> */}
             {/* the rest of the html elements */}
             <div className = "userTable">
@@ -359,6 +414,19 @@ const DisplayUsers = () => {
                                 classNamePrefix="select"
                                 styles={customStyles}
                                 onChange={setTvGroupPermissions}
+                            />
+                        </div>
+
+                        <div className = "permissions">
+                            <h4>Select Tv Groups</h4>
+                            <Select
+                                isMulti
+                                name="names"
+                                options={tvGroupIds}
+                                className="basic-multi-select"
+                                classNamePrefix="select"
+                                styles={customStyles}
+                                onChange={setSelectedIds}
                             />
                         </div>
 
