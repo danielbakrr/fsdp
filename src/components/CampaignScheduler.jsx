@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import './campaignScheduler.css';
+import '../styles/campaignScheduler.css';
 
 const CampaignScheduler = () => {
   const [schedule, setSchedule] = useState({
