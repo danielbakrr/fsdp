@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate, Link, useParams } from "react-router-dom";
 import Navbar from "../../navbar";
 import "./TVsList.css";
+import { jwtDecode } from 'jwt-decode';
 import AddTvButton from "./addTVButton";
 import UpdateAll from "./updateAllButton";
 import SelectAdModal from "./selectAdModal";
@@ -17,6 +18,31 @@ const TVsList = () => {
   const [notifications, setNotifications] = useState([]); // Store notifications
   const { state } = useLocation();
   const navigate = useNavigate();
+  const [userFeatures,setUserFeatures] = useState([]);
+  const features = ["Advertisement Display", "Template Editor", "Advertisement Management", "File Management"];
+  
+  const decodeToken = ()=> {
+        const token = localStorage.getItem('token');
+        if(token != null){
+          const decodedToken = jwtDecode(token);
+          console.log(JSON.stringify(decodedToken,null,2));
+          const role = decodedToken.permissions;
+          const temp = [];
+          const permissions = role.permissions;
+          if(Array.isArray(permissions) && permissions.length > 0){
+            permissions.forEach(element => {
+              console.log(element.resource);
+              for(let i = 0; i< features.length; i++){
+                if(features[i].includes(element.resource)){
+                  temp.push(features[i]);
+                }
+              }
+            });
+          }
+          setUserFeatures(temp);
+    
+        }
+  }
 
   // Create a notification
   const createNotification = (type, message) => {
@@ -225,7 +251,9 @@ const TVsList = () => {
 
   return (
     <div className="tvs-page">
-      <Navbar />
+      <Navbar
+        navItems={userFeatures} 
+      />
       <div className="breadcrumb">
         <Link to="/advertisement-display" className="breadcrumb-link">
           Group

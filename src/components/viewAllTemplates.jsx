@@ -1,6 +1,8 @@
 import React from "react";
 import Navbar from './navbar';
 import { Link } from "react-router-dom";
+import {useState} from "react";
+import { jwtDecode } from 'jwt-decode';
 import template1 from "../assets/Burger Food Super Deal Restaurant Advertising Poster.jpg";
 import template2 from "../assets/Happy Hour Beer Instagram Story.mp4";
 import template3 from "../assets/Pink and Peach Photo Food Bread Ads Instagram Story.png";
@@ -63,9 +65,37 @@ const ViewAllTemplates = () => {
     },
   ];
 
+  const [userFeatures,setUserFeatures] = useState([]);
+  const features = ["Advertisement Display", "Template Editor", "Advertisement Management", "File Management"];
+  
+  const decodeToken = ()=> {
+        const token = localStorage.getItem('token');
+        if(token != null){
+          const decodedToken = jwtDecode(token);
+          console.log(JSON.stringify(decodedToken,null,2));
+          const role = decodedToken.permissions;
+          const temp = [];
+          const permissions = role.permissions;
+          if(Array.isArray(permissions) && permissions.length > 0){
+            permissions.forEach(element => {
+              console.log(element.resource);
+              for(let i = 0; i< features.length; i++){
+                if(features[i].includes(element.resource)){
+                  temp.push(features[i]);
+                }
+              }
+            });
+          }
+          setUserFeatures(temp);
+    
+        }
+  }
+
   return (
     <div className="view-all-templates">
-      <Navbar/>
+      <Navbar
+        navItems={userFeatures}
+      />
       {/* Breadcrumb Navigation */}
       <div className="breadcrumb">
         <Link to="/">Home</Link> &gt; <Link to="/manage-templates">Templates</Link> &gt; View All Templates

@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import "../styles/AdForm.css";
 import Navbar from "./navbar";
 import WebSocketClient from "../websocket/WebsocketClient";
-
+import { jwtDecode } from 'jwt-decode';
 const AdList = () => {
   const [ads, setAds] = useState([]);
   const [activeTab, setActiveTab] = useState(null);
@@ -12,6 +12,31 @@ const AdList = () => {
   const [resizingItem, setResizingItem] = useState(null);
   const [resizeDirection, setResizeDirection] = useState(null);
   const wsClient = useRef(null);
+  const [userFeatures,setUserFeatures] = useState([]);
+  const features = ["Advertisement Display", "Template Editor", "Advertisement Management", "File Management"];
+
+const decodeToken = ()=> {
+      const token = localStorage.getItem('token');
+      if(token != null){
+        const decodedToken = jwtDecode(token);
+        console.log(JSON.stringify(decodedToken,null,2));
+        const role = decodedToken.permissions;
+        const temp = [];
+        const permissions = role.permissions;
+        if(Array.isArray(permissions) && permissions.length > 0){
+          permissions.forEach(element => {
+            console.log(element.resource);
+            for(let i = 0; i< features.length; i++){
+              if(features[i].includes(element.resource)){
+                temp.push(features[i]);
+              }
+            }
+          });
+        }
+        setUserFeatures(temp);
+  
+      }
+  }
 
   useEffect(() => {
     const fetchAds = async () => {
@@ -174,7 +199,9 @@ const AdList = () => {
 
   return (
     <div>
-      <Navbar />
+      <Navbar
+        navItems={userFeatures} 
+      />
     <div
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate,Link } from "react-router-dom";
-
+import { jwtDecode } from 'jwt-decode';
 
 import template1 from "../assets/Burger Food Super Deal Restaurant Advertising Poster.jpg";
 import template2 from "../assets/Happy Hour Beer Instagram Story.mp4";
@@ -9,7 +9,6 @@ import template4 from "../assets/Warm Colors Elegant Eau de Parfum Instagram Sto
 import template5 from "../assets/Orange Retro Nostalgia Food and Beverage Poster.png";
 import template6 from "../assets/Black and Red Simple Glitch Black Friday Sale Mobile Video.mp4";
 import template7 from "../assets/Beige Black Minimalist Ice Cream Promotion Poster.png";
-
 import "../styles/Template.css";
 import Navbar from "./navbar";
 
@@ -19,6 +18,31 @@ const TemplatePage = () => {
     navigate("/template-editor");
   };
   const [active, setActive] = useState(0); // State to track the active template
+  const [userFeatures,setUserFeatures] = useState([]);
+  const features = ["Advertisement Display", "Template Editor", "Advertisement Management", "File Management"];
+
+  const decodeToken = ()=> {
+        const token = localStorage.getItem('token');
+        if(token != null){
+          const decodedToken = jwtDecode(token);
+          console.log(JSON.stringify(decodedToken,null,2));
+          const role = decodedToken.permissions;
+          const temp = [];
+          const permissions = role.permissions;
+          if(Array.isArray(permissions) && permissions.length > 0){
+            permissions.forEach(element => {
+              console.log(element.resource);
+              for(let i = 0; i< features.length; i++){
+                if(features[i].includes(element.resource)){
+                  temp.push(features[i]);
+                }
+              }
+            });
+          }
+          setUserFeatures(temp);
+    
+        }
+  }
   const templates = [
     {
       id: 1,
@@ -126,7 +150,9 @@ const TemplatePage = () => {
 
   return (
     <div className="template-page">
-      <Navbar />
+      <Navbar
+        navItems={userFeatures} 
+      />
       <div className="breadcrumb">
         <Link to = "/" className="breakcrumb-link">Home</Link> &gt;
         <span> Templates</span>

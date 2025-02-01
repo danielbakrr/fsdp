@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { ChevronRight, ChevronLeft } from 'lucide-react';
 import '../styles/AdForm.css';
+import { jwtDecode } from 'jwt-decode';
 import Navbar from './navbar';
-
+import { ToastContainer, toast } from 'react-toastify';
 const AdForm = () => {
   const [mediaItems, setMediaItems] = useState([]);
   const [adTitle, setAdTitle] = useState('');
@@ -12,7 +13,31 @@ const AdForm = () => {
   const [resizing, setResizing] = useState(false);
   const [resizeDirection, setResizeDirection] = useState(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [userFeatures,setUserFeatures] = useState([]);
+  const features = ["Advertisement Display", "Template Editor", "Advertisement Management", "File Management"];
 
+const decodeToken = ()=> {
+      const token = localStorage.getItem('token');
+      if(token != null){
+        const decodedToken = jwtDecode(token);
+        console.log(JSON.stringify(decodedToken,null,2));
+        const role = decodedToken.permissions;
+        const temp = [];
+        const permissions = role.permissions;
+        if(Array.isArray(permissions) && permissions.length > 0){
+          permissions.forEach(element => {
+            console.log(element.resource);
+            for(let i = 0; i< features.length; i++){
+              if(features[i].includes(element.resource)){
+                temp.push(features[i]);
+              }
+            }
+          });
+        }
+        setUserFeatures(temp);
+  
+      }
+  }
   const handleMediaUpload = (e) => {
     const files = Array.from(e.target.files);
     
@@ -110,7 +135,7 @@ const AdForm = () => {
 
   const handleSave = async () => {
     if (mediaItems.length === 0 || !adTitle) {
-      alert('Please upload at least one media file and provide an ad title.');
+      toast.warn('Please upload at least one media file and provide an ad title.');
       return;
     }
 
@@ -138,14 +163,14 @@ const AdForm = () => {
 
       const data = await response.json();
       if (response.ok) {
-        alert('Ad uploaded successfully!');
+        toast.success('Ad uploaded successfully!');
         handleDelete();
       } else {
-        alert(`Upload failed: ${data.error}`);
+        toast.error(`Upload failed: ${data.error}`);
       }
     } catch (error) {
       console.error('Error uploading ad:', error);
-      alert('An error occurred while uploading the ad.');
+      toast.error('An error occurred while uploading the ad.');
     }
   };
 
@@ -160,7 +185,11 @@ const AdForm = () => {
 
   return (
     <div className="editor-wrapper">
-      <Navbar />
+      <ToastContainer>
+      </ToastContainer>
+      <Navbar
+        navItems={userFeatures} 
+      />
       <div className="editor-container" onMouseMove={handleMouseMove} onMouseUp={handleMouseUp} onMouseLeave={handleMouseUp}>
         <div className={`sidebar ${isSidebarOpen ? 'open' : 'closed'}`}>
           <div className="sidebar-content">

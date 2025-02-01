@@ -4,6 +4,7 @@ import "../../styles/displayUsers.css"
 import Select from 'react-select';
 import { MdDelete } from "react-icons/md";
 import Navbar from "../navbar";
+import { jwtDecode } from 'jwt-decode';
 import { useNavigate } from 'react-router-dom';
 import Dropdown from "../Dropdown/dropdown";
 import DropdownItem from "../DropdownItem/dropdownItem"
@@ -24,6 +25,31 @@ const DisplayUsers = () => {
     const [roleName,setRoleName] = useState("");
     const [newRole,selectRole] = useState({});
     const [roles,setRoles] = useState([]);
+    const [userFeatures,setUserFeatures] = useState([]);
+    const features = ["Advertisement Display", "Template Editor", "Advertisement Management", "File Management"];
+
+    const decodeToken = ()=> {
+        const token = localStorage.getItem('token');
+        if(token != null){
+            const decodedToken = jwtDecode(token);
+            console.log(JSON.stringify(decodedToken,null,2));
+            const role = decodedToken.permissions;
+            const temp = [];
+            const permissions = role.permissions;
+            if(Array.isArray(permissions) && permissions.length > 0){
+            permissions.forEach(element => {
+                console.log(element.resource);
+                for(let i = 0; i< features.length; i++){
+                if(features[i].includes(element.resource)){
+                    temp.push(features[i]);
+                }
+                }
+            });
+            }
+            setUserFeatures(temp);
+    
+        }
+    }
     const token = localStorage.getItem('token');
     // Custom styles for react-select
     const customStyles = {
