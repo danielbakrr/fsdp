@@ -26,8 +26,8 @@ class Role {
                     resource: {
                         S: perm.resource, // Convert resource to { S: "value" }
                     },
-                    ...(perm.tvIds?.length > 0 ? {  // ternary operator to check if perm.tvIds exists and perm.tvIds.length > 0
-                        tvIds: { SS: perm.tvIds } 
+                    ...(perm.tvGroupIds?.length > 0 ? {  // ternary operator to check if perm.tvIds exists and perm.tvIds.length > 0
+                        tvGroupIds: { SS: perm.tvGroupIds } 
                     } : {})
                     
                 },
@@ -90,8 +90,10 @@ class Role {
                     actions.push(element.S);
                 });
                 const resource = perm.M.resource.S;
-                const tvIds = perm.M.tvIds?.SS;  // Default to an empty array if tvIds or SS is undefined
-                denormalizedpermissions.push({actions,resource,tvIds});
+                console.log(resource);
+                const tvGroupIds = perm.M.tvGroupIds?.SS;  // Default to an empty array if tvIds or SS is undefined
+                console.log(tvGroupIds);
+                denormalizedpermissions.push({actions,resource,tvGroupIds});
             })
             
             const res = {

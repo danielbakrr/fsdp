@@ -21,6 +21,7 @@ const AdvertisementDisplay = () => {
   const [tvGroupError, setTVGroupError] = useState(false); // Track if there was an error
   const [notifications, setNotifications] = useState([]); // Store notifications
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
+  const [tvGroupIds,setTvGroupIds] = useState([]);
   const [selectedUpdateGroup, setSelectedUpdateGroup] = useState(null);
   const [userFeatures,setUserFeatures] = useState([]);
   const features = ["Advertisement Display", "Template Editor", "Advertisement Management", "File Management"];
@@ -32,8 +33,14 @@ const AdvertisementDisplay = () => {
         const decodedToken = jwtDecode(token);
         console.log(JSON.stringify(decodedToken,null,2));
         const role = decodedToken.permissions;
+        let tvGroupIdstemp = [];
         const temp = [];
         const permissions = role.permissions;
+        permissions.map((perm)=> {
+          if (perm.resource == "Tv Group"){
+           tvGroupIdstemp = perm.tvGroupIds;
+          }
+        })
         if(Array.isArray(permissions) && permissions.length > 0){
           permissions.forEach(element => {
             console.log(element.resource);
@@ -45,20 +52,30 @@ const AdvertisementDisplay = () => {
           });
         }
         setUserFeatures(temp);
+        setTvGroupIds(tvGroupIdstemp);
   
-      }
+    }
   }
   const navigate = useNavigate();
 
   useEffect(() => {
-    decodeToken();
-    fetchTVGroups();
+    const decodeFetch = async() => {
+      decodeToken();
+      fetchTVGroups();
+    }
+    decodeFetch();
     const intervalId = setInterval(() => {
       fetchTVGroups();
     }, 5000);
     return () => clearInterval(intervalId);
-  }, []);
+  },[]);
 
+  // UseEffect to run fetchTVGroups when tvGroupIds is updated
+  useEffect(() => {
+    if (tvGroupIds.length > 0) {
+      fetchTVGroups();  // Re-fetch when tvGroupIds changes
+    }
+  }, [tvGroupIds]);  // Dependency on tvGroupIds
   // Fetch the list of Groups
   const fetchTVGroups = async () => {
     try {
@@ -69,12 +86,19 @@ const AdvertisementDisplay = () => {
         throw new Error(data.error); // Handle the error returned by the API
       }
 
-      console.log("Groups data:", data);
-      setTVGroups(data); // Set Groups state
+      const filteredData = data.filter((item) => {
+        // Check if tvGroupIds is not empty and item.groupID is in tvGroupIds
+        return tvGroupIds.length > 0 && tvGroupIds.includes(item.groupID);
+      });
+      setTVGroups(filteredData); // Update state with filtered data
+      
+      
     } catch (error) {
       console.error("Error fetching TV groups:", error);
     }
   };
+
+  
 
   // Fetch TVs for the selected TVGroup
   const fetchTvs = async (groupID) => {

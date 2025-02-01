@@ -220,7 +220,7 @@ const DisplayUsers = () => {
                 const tempObject = {
                     "actions": tvGroupPermissions.map(tvGrpPerm => tvGrpPerm.value),
                     "resource": "Tv Group",
-                    "tvIds": tvIds
+                    "tvGroupId": tvIds
                 }
 
                 newPermissions.push(tempObject)
