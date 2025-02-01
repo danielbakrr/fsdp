@@ -3,6 +3,7 @@ import { useLocation, Link, useParams } from "react-router-dom";
 import Navbar from "../../navbar";
 import "./TV.css";
 import SocketIOClient from "../../../websocket/WebsocketClient";
+import "./SelectFileDropdown.css"
 
 const TV = () => {
   const { groupID, tvID } = useParams();
@@ -32,13 +33,13 @@ const TV = () => {
           throw new Error("Failed to fetch TV details");
         }
         const tvData = await tvResponse.json();
-  
+
         const adsResponse = await fetch("/api/Advertisements");
         if (!adsResponse.ok) {
           throw new Error("Failed to fetch advertisements");
         }
         const adsData = await adsResponse.json();
-  
+
         const currentAd = tvData.adID
           ? adsData.find((ad) => ad.adID === tvData.adID)
           : null;
@@ -49,36 +50,35 @@ const TV = () => {
         setError("Failed to load current ad. Please try again.");
       }
     };
-  
+
     // Initialize WebSocket client
     socketClient.current = new SocketIOClient("http://localhost:5000");
     socketClient.current.connect();
-  
+
     // Join the TV room
     socketClient.current.joinTV(tvID);
-  
+
     // Fetch all ads for the dropdown
     fetchAllAds();
-  
+
     // Handle incoming ad updates
     socketClient.current.onMessage((data) => {
       if (data.type === "ad_update" && data.ad) {
         setCurrentAd(data.ad);
       }
     });
-  
+
     // Fetch the current ad periodically
     const intervalId = setInterval(() => {
       fetchCurrentAd();
     }, 5000);
-  
+
     // Cleanup on unmount
     return () => {
       socketClient.current.disconnect();
       clearInterval(intervalId);
     };
-  }, [tvID, groupID]); // Add groupID to the dependency array
-
+  }, [tvID, groupID]);
 
   // Fetch all ads
   const fetchAllAds = async () => {
@@ -103,10 +103,8 @@ const TV = () => {
   };
 
   // Handle ad selection in the dropdown
-  const handleAdChange = (event) => {
-    const newAdID = event.target.value;
-    const selectedAdObject = adsList.find((ad) => ad.adID === newAdID);
-    setSelectedAd(selectedAdObject);
+  const handleAdChange = (ad) => {
+    setSelectedAd(ad);
   };
 
   // Handle confirmation of the selected ad
@@ -158,8 +156,8 @@ const TV = () => {
       <div className="breadcrumb">
         <Link to="/advertisement-display" className="breadcrumb-link">
           Group
-        </Link>
-        &gt;
+        </Link>{" "}
+        &gt;{" "}
         <Link
           to={`/advertisement-display/tvgroups/${groupID}?groupName=${encodeURIComponent(
             groupName
@@ -167,7 +165,7 @@ const TV = () => {
           className="breadcrumb-link"
         >
           {groupName}
-        </Link>
+        </Link>{" "}
         &gt; <span className="breadcrumb-current">TV {tvID}</span>
       </div>
 
@@ -178,6 +176,51 @@ const TV = () => {
           <p className="error-message">{error}</p>
         ) : (
           <>
+            {/* Left Column: Select Advertisement */}
+            <div className="ad-selector">
+                <div className="dropdown">
+                  <input
+                    hidden
+                    className="sr-only"
+                    name="state-dropdown"
+                    id="state-dropdown"
+                    type="checkbox"
+                  />
+                  <label
+                    aria-label="dropdown scrollbar"
+                    htmlFor="state-dropdown"
+                    className="trigger"
+                  >
+                    <div className="top-text">Select Ad </div>
+                    <div className="bottom-text">
+                    {selectedAd ? selectedAd.adTitle : "No ad selected"}
+                  </div>
+                  </label>
+                  <ul className="list webkit-scrollbar" role="list" dir="auto">
+                    {adsList.map((ad) => (
+                      <li
+                        key={ad.adID}
+                        className="listitem"
+                        role="listitem"
+                        onClick={() => handleAdChange(ad)}
+                      >
+                        <article className="article">{ad.adTitle}</article>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+              {/* Confirm Button */}
+              <button
+                className="confirm-button"
+                onClick={handleConfirm}
+                disabled={!selectedAd}
+              >
+                Push Ad
+              </button>
+            </div>
+
+            {/* Right Column: Ad Preview */}
             <div className="ad-preview">
               <h2>Ad Preview</h2>
               <div className="ad-preview-container">
@@ -186,7 +229,6 @@ const TV = () => {
                     <div
                       key={mediaItem.id}
                       style={{
-                        scale: "0.8",
                         position: "absolute",
                         left: `${mediaItem.metadata.x}px`,
                         top: `${mediaItem.metadata.y}px`,
@@ -199,6 +241,7 @@ const TV = () => {
                         <video
                           src={mediaItem.url}
                           style={{
+                            scale: "0.8",
                             width: "100%",
                             height: "100%",
                             objectFit: "cover",
@@ -210,6 +253,7 @@ const TV = () => {
                           src={mediaItem.url}
                           alt={`${currentAd.adTitle} - ${mediaItem.id}`}
                           style={{
+                            scale: "0.8",
                             width: "100%",
                             height: "100%",
                             objectFit: "cover",
@@ -223,30 +267,6 @@ const TV = () => {
                 )}
               </div>
             </div>
-
-            <div className="ad-selector">
-              <label htmlFor="ad-select">Select Advertisement:</label>
-              <select
-                id="ad-select"
-                value={selectedAd?.adID || ""}
-                onChange={handleAdChange}
-              >
-                <option value="">Select an ad</option>
-                {adsList.map((ad) => (
-                  <option key={ad.adID} value={ad.adID}>
-                    {ad.adTitle}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <button
-              className="confirm-button"
-              onClick={handleConfirm}
-              disabled={!selectedAd}
-            >
-              Push Advertisement
-            </button>
           </>
         )}
       </div>
