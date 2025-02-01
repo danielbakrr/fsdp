@@ -1,5 +1,5 @@
 {
-  "proxy": "https://fsdp.vercel.app",
+  "proxy": "http://localhost:5000",
   "name": "fsdp",
   "version": "0.1.0",
   "private": true,
