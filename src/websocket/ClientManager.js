@@ -1,4 +1,3 @@
-
 class ClientManager{
     constructor(){
         this.clientList = [];

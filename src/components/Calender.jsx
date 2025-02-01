@@ -1,9 +1,10 @@
 // src/components/Calendar.jsx
 import React, { useState } from 'react';
 import { PlusCircle, Edit, Trash2, X, Check } from 'lucide-react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
-import { Button } from "./ui/button";
-import { Input } from "./ui/input";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./calenderApp.jsx/dialog";
+import { Button } from "./calenderApp.jsx/button";
+import { Input } from "./calenderApp.jsx/input";
+import '../styles/calendar.css';
 
 const Calendar = () => {
   const [currentDate, setCurrentDate] = useState(new Date());

@@ -1,0 +1,174 @@
+:root {
+  --succses-border: #42ac42;
+  --succses-background: #6cce934f;
+  --error-background: #d24e4e30;
+  --error-border: #ff3447;
+
+  --warning-border: #ffbb35;
+  --warning-background: #ff880130;
+  --info-border: #33b5e7;
+  --info-background: #0099cc30;
+}
+
+.notifications-container {
+  position: absolute;
+  margin-top: 20px; 
+  right: 25px; 
+  z-index: 50;
+}
+
+.notification {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
+  border-radius: 0.5rem;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  width: 270px;
+  height: 60px;
+  position: relative;
+  left: auto;
+  overflow: hidden;
+  animation: show 5s ease;
+}
+
+
+/* Gradient Background */
+.notification.Success {
+  color: var(--succses-border);
+  background-image: linear-gradient(
+    to right,
+    #01c851aa,
+    var(--succses-background) 25%
+  );
+}
+
+.notification.Success::before {
+  content: "";
+  width: 100%;
+  height: 3px;
+  background-color: var(--succses-border);
+  box-shadow: 0px 0px 10px var(--succses-border);
+  position: absolute;
+  bottom: 0px;
+  left: 0px;
+  animation: progressTimer 5s linear forwards;
+}
+
+.notification.Error {
+  color: var(--error-border);
+  background-image: linear-gradient(
+    to right,
+    #ef384aaa,
+    var(--error-background) 25%
+  );
+}
+
+.notification.Error::before {
+  content: "";
+  width: 0%;
+  height: 3px;
+  background-color: var(--error-border);
+  box-shadow: 0px 0px 10px var(--error-border);
+  position: absolute;
+  bottom: 0px;
+  left: 0px;
+  animation: progressTimer 5s linear forwards;
+}
+
+.notification.Warning {
+  color: var(--warning-border);
+  background-image: linear-gradient(
+    to right,
+    #ffbb35aa,
+    var(--warning-background) 25%
+  );
+}
+
+.notification.Warning::before {
+  content: "";
+  width: 0%;
+  height: 3px;
+  background-color: var(--warning-border);
+  box-shadow: 0px 0px 10px var(--warning-border);
+  position: absolute;
+  bottom: 0px;
+  left: 0px;
+  animation: progressTimer 5s linear forwards;
+}
+
+.notification.Info {
+  color: var(--info-border);
+  background-image: linear-gradient(
+    to right,
+    #33b5e7aa,
+    var(--info-background) 25%
+  );
+}
+
+.notification.Info::before {
+  content: "";
+  width: 0%;
+  height: 3px;
+  background-color: var(--info-border);
+  box-shadow: 0px 0px 10px var(--info-border);
+  position: absolute;
+  bottom: 0px;
+  left: 0px;
+  animation: progressTimer 5s linear forwards;
+}
+
+/* Title Styles */
+.title {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  margin-right: auto;
+}
+
+.title h1 {
+  font-size: 16px;
+  margin: 0;
+  color: currentColor;
+  line-height: 1.4;
+}
+
+.title h6 {
+  font-size: 11px;
+  color: #000000;
+  margin: 0;
+}
+
+/* Icon Styles */
+.notification .icon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 30px;
+  height: 30px;
+  margin-right: 30px;
+  margin-left: 20px;
+}
+
+.notification .icon i {
+  font-size: 20px;
+  color: currentColor;
+}
+
+/* Close button */
+.notification .close {
+  cursor: pointer;
+  margin-right: 30px;
+}
+
+/* Timer animation */
+@keyframes progressTimer {
+  0% {
+    width: 100%;
+  }
+  100% {
+    width: 0%;
+  }
+}
+

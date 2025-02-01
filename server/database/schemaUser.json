@@ -1,0 +1,13 @@
+{
+    "User": {
+        "userId":"uuIDv4",
+        "dateRegistered":"isoDateString",
+        "userEmail":"email@domain.com",
+        "userFirstName":"firstName",
+        "userLastName":"lastName",
+        "role":"role",
+        "customPermissions": [],
+        "Status": "Active",
+        "userId#role": ""
+    }
+}

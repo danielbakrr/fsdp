@@ -1,0 +1,16 @@
+{
+    "Role":{
+        "roleID":"uuIDV4",
+        "roleName": "Admin",
+        "permissions": [
+            {
+                "actions": [
+                "get",
+                "view",
+                "edit"
+                ],
+            "resource": "Advertisements"
+            }
+        ] 
+    }
+}
