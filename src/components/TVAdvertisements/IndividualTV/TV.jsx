@@ -2,41 +2,46 @@ import React, { useEffect, useState, useRef } from "react";
 import { useLocation, Link, useParams } from "react-router-dom";
 import Navbar from "../../navbar";
 import "./TV.css";
+import "./SelectFileDropdown.css";
 import SocketIOClient from "../../../websocket/WebsocketClient";
-import "./SelectFileDropdown.css"
-
-import { jwtDecode } from 'jwt-decode';
+import { jwtDecode } from "jwt-decode";
 const TV = () => {
   const { groupID, tvID } = useParams();
   const { state, search } = useLocation();
   const queryParams = new URLSearchParams(search);
   const groupNameFromUrl = queryParams.get("groupName");
   const storedGroupName = localStorage.getItem("groupName");
-  const [userFeatures,setUserFeatures] = useState([]);
-  const features = ["Tv Groups", "Template Editor", "Advertisement Management", "User Management", "Metrics", "Schedule Ads"];
+  const [userFeatures, setUserFeatures] = useState([]);
+  const features = [
+    "Tv Groups",
+    "Template Editor",
+    "Advertisement Management",
+    "User Management",
+    "Metrics",
+    "Schedule Ads",
+  ];
 
-  const decodeToken = ()=> {
-        const token = localStorage.getItem('token');
-        if(token != null){
-          const decodedToken = jwtDecode(token);
-          console.log(JSON.stringify(decodedToken,null,2));
-          const role = decodedToken.permissions;
-          const temp = [];
-          const permissions = role.permissions;
-          if(Array.isArray(permissions) && permissions.length > 0){
-            permissions.forEach(element => {
-              console.log(element.resource);
-              for(let i = 0; i< features.length; i++){
-                if(features[i].includes(element.resource)){
-                  temp.push(features[i]);
-                }
-              }
-            });
+  const decodeToken = () => {
+    const token = localStorage.getItem("token");
+    if (token != null) {
+      const decodedToken = jwtDecode(token);
+      console.log(JSON.stringify(decodedToken, null, 2));
+      const role = decodedToken.permissions;
+      const temp = [];
+      const permissions = role.permissions;
+      if (Array.isArray(permissions) && permissions.length > 0) {
+        permissions.forEach((element) => {
+          console.log(element.resource);
+          for (let i = 0; i < features.length; i++) {
+            if (features[i].includes(element.resource)) {
+              temp.push(features[i]);
+            }
           }
-          setUserFeatures(temp);
-    
-        }
-  }
+        });
+      }
+      setUserFeatures(temp);
+    }
+  };
   const groupName =
     state?.group?.groupName ||
     groupNameFromUrl ||
@@ -105,7 +110,7 @@ const TV = () => {
       socketClient.current.disconnect();
       clearInterval(intervalId);
     };
-  }, [tvID, groupID]);
+  }, [tvID, groupID]); // Add groupID to the dependency array
 
   // Fetch all ads
   const fetchAllAds = async () => {
@@ -177,8 +182,7 @@ const TV = () => {
 
   return (
     <div className="TV">
-      <Navbar 
-        navItems={userFeatures}/>
+      <Navbar navItems={userFeatures} />
 
       {/* Breadcrumb Navigation */}
       <div className="breadcrumb">
@@ -204,51 +208,45 @@ const TV = () => {
           <p className="error-message">{error}</p>
         ) : (
           <>
-            {/* Left Column: Select Advertisement */}
-            <div className="ad-selector">
-                <div className="dropdown">
-                  <input
-                    hidden
-                    className="sr-only"
-                    name="state-dropdown"
-                    id="state-dropdown"
-                    type="checkbox"
-                  />
-                  <label
-                    aria-label="dropdown scrollbar"
-                    htmlFor="state-dropdown"
-                    className="trigger"
-                  >
-                    <div className="top-text">Select Ad </div>
-                    <div className="bottom-text">
-                    {selectedAd ? selectedAd.adTitle : "No ad selected"}
-                  </div>
-                  </label>
-                  <ul className="list webkit-scrollbar" role="list" dir="auto">
-                    {adsList.map((ad) => (
-                      <li
-                        key={ad.adID}
-                        className="listitem"
-                        role="listitem"
-                        onClick={() => handleAdChange(ad)}
-                      >
-                        <article className="article">{ad.adTitle}</article>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+          {/* Left Column: Select Advertisement */}
+          <div className="ad-selector">
+              <div className="dropdown">
+              <input
+                hidden=""
+                class="sr-only"
+                name="state-dropdown"
+                id="state-dropdown"
+                type="checkbox"
+              />
+              <label
+                aria-label="dropdown scrollbar"
+                for="state-dropdown"
+                class="trigger"
+              ></label>
+                <ul className="list webkit-scrollbar" role="list" dir="auto">
+                  {adsList.map((ad) => (
+                    <li
+                      key={ad.adID}
+                      className={`listitem ${selectedAd?.adID === ad.adID ? "selected" : ""}`}
+                      role="listitem"
+                      onClick={() => handleAdChange(ad)}
+                    >
+                      <article className="article">{ad.adTitle}</article>
+                    </li>
+                  ))}
+                </ul>
+              </div>
 
-              {/* Confirm Button */}
-              <button
-                className="confirm-button"
-                onClick={handleConfirm}
-                disabled={!selectedAd}
-              >
-                Push Ad
-              </button>
-            </div>
+            {/* Confirm Button */}
+            <button
+              className="confirm-button"
+              onClick={handleConfirm}
+              disabled={!selectedAd}
+            >
+              Push Ad
+            </button>
+          </div>
 
-            {/* Right Column: Ad Preview */}
             <div className="ad-preview">
               <h2>Ad Preview</h2>
               <div className="ad-preview-container">
@@ -257,6 +255,7 @@ const TV = () => {
                     <div
                       key={mediaItem.id}
                       style={{
+                        scale: "0.8",
                         position: "absolute",
                         left: `${mediaItem.metadata.x}px`,
                         top: `${mediaItem.metadata.y}px`,
@@ -269,7 +268,6 @@ const TV = () => {
                         <video
                           src={mediaItem.url}
                           style={{
-                            scale: "0.8",
                             width: "100%",
                             height: "100%",
                             objectFit: "cover",
@@ -281,7 +279,6 @@ const TV = () => {
                           src={mediaItem.url}
                           alt={`${currentAd.adTitle} - ${mediaItem.id}`}
                           style={{
-                            scale: "0.8",
                             width: "100%",
                             height: "100%",
                             objectFit: "cover",

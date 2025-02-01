@@ -1,3 +1,4 @@
+/* From Uiverse.io by ilkhoeri */ 
 .dropdown {
     border: 1px solid #c1c2c5;
     border-radius: 12px;
@@ -12,7 +13,6 @@
     max-width: 298px;
     min-width: 298px;
   }
-  
   .dropdown input:where(:checked) ~ .list {
     opacity: 1;
     transform: translateY(-3rem) scale(1);
@@ -21,7 +21,6 @@
     padding-top: 4px;
     margin-bottom: -32px;
   }
-  
   .dropdown input:where(:not(:checked)) ~ .list {
     opacity: 0;
     transform: translateY(3rem);
@@ -33,7 +32,6 @@
     pointer-events: none;
     transition: all 500ms ease-out;
   }
-  
   .trigger {
     cursor: pointer;
     list-style: none;
@@ -54,12 +52,6 @@
     border-radius: inherit;
     background-color: white;
   }
-  
-  .trigger .top-text {
-    font-size: 14px;
-    color: #666; /* Lighter color for the top text */
-  }
-  
   .sr-only {
     position: absolute;
     width: 1px;
@@ -71,16 +63,21 @@
     white-space: nowrap;
     border-width: 0;
   }
-  
   .dropdown input:where(:checked) + .trigger {
     margin-bottom: 1rem;
   }
-  
   .dropdown input:where(:checked) + .trigger:before {
     rotate: 90deg;
     transition-delay: 0ms;
   }
-  
+  .dropdown input:where(:checked) + .trigger::after {
+    content: "Select Ad";
+  }
+
+  .confirm-button {
+    background-color:#cda7f3;
+  }
+
   .trigger:before,
   .trigger::after {
     position: relative;
@@ -88,7 +85,6 @@
     justify-content: center;
     align-items: center;
   }
-  
   .trigger:before {
     content: "›";
     rotate: -90deg;
@@ -100,58 +96,56 @@
     transition: all 350ms ease;
     transition-delay: 85ms;
   }
-  
+  .trigger::after {
+    content: "Select Ad";
+  }
   .list {
     height: 100%;
-    max-height: 20rem; 
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    overflow-y: auto; 
-    gap: 0.5rem;
-    padding: 0.5rem; 
-    margin-right: -8px; 
+    max-height: 20rem;
+    width: 260px;
+    display: grid;
+    grid-auto-flow: row;
+    overflow: hidden auto;
+    gap: 1rem;
+    padding: 0 1rem;
+    margin-right: -8px;
     --w-scrollbar: 8px;
   }
-  
   .listitem {
-    justify-content: center;
-    width: 95%;
-    list-style: none; 
+    height: 100%;
+    list-style: none;
   }
-  
+
+  .listitem.selected .article {
+    background-color: #f7efff; 
+    border-color: #cda7f3; 
+    color: #000000; 
+  }
+
   .article {
-    padding: 0.75rem;
+    width: 230px;
+    padding: 1rem;
     border-radius: 8px;
-    font-size: 14px; 
+    font-size: 15px;
     font-weight: 500;
-    text-align: left;
-    border: 1px solid #c1c2c5;
+    border: 1px solid #d4d5d6;
+    display: inline-block;
     background-color: white;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
   }
   
-  .article:hover {
-    background-color: #f0f0f0; 
-  }
-  
-  /* Custom scrollbar styling */
   .webkit-scrollbar::-webkit-scrollbar {
     width: var(--w-scrollbar);
     height: var(--w-scrollbar);
     border-radius: 9999px;
   }
-  
   .webkit-scrollbar::-webkit-scrollbar-track {
-    background: #f1f1f1;
+    background: #0000;
   }
-  
   .webkit-scrollbar::-webkit-scrollbar-thumb {
-    background: #c1c2c5;
+    background: #0000;
     border-radius: 9999px;
   }
-  
-  .webkit-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: #a8a8a8;
+  .webkit-scrollbar:hover::-webkit-scrollbar-thumb {
+    background: #c1c2c5;
   }
+  
