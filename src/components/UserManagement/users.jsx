@@ -86,7 +86,7 @@ const DisplayUsers = () => {
     }
 
     const retrieveAllTvGroups = async()=> {
-        const response = await fetch('/tvGroups');
+        const response = await fetch('/api/tvGroups');
         if (response.status == 200){
             toast.success("Retrieved all tvGroups sucessfully");
             const data = await response.json();
