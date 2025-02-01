@@ -46,6 +46,7 @@ dotenv.config();
 
 // Express App Setup
 const app = express();
+const server = http.createServer(app);
 const PORT = process.env.PORT || 5000;
 
 // Middleware
@@ -60,33 +61,30 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 // WebSocket Setup
-const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:3000",
+    origin: 'http://localhost:3000',
     methods: ["GET", "POST", "DELETE"],
+    credentials: true,
   },
 });
 
-io.on("connection", (socket) => {
-  console.log(`User Connected: ${socket.id}`);
 
-  // Handle TV connection
-  socket.on("join_tv", (tvID) => {
+io.on("connection", (socket) => {
+  console.log("User Connected:", socket.id);
+
+  // Handle joining a TV room
+  socket.on("join_tv_room", (tvID) => {
     socket.join(tvID);
     console.log(`User ${socket.id} joined TV room: ${tvID}`);
-
-    // Notify all clients that a TV has connected
-    io.emit("tv_connected", { tvId: tvID });
   });
 
   // Handle ad updates
   socket.on("ad_update", (data) => {
-    const { tvId, ad } = data;
-    console.log(`Received ad update for TV: ${tvId}`);
-
-    // Broadcast the ad update to the relevant TV room
-    io.to(tvId).emit("ad_update", { ad });
+    const { tvID, ad } = data;
+    // Broadcast the updated ad to all clients in the same room
+    io.to(tvID).emit("ad_update", { ad });
+    console.log(`Broadcasting ad update to room ${tvID}`);
   });
 
   // Handle disconnection

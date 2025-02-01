@@ -5,6 +5,7 @@ import "./TVsList.css";
 import AddTvButton from "./addTVButton";
 import UpdateAll from "./updateAllButton";
 import SelectAdModal from "./selectAdModal";
+import AlertMessage from "../successMessage"; // Ensure this is imported
 
 const TVsList = () => {
   const { groupID } = useParams();
@@ -13,9 +14,42 @@ const TVsList = () => {
   const [pinnedTvs, setPinnedTvs] = useState([]);
   const [error, setError] = useState("");
   const [showModal, setShowModal] = useState(false);
-  const [selectedAd, setSelectedAd] = useState(null);
+  const [notifications, setNotifications] = useState([]); // Store notifications
   const { state } = useLocation();
   const navigate = useNavigate();
+
+  // Create a notification
+  const createNotification = (type, message) => {
+    const newNotification = {
+      id: Date.now(),
+      type,
+      message,
+    };
+    setNotifications((prevNotifications) => [...prevNotifications, newNotification]);
+  };
+
+  // Close a notification
+  const handleCloseNotification = (id) => {
+    setNotifications((prevNotifications) =>
+      prevNotifications.filter((notification) => notification.id !== id)
+    );
+  };
+
+  // Automatically remove notifications after 5 seconds
+  useEffect(() => {
+    if (notifications.length > 0) {
+      const timer = setTimeout(() => {
+        setNotifications((prevNotifications) => prevNotifications.slice(1));
+      }, 5000);
+      return () => clearTimeout(timer); // Cleanup timer
+    }
+  }, [notifications]);
+
+  // Check if a URL is a video
+  const isVideo = (url) => {
+    const videoExtensions = [".mp4", ".webm", ".ogg"];
+    return videoExtensions.some((ext) => url.endsWith(ext));
+  };
 
   // Fetch TVs and ads on component mount and every 3 seconds
   useEffect(() => {
@@ -24,43 +58,37 @@ const TVsList = () => {
     }
 
     fetchTvs(groupID);
+    fetchAds(); // Fetch all ads
     const intervalId = setInterval(() => {
       fetchTvs(groupID);
+      fetchAds(); // Refresh ads every 3 seconds
     }, 3000);
     return () => clearInterval(intervalId);
   }, [state, groupID]);
 
-  // Fetch TVs and their associated ads
+  // Fetch TVs
   const fetchTvs = async (groupID) => {
     try {
       const response = await fetch(`/tvgroups/${groupID}/tvs`);
       const tvData = await response.json();
-
       if (Array.isArray(tvData)) {
         setTvs(tvData);
       }
-
-      // Fetch ads for each TV
-      const adPromises = tvData.map(async (tv) => {
-        if (tv.adID) {
-          const adResponse = await fetch(`/advertisements/${tv.adID}`);
-          const adData = await adResponse.json();
-          return { [tv.tvID]: adData };
-        }
-        return null;
-      });
-
-      const adResults = await Promise.all(adPromises);
-      const adMap = adResults.reduce((acc, ad) => {
-        if (ad) {
-          acc = { ...acc, ...ad };
-        }
-        return acc;
-      }, {});
-      setAds(adMap);
     } catch (error) {
-      console.error("Error fetching TVs or ads:", error);
-      setError("Failed to fetch TVs or ads. Please try again.");
+      console.error("Error fetching TVs:", error);
+      setError("Failed to fetch TVs. Please try again.");
+    }
+  };
+
+  // Fetch all ads
+  const fetchAds = async () => {
+    try {
+      const response = await fetch("http://localhost:5000/api/Advertisements");
+      const data = await response.json();
+      setAds(data.reduce((acc, ad) => ({ ...acc, [ad.adID]: ad }), {}));
+    } catch (error) {
+      console.error("Error fetching ads:", error);
+      setError("Failed to fetch ads. Please try again.");
     }
   };
 
@@ -102,12 +130,13 @@ const TVsList = () => {
         const updatedTvs = tvs.filter((tv) => !pinnedTvs.includes(tv.tvID));
         setTvs(updatedTvs);
         setPinnedTvs([]);
+        createNotification("success", "TVs deleted successfully");
       } else {
         const data = await response.json();
-        setError(data.error || "Failed to delete TVs");
+        createNotification("error", "Error deleting TVs");
       }
     } catch (error) {
-      setError(error.message || "An error occurred");
+      createNotification("error", "Error deleting TVs");
     }
   };
 
@@ -134,13 +163,10 @@ const TVsList = () => {
           setPinnedTvs([]);
         } else {
           const data = await response.json();
-          setError(data.error || "Failed to delete TV");
         }
-      } else {
-        setError("Please select only one TV to delete.");
       }
     } catch (error) {
-      setError(error.message || "An error occurred");
+      console.error("Error deleting TV:", error);
     }
   };
 
@@ -155,16 +181,10 @@ const TVsList = () => {
     });
   };
 
-  // Group selected TVs
-  const groupSelectedTvs = () => {
-    navigate("/tv-groups", { state: { selectedTvs: pinnedTvs } });
-  };
-
   // Update ads for selected TVs
   const updateSelectedTvs = async (selectedAd, pinnedTvs) => {
     setError("");
     try {
-      // Send a request to update ads for the pinned TVs
       const response = await fetch(`/tvgroups/${groupID}/tvs/batch-update`, {
         method: "POST",
         headers: {
@@ -175,19 +195,16 @@ const TVsList = () => {
 
       if (response.ok) {
         fetchTvs(groupID);
-        console.log("Ads updated for selected TVs");
       } else {
         const data = await response.json();
-        setError(data.error || "Failed to update selected TVs");
       }
     } catch (error) {
-      setError(
-        error.message || "An error occurred while updating selected TVs"
-      );
+      console.error("Error updating ad:", error);
     }
   };
 
-  const updateAllTvs = async (selectedAd) =>{
+  // Update ads for all TVs
+  const updateAllTvs = async (selectedAd) => {
     setError("");
     try {
       const tvIds = tvs.map((tv) => tv.tvID);
@@ -197,24 +214,15 @@ const TVsList = () => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ tvIds, adID: selectedAd.adID }),
-        
       });
-      if(response.ok){
+      if (response.ok) {
         fetchTvs(groupID);
-        console.log("Ads updated for all TVs");
-      }else{
-        const data = await response.json(); 
-        setError(data.error || "Failed to update all TVs");
       }
-    }catch(error){
-      setError(error.message || "An error occurred while updating all TVs");
+    } catch (error) {
+      console.error("Error updating all TVs:", error);
     }
   };
 
-  const isVideo = (url) => {
-    return url.match(/\.(mp4|webm|ogg)$/i);
-  };
-  
   return (
     <div className="tvs-page">
       <Navbar />
@@ -224,14 +232,13 @@ const TVsList = () => {
         </Link>{" "}
         &gt;{" "}
         <span className="breadcrumb-current">
-          {" "}
           {localStorage.getItem("groupName") || "Unknown Group"}
         </span>
       </div>
       <div className="tvs-header-container">
         <div className="text">Available TVs</div>
         <div className="tv-button-container">
-        <button onClick={() => setShowModal(true)}>
+          <button onClick={() => setShowModal(true)}>
             <UpdateAll />
           </button>
           <button onClick={handleAddTv}>
@@ -240,10 +247,29 @@ const TVsList = () => {
         </div>
       </div>
 
+      {/* Notifications */}
+      <div className="notifications-container">
+        {notifications.map((notification, index) => (
+          <div
+            key={notification.id}
+            className={`notification ${notification.type}`}
+            style={{
+              transform: `translateY(${index * 16}px)`,
+            }}
+          >
+            <AlertMessage
+              type={notification.type}
+              message={notification.message}
+              onClose={() => handleCloseNotification(notification.id)}
+            />
+          </div>
+        ))}
+      </div>
+
       <div className="tvs-list">
         {tvs.length > 0 ? (
           tvs.map((tv, index) => {
-            const ad = ads[tv.tvID];
+            const ad = ads[tv.adID]; // Get the ad for the current TV
             const isPinned = pinnedTvs.includes(tv.tvID);
             return (
               <div
@@ -286,15 +312,65 @@ const TVsList = () => {
                   state={{ group: { groupName: state?.group?.groupName } }}
                 >
                   <h1>{`TV ${tv.tvID}`}</h1>
-                  {ad && ad.mediaUrl ? (
-                    isVideo(ad.mediaUrl) ? (
-                      <video controls autoPlay loop>
-                        <source src={ad.mediaUrl} type="video/mp4" />
-                        Your browser does not support the video tag.
-                      </video>
-                    ) : (
-                      <img src={ad.mediaUrl} alt={`Ad for TV ${tv.tvID}`} />
-                    )
+                  {ad && ad.mediaItems?.length > 0 ? (
+                    <div className="ad-mini-view">
+                      {ad.mediaItems.map((mediaItem, index) => {
+                        const mediaUrl = mediaItem.url;
+                        return (
+                          <div
+                            key={index}
+                            className="media-item"
+                            style={{
+                              width: "100px",
+                              height: "100px",
+                              border: "1px solid #ddd",
+                              borderRadius: "8px",
+                              overflow: "hidden",
+                              margin: "5px",
+                            }}
+                          >
+                            {mediaItem.type === "text" ? (
+                              <div
+                                style={{
+                                  width: "100%",
+                                  height: "100%",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  justifyContent: "center",
+                                  backgroundColor: "#f0f0f0",
+                                  fontSize: "12px",
+                                  padding: "5px",
+                                }}
+                              >
+                                <p>{mediaItem.text}</p>
+                              </div>
+                            ) : isVideo(mediaUrl) ? (
+                              <video
+                                src={mediaUrl}
+                                style={{
+                                  width: "100%",
+                                  height: "100%",
+                                  objectFit: "cover",
+                                }}
+                                controls={false}
+                                muted
+                                loop
+                              />
+                            ) : (
+                              <img
+                                src={mediaUrl}
+                                alt={`Ad media item ${index + 1} for TV ${tv.tvID}`}
+                                style={{
+                                  width: "100%",
+                                  height: "100%",
+                                  objectFit: "cover",
+                                }}
+                              />
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
                   ) : (
                     <p>No ad available - Click to select an ad</p>
                   )}
@@ -315,20 +391,19 @@ const TVsList = () => {
             <>
               <button onClick={handleDeleteMultipleTv}>Delete Selected</button>
               <button onClick={() => setShowModal(true)}>Update All</button>
-              <button onClick={groupSelectedTvs}>Group TVs</button>
             </>
           )}
         </div>
       )}
 
-      {error && <div className="error-message">{error}</div>}
       {/* Render the SelectAdModal */}
       <SelectAdModal
         isOpen={showModal}
         onClose={() => setShowModal(false)}
-        onUpdate={updateAllTvs}
+        onUpdate={pinnedTvs.length > 1 ? updateSelectedTvs : updateAllTvs}
         groupID={groupID}
         pinnedTvs={pinnedTvs}
+        createNotification={createNotification}
       />
     </div>
   );

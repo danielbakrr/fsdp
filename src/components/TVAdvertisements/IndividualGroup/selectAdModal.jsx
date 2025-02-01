@@ -1,35 +1,33 @@
-import React, { useEffect, useState } from "react";
-import './selectAdModal.css'; // Import the scoped CSS file for styling
-import AlertMessage from "../successMessage"; // Import the AlertMessage component
+import React, { useEffect, useState, useCallback } from "react";
+import "./selectAdModal.css";
+import AlertMessage from "../successMessage";
 
-const SelectAdModal = ({ isOpen, onClose, onUpdate, groupID, pinnedTvs }) => {
+const SelectAdModal = ({ isOpen, onClose, onUpdate, groupID, pinnedTvs, createNotification }) => {
   const [ads, setAds] = useState([]);
   const [selectedAd, setSelectedAd] = useState(null);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
-  const [alertType, setAlertType] = useState(""); // 'Success' or 'Error'
+  const [notifications, setNotifications] = useState([]);
+
+  // Memoize fetchAllAds
+  const fetchAllAds = useCallback(async () => {
+    try {
+      const response = await fetch("/api/advertisements");
+      const data = await response.json();
+      if (response.ok) {
+        setAds(data);
+      } else {
+        throw new Error(data.error || "Failed to fetch ads");
+      }
+    } catch (error) {
+      createNotification("Error", error.message || "An error occurred while fetching ads");
+    }
+  }, [createNotification]); // Add createNotification to the dependency array
 
   // Fetch all ads when the modal opens
   useEffect(() => {
     if (isOpen) {
       fetchAllAds();
     }
-  }, [isOpen]);
-
-  // Fetch all advertisements
-  const fetchAllAds = async () => {
-    try {
-      const response = await fetch("/advertisements");
-      const data = await response.json();
-      if (response.ok) {
-        setAds(data);
-      } else {
-        setError(data.error || "Failed to fetch ads");
-      }
-    } catch (error) {
-      setError(error.message || "An error occurred while fetching ads");
-    }
-  };
+  }, [isOpen, fetchAllAds]);
 
   // Handle ad selection
   const handleAdSelect = (event) => {
@@ -39,59 +37,97 @@ const SelectAdModal = ({ isOpen, onClose, onUpdate, groupID, pinnedTvs }) => {
   };
 
   // Handle update
-  const handleUpdate = async () => {
-    if (selectedAd) {
-      try {
-        await onUpdate(selectedAd, pinnedTvs); // Pass selected ad and pinned TVs to the update function
-        setAlertType("Success");
-        setSuccess("TVs updated successfully!");
-        setError(""); // Clear error if successful
-        onClose();
-      } catch (err) {
-        setAlertType("Error");
-        setError(err.message || "Failed to update TVs.");
-        setSuccess(""); // Clear success message if error occurs
-      }
-    } else {
-      setAlertType("Error");
-      setError("Please select an ad to update.");
-      setSuccess(""); // Clear success message if no ad is selected
+  const handleUpdate = async (e) => {
+    e.preventDefault();
+    if (!selectedAd) {
+      createNotification("Error", "Please select an ad.");
+      return;
+    }
+
+    try {
+      await onUpdate(selectedAd, pinnedTvs);
+      onClose();
+      createNotification("Success", "Advertisement updated successfully!");
+    } catch (error) {
+      createNotification("Error", error.message || "Failed to update group.");
     }
   };
+
+  // Remove a notification
+  const handleCloseNotification = (id) => {
+    setNotifications((prevNotifications) =>
+      prevNotifications.filter((notification) => notification.id !== id)
+    );
+  };
+
+  // Automatically remove notifications after 5 seconds
+  useEffect(() => {
+    if (notifications.length > 0) {
+      const timer = setTimeout(() => {
+        setNotifications((prevNotifications) => prevNotifications.slice(1));
+      }, 5000);
+      return () => clearTimeout(timer); // Cleanup timer
+    }
+  }, [notifications]);
 
   if (!isOpen) return null;
 
   return (
-    <div className="select-ad-modal-overlay">
-      <div className="select-ad-modal-content">
-        <h2>Select Advertisement</h2>
-        {alertType && (
-          <AlertMessage
-            type={alertType}
-            message={alertType === "Success" ? success : error}
-            onClose={() => {
-              setAlertType("");
-              setSuccess("");
-              setError("");
-            }}
-          />
-        )}
-        <div className="select-ad-modal-ads-list">
-          <select onChange={handleAdSelect} value={selectedAd?.adID || ""}>
-            <option value="" disabled>Select an advertisement</option>
-            {ads.map((ad) => (
-              <option key={ad.adID} value={ad.adID}>
-                {ad.adTitle}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="select-ad-modal-actions">
-          <button onClick={onClose} className="cancel-btn">Cancel</button>
-          <button onClick={handleUpdate} className="update-btn">Update All</button>
+    <>
+      <div className="select-ad-modal-overlay">
+        <div className="select-ad-modal-content">
+          <h2>Select Advertisement</h2>
+          <div className="select-ad-modal-ads-list">
+            <select onChange={handleAdSelect} value={selectedAd?.adID || ""}>
+              <option value="" disabled>Select an advertisement</option>
+              {ads.map((ad) => (
+                <option key={ad.adID} value={ad.adID}>
+                  {ad.adTitle}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="flex justify-end space-x-4 mt-4">
+            <button
+              type="button"
+              onClick={handleUpdate}
+              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+            >
+              Update All
+            </button>
+            <button
+              type="button"
+              onClick={onClose}
+              className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+            >
+              Cancel
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+      
+      <div className="notifications-container">
+        {notifications.length > 0 && (
+          <div>
+            {notifications.map((notification, index) => (
+              <div
+                key={notification.id}
+                className={`notification ${notification.type}`}
+                style={{
+                  transform: `translateY(${index * 16}px)`,
+                }}
+              >
+                <AlertMessage
+                  type={notification.type}
+                  message={notification.message}
+                  onClose={() => handleCloseNotification(notification.id)}
+                />
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </>
   );
 };
 

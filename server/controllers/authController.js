@@ -28,11 +28,17 @@ const login = async(req,res) => {
 
         // retirive the corresponding role by user's uuIDv4
         const userRole = await Account.getRole(user.userId);
+
         if (userRole != null){
-            // retrieve the corresponding role's permissions
-            const permissions = await Role.getPermissions(userRole);
-            console.log(userRole);
-            console.log(JSON.stringify(permissions,null,2));
+            let permissions;
+            if (userRole == "role"){
+                permissions = [];
+            }
+            else {
+                permissions = await Role.getPermissions(userRole);
+                console.log(userRole);
+                console.log(JSON.stringify(permissions,null,2));
+            }
             const payload = {
                 "userId": user.userId,
                 "userName": `${user.firstName} + " " + ${user.lastName}`,
