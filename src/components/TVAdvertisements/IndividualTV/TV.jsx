@@ -3,13 +3,38 @@ import { useLocation, Link, useParams } from "react-router-dom";
 import Navbar from "../../navbar";
 import "./TV.css";
 import SocketIOClient from "../../../websocket/WebsocketClient";
-
+import { jwtDecode } from 'jwt-decode';
 const TV = () => {
   const { groupID, tvID } = useParams();
   const { state, search } = useLocation();
   const queryParams = new URLSearchParams(search);
   const groupNameFromUrl = queryParams.get("groupName");
   const storedGroupName = localStorage.getItem("groupName");
+  const [userFeatures,setUserFeatures] = useState([]);
+  const features = ["Advertisement Display", "Template Editor", "Advertisement Management", "File Management"];
+
+  const decodeToken = ()=> {
+        const token = localStorage.getItem('token');
+        if(token != null){
+          const decodedToken = jwtDecode(token);
+          console.log(JSON.stringify(decodedToken,null,2));
+          const role = decodedToken.permissions;
+          const temp = [];
+          const permissions = role.permissions;
+          if(Array.isArray(permissions) && permissions.length > 0){
+            permissions.forEach(element => {
+              console.log(element.resource);
+              for(let i = 0; i< features.length; i++){
+                if(features[i].includes(element.resource)){
+                  temp.push(features[i]);
+                }
+              }
+            });
+          }
+          setUserFeatures(temp);
+    
+        }
+  }
   const groupName =
     state?.group?.groupName ||
     groupNameFromUrl ||
@@ -152,7 +177,8 @@ const TV = () => {
 
   return (
     <div className="TV">
-      {/* <Navbar /> */}
+      <Navbar 
+        navItems={userFeatures}/>
 
       {/* Breadcrumb Navigation */}
       <div className="breadcrumb">

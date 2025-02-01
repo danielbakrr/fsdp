@@ -327,7 +327,8 @@ const DisplayUsers = () => {
         <div className = "usersTableContainer">
             <ToastContainer>
             </ToastContainer>
-            {/* <Navbar/> */}
+            <Navbar
+                navItems={userFeatures}/>
             {/* the rest of the html elements */}
             <div className = "userTable">
                 <h2>Users table</h2>
