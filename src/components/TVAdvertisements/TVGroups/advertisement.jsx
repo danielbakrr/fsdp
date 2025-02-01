@@ -17,6 +17,7 @@ const AdvertisementDisplay = () => {
   const [selectedTv, setSelectedTv] = useState(null); // Store selected TV
   const [isModalOpen, setIsModalOpen] = useState(false); // Modal state for selecting ad
   const [ads, setAds] = useState([]); // Store ads
+  const [role,setRole] = useState("");
   const [tvGroupAdded, setTVGroupAdded] = useState(false); // Track if TVGroup is added
   const [tvGroupError, setTVGroupError] = useState(false); // Track if there was an error
   const [notifications, setNotifications] = useState([]); // Store notifications
@@ -36,11 +37,15 @@ const AdvertisementDisplay = () => {
         let tvGroupIdstemp = [];
         const temp = [];
         const permissions = role.permissions;
-        permissions.map((perm)=> {
-          if (perm.resource == "Tv Group"){
-           tvGroupIdstemp = perm.tvGroupIds;
-          }
-        })
+        setRole(decodedToken.role);
+        if (decodedToken.role !== "Admin"){
+          permissions.map((perm)=> {
+            if (perm.resource == "Tv Group"){
+             tvGroupIdstemp = perm.tvGroupIds;
+             setTvGroupIds(tvGroupIdstemp);
+            }
+          })
+        }
         if(Array.isArray(permissions) && permissions.length > 0){
           permissions.forEach(element => {
             console.log(element.resource);
@@ -52,52 +57,59 @@ const AdvertisementDisplay = () => {
           });
         }
         setUserFeatures(temp);
-        setTvGroupIds(tvGroupIdstemp);
   
     }
   }
   const navigate = useNavigate();
 
   useEffect(() => {
-    const decodeFetch = async() => {
-      decodeToken();
-      fetchTVGroups();
-    }
-    decodeFetch();
-    const intervalId = setInterval(() => {
-      decodeToken();
-      fetchTVGroups();
-    }, 5000);
-    return () => clearInterval(intervalId);
-  },[]);
+    const decodeFetch = async () => {
+        decodeToken();  // decode role before fetching tvGroups 
+        if (role) {
+            fetchTVGroups();
+        }
+    };
 
-  // UseEffect to run fetchTVGroups when tvGroupIds is updated
-  useEffect(() => {
-    if (tvGroupIds.length > 0) {
-      fetchTVGroups();  // Re-fetch when tvGroupIds changes
-    }
-  }, [tvGroupIds]);  // Dependency on tvGroupIds
-  // Fetch the list of Groups
+    decodeFetch(); // call the async function
+
+    const intervalId = setInterval(() => {
+        decodeFetch(); // poll the db
+    }, 5000);
+
+    return () => clearInterval(intervalId);
+}, [role]); // add a dependency for useEffect to reRender on role change 
   const fetchTVGroups = async () => {
     try {
-      const response = await fetch("/tvgroups");
-      const data = await response.json();
+        if (!role) {
+            console.log("Waiting for role to be set...");
+            return;  // Don't fetch if role is undefined
+        }
 
-      if (data.error) {
-        throw new Error(data.error); // Handle the error returned by the API
-      }
+        const response = await fetch("/tvgroups");
+        const data = await response.json();
+        if (data.error) {
+            throw new Error(data.error);
+        }
 
-      const filteredData = data.filter((item) => {
-        // Check if tvGroupIds is not empty and item.groupID is in tvGroupIds
-        return tvGroupIds.length > 0 && tvGroupIds.includes(item.groupID);
-      });
-      setTVGroups(filteredData); // Update state with filtered data
-      
-      
+        console.log("Fetched data:", data);
+        console.log("Current role:", role);
+
+        if (Array.isArray(tvGroupIds) && tvGroupIds.length > 0 && role !== "Admin") {
+            const filteredData = data.filter((item) => tvGroupIds.includes(item.groupID));
+            setTVGroups(filteredData);
+        } else if (role === "Admin" && data) {
+            console.log("User is admin");
+            setTVGroups(data);
+        } else {
+            console.log("Unexpected condition reached.");
+            throw new Error("No matching condition in fetchTVGroups");
+        }
     } catch (error) {
-      console.error("Error fetching TV groups:", error);
+        console.error("Error fetching TV groups:", error.message);
     }
-  };
+};
+
+
 
   
 
