@@ -48,7 +48,7 @@ const login = async(req,res) => {
 
             console.log(payload);
             // jwt sign 
-            const accessToken = jwt.sign(payload,process.env.JWT_SECRET,{expiresIn: '1h'});
+            const accessToken = jwt.sign(payload,process.env.JWT_SECRET_KEY,{expiresIn: '1h'});
             res.status(200).json({message: "The user has sucessfully logged in",token:accessToken});
         }
         

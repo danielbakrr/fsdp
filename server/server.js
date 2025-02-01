@@ -13,6 +13,7 @@ const TVController = require("./controllers/TVController");
 const roleController = require("./controllers/roleController");
 const accountController = require("./controllers/accountController");
 const authController = require("./controllers/authController");
+const authMiddleware = require("./middleware/authorisationMiddleware")
 
 const {
     DynamoDBDocumentClient,
@@ -418,10 +419,10 @@ app.post("/api/create-userRole", roleController.createRole);
 app.get("/api/getAllRoles", roleController.getRoles);
 
 // Route for Account
-app.post("/api/edit-userRole/:uuid", accountController.editUserRole);
+app.post("/api/edit-userRole/:uuid", authMiddleware.verifyJWT,accountController.editUserRole);
 app.get("/api/get-userById/:uuid", accountController.getUserById);
 app.get("/api/get-userByEmail", accountController.getUserByEmail);
-app.get("/api/get-allUsers", accountController.getAllUsers);
+app.get("/api/get-allUsers", authMiddleware.verifyJWT,accountController.getAllUsers);
 app.delete("/api/delete-user/:uuid", accountController.deleteUser);
 
 // Routes for TVs

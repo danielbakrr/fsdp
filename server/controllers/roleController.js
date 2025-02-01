@@ -9,7 +9,7 @@ const createRole = async (req,res) => {
         console.log(JSON.stringify(roleCreated,null,2));
         // roleCreated 
         if (roleCreated.$metadata.httpStatusCode == 200){
-            return res.status(200).json({"message": "Role has been created successfully", "newRole": newRole})
+            return res.status(201).json({"message": "Role has been created successfully", "newRole": newRole})
         }
         else{
             return res.status(404).json({"message": "Unable to create the role"});

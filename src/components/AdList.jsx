@@ -1,7 +1,8 @@
 import React, { useEffect, useState, useRef } from "react";
 import "../styles/AdForm.css";
+import Navbar from "./navbar";
 import WebSocketClient from "../websocket/WebsocketClient";
-
+import { jwtDecode } from 'jwt-decode';
 const AdList = () => {
   const [ads, setAds] = useState([]);
   const [activeTab, setActiveTab] = useState(null);
@@ -11,8 +12,34 @@ const AdList = () => {
   const [resizingItem, setResizingItem] = useState(null);
   const [resizeDirection, setResizeDirection] = useState(null);
   const wsClient = useRef(null);
+  const [userFeatures,setUserFeatures] = useState([]);
+  const features = ["Tv Groups", "Template Editor", "Advertisement Management", "User Management", "Metrics", "Schedule Ads"];
+
+const decodeToken = ()=> {
+      const token = localStorage.getItem('token');
+      if(token != null){
+        const decodedToken = jwtDecode(token);
+        console.log(JSON.stringify(decodedToken,null,2));
+        const role = decodedToken.permissions;
+        const temp = [];
+        const permissions = role.permissions;
+        if(Array.isArray(permissions) && permissions.length > 0){
+          permissions.forEach(element => {
+            console.log(element.resource);
+            for(let i = 0; i< features.length; i++){
+              if(features[i].includes(element.resource)){
+                temp.push(features[i]);
+              }
+            }
+          });
+        }
+        setUserFeatures(temp);
+  
+      }
+  }
 
   useEffect(() => {
+    decodeToken();
     const fetchAds = async () => {
       const response = await fetch("http://localhost:5000/api/Advertisements");
       const data = await response.json();
@@ -172,12 +199,15 @@ const AdList = () => {
   };
 
   return (
+    <div>
+      <Navbar
+        navItems={userFeatures} 
+      />
     <div
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
       style={{ userSelect: "none" }}
     >
-      <h2>Advertisements</h2>
       <div style={{ display: "flex", borderBottom: "2px solid #ccc" }}>
         {ads.map((ad) => (
           <button
@@ -189,6 +219,7 @@ const AdList = () => {
               borderBottom: activeTab === ad.adID ? "2px solid blue" : "none",
               backgroundColor: activeTab === ad.adID ? "#f0f0f0" : "white",
               fontWeight: activeTab === ad.adID ? "bold" : "normal",
+              color: "black",
             }}
           >
             {ad.adTitle}
@@ -207,19 +238,9 @@ const AdList = () => {
                 marginBottom: "10px",
               }}
             >
-              <h3>{ad.adTitle}</h3>
-              <div>
-                <button
-                  onClick={() => toggleFullscreen(ad.adID)}
-                  style={{ padding: "5px 10px", marginRight: "10px" }}
-                >
-                  {fullscreenAd === ad.adID ? "Exit Fullscreen" : "Fullscreen"}
-                </button>
-                <button
-                  onClick={() => deleteAd(ad.adID)}
-                  style={{ padding: "5px 10px" }}
-                >
-                  Delete
+              <div style={{ display: "flex", justifyContent: "center", marginBottom: "10px" }}>
+                <button onClick={() => deleteAd(ad.adID)} style={{ padding: "5px 10px" }}>
+                  Delete Advertisement
                 </button>
               </div>
             </div>
@@ -239,22 +260,6 @@ const AdList = () => {
                 overflow: "hidden",
               }}
             >
-              {fullscreenAd === ad.adID && (
-                <button
-                  onClick={exitFullscreen}
-                  style={{
-                    position: "absolute",
-                    top: "10px",
-                    right: "10px",
-                    padding: "5px 10px",
-                    zIndex: "1001",
-                    backgroundColor: "#fff",
-                    border: "1px solid #ddd",
-                  }}
-                >
-                  Exit Fullscreen
-                </button>
-              )}
 
               {ad.mediaItems && ad.mediaItems.map((mediaItem) => (
                 <div
@@ -308,6 +313,7 @@ const AdList = () => {
           </div>
         ) : null
       )}
+    </div>
     </div>
   );
 };

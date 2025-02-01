@@ -26,6 +26,10 @@ class Role {
                     resource: {
                         S: perm.resource, // Convert resource to { S: "value" }
                     },
+                    ...(perm.tvGroupIds?.length > 0 ? {  // ternary operator to check if perm.tvIds exists and perm.tvIds.length > 0
+                        tvGroupIds: { SS: perm.tvGroupIds } 
+                    } : {})
+                    
                 },
             })),
        };
@@ -74,7 +78,6 @@ class Role {
             
         }
         const result = await dynamoDb.send(new GetItemCommand(params));
-        console.log(JSON.stringify(result.Item,null,2));
         // the returned result is items followed by something else 
         const permissions = result.Item.permissions.L;
         if(Array.isArray(permissions)){
@@ -87,7 +90,10 @@ class Role {
                     actions.push(element.S);
                 });
                 const resource = perm.M.resource.S;
-                denormalizedpermissions.push({actions,resource});
+                console.log(resource);
+                const tvGroupIds = perm.M.tvGroupIds?.SS;  // Default to an empty array if tvIds or SS is undefined
+                console.log(tvGroupIds);
+                denormalizedpermissions.push({actions,resource,tvGroupIds});
             })
             
             const res = {
