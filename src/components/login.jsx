@@ -15,7 +15,7 @@ const Login = () => {
         setLoading(true);
         setError('');
         try {
-            const response = await fetch('/api/userLogin', { // Update to the correct endpoint
+            const response = await fetch('https://githubbies.vercel.app/api/userLogin', { // Update to the correct endpoint
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',               
