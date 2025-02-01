@@ -39,7 +39,7 @@
 .sidebar-toggle {
   position: absolute;
   right: -27px;
-  top: 45%;
+  top: 42.5%;
   transform: translateY(-50%);
   width: 27px;
   height: 40px;
@@ -54,7 +54,7 @@
  }
  
  .sidebar-toggle:hover {
-  background-color: #004bff;
+  background-color: #3B82F6;
   transform: translateY(-50%) scale(1.1);
  }
  
