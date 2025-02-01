@@ -410,13 +410,6 @@ app.put("/api/tvgroups/:groupID", TVGroupController.updateTVGroup);
 app.delete("/api/tvgroups/:groupID", TVGroupController.deleteTVGroup);
 
 // Routes for user authentication
-export default async function handler(req, res) {
-  if (req.method === 'POST') {
-      await authController.login(req, res); // Call your login logic here
-  } else {
-      res.status(405).json({ message: 'Method Not Allowed' });
-  }
-}
 app.post("/api/userLogin", authController.login);
 app.post("/api/userSignUp", authController.signUp);
 
