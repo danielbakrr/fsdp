@@ -1,76 +1,140 @@
-.TV{
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+.TV {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  width: 100%;
+  letter-spacing: 1px;
   padding: 15px;
 }
 
 /* Breadcrumb */
 .breadcrumb {
-    margin: 20px 0;
-    font-size: 16px;
-    color: #666;
-  }
-  
-  .breadcrumb-link {
-    text-decoration: none;
-    color: #007bff;
-  }
-  
-  .breadcrumb-link:hover {
-    text-decoration: underline;
-  }
-  
-  .breadcrumb-current {
-    font-weight: bold;
-    color: #333;
-  }
-  
-  /* TV Container */
-  .tv-container {
-    padding: 20px;
-    max-width: 800px;
-    margin: 0 auto;
-  }
-  
-  .tv-container h1 {
-    font-size: 24px;
-    margin-bottom: 20px;
-  }
-  
-  /* Ad Preview */
-  .ad-preview {
-    margin-bottom: 20px;
-    text-align: center;
-  }
-  
-  .ad-image {
-    max-width: 100%;
-    height: auto;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  }
-  
-  /* Ad Selector */
-  .ad-selector {
-    margin-bottom: 20px;
-  }
-  
-  .ad-selector label {
-    display: block;
-    margin-bottom: 8px;
-    font-weight: bold;
-  }
-  
-  .ad-selector select {
-    width: 100%;
-    padding: 8px;
-    font-size: 16px;
-    border-radius: 4px;
-    border: 1px solid #ccc;
-  }
-  
-  /* Error Message */
-  .error-message {
-    color: #dc3545;
-    font-weight: bold;
-    text-align: center;
-  }
+  margin: 20px 0;
+  font-size: 16px;
+  color: #666;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.breadcrumb-link {
+  text-decoration: none;
+  color: #007bff;
+  transition: color 0.3s ease;
+}
+
+.breadcrumb-link:hover {
+  color: #0056b3;
+  text-decoration: underline;
+}
+
+.breadcrumb-current {
+  font-weight: bold;
+  color: #333;
+}
+
+/* TV Container */
+.tv-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 8px;
+}
+
+.tv-container h1 {
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+
+/* Ad Preview */
+.ad-preview {
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.ad-preview h2 {
+  font-size: 20px;
+  margin-bottom: 15px;
+  color: #333;
+}
+
+.ad-preview-container {
+  position: relative;
+  width: 100%;
+  max-width: 1000px;
+  height: 560px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  overflow: hidden;
+  margin: 0 auto;
+}
+
+.ad-media-item {
+  position: absolute;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.ad-media-item img,
+.ad-media-item video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Ad Selector */
+.ad-selector {
+  margin-bottom: 20px;
+}
+
+.ad-selector label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: bold;
+}
+
+.ad-selector select {
+  width: 100%;
+  padding: 10px;
+  font-size: 16px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  background-color: #fff;
+  transition: border-color 0.3s ease;
+}
+
+.ad-selector select:focus {
+  border-color: #007bff;
+  outline: none;
+}
+
+/* Error Message */
+.error-message {
+  color: #dc3545;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+/* Confirm Button */
+.confirm-button {
+  width: 100%;
+  padding: 12px;
+  font-size: 16px;
+  color: #fff;
+  background-color: #007bff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.confirm-button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.confirm-button:hover:not(:disabled) {
+  background-color: #0056b3;
+}

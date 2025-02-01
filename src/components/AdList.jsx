@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import "../styles/AdForm.css";
+import Navbar from "./navbar";
 import WebSocketClient from "../websocket/WebsocketClient";
 
 const AdList = () => {
@@ -172,12 +173,13 @@ const AdList = () => {
   };
 
   return (
+    <div>
+      <Navbar />
     <div
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
       style={{ userSelect: "none" }}
     >
-      <h2>Advertisements</h2>
       <div style={{ display: "flex", borderBottom: "2px solid #ccc" }}>
         {ads.map((ad) => (
           <button
@@ -189,6 +191,7 @@ const AdList = () => {
               borderBottom: activeTab === ad.adID ? "2px solid blue" : "none",
               backgroundColor: activeTab === ad.adID ? "#f0f0f0" : "white",
               fontWeight: activeTab === ad.adID ? "bold" : "normal",
+              color: "black",
             }}
           >
             {ad.adTitle}
@@ -207,19 +210,9 @@ const AdList = () => {
                 marginBottom: "10px",
               }}
             >
-              <h3>{ad.adTitle}</h3>
-              <div>
-                <button
-                  onClick={() => toggleFullscreen(ad.adID)}
-                  style={{ padding: "5px 10px", marginRight: "10px" }}
-                >
-                  {fullscreenAd === ad.adID ? "Exit Fullscreen" : "Fullscreen"}
-                </button>
-                <button
-                  onClick={() => deleteAd(ad.adID)}
-                  style={{ padding: "5px 10px" }}
-                >
-                  Delete
+              <div style={{ display: "flex", justifyContent: "center", marginBottom: "10px" }}>
+                <button onClick={() => deleteAd(ad.adID)} style={{ padding: "5px 10px" }}>
+                  Delete Advertisement
                 </button>
               </div>
             </div>
@@ -239,22 +232,6 @@ const AdList = () => {
                 overflow: "hidden",
               }}
             >
-              {fullscreenAd === ad.adID && (
-                <button
-                  onClick={exitFullscreen}
-                  style={{
-                    position: "absolute",
-                    top: "10px",
-                    right: "10px",
-                    padding: "5px 10px",
-                    zIndex: "1001",
-                    backgroundColor: "#fff",
-                    border: "1px solid #ddd",
-                  }}
-                >
-                  Exit Fullscreen
-                </button>
-              )}
 
               {ad.mediaItems && ad.mediaItems.map((mediaItem) => (
                 <div
@@ -308,6 +285,7 @@ const AdList = () => {
           </div>
         ) : null
       )}
+    </div>
     </div>
   );
 };

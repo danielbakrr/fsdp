@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
+import { ChevronRight, ChevronLeft } from 'lucide-react';
 import '../styles/AdForm.css';
+import Navbar from './navbar';
 
 const AdForm = () => {
   const [mediaItems, setMediaItems] = useState([]);
@@ -9,6 +11,7 @@ const AdForm = () => {
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [resizing, setResizing] = useState(false);
   const [resizeDirection, setResizeDirection] = useState(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   const handleMediaUpload = (e) => {
     const files = Array.from(e.target.files);
@@ -156,66 +159,99 @@ const AdForm = () => {
   };
 
   return (
-    <div className="editor-container" onMouseMove={handleMouseMove} onMouseUp={handleMouseUp} onMouseLeave={handleMouseUp}>
-      <input type="file" multiple accept="image/*,video/*" onChange={handleMediaUpload} />
-      <input
-        type="text"
-        placeholder="Enter Advertisement Title"
-        value={adTitle}
-        onChange={(e) => setAdTitle(e.target.value)}
-      />
-      <button onClick={handleSave} disabled={mediaItems.length === 0}>Save Advertisement</button>
-      <button onClick={() => handleDelete()} disabled={mediaItems.length === 0}>Delete All</button>
-      
-      {mediaItems.map((item) => (
-        <div
-          key={item.id}
-          className="media-container"
-          style={{
-            position: 'absolute',
-            top: item.position.y,
-            left: item.position.x,
-            width: item.size.width,
-            height: item.size.height,
-            border: selectedItemId === item.id ? '2px solid blue' : '1px solid #ccc'
-          }}
-          onMouseDown={(e) => handleMouseDown(e, item.id)}
-        >
-          {item.type === 'video' ? (
-            <video
-              src={item.preview}
-              controls
-              style={{ width: '100%', height: '100%' }}
-            />
-          ) : (
-            <img src={item.preview} alt="Uploaded" style={{ width: '100%', height: '100%' }} />
-          )}
+    <div className="editor-wrapper">
+      <Navbar />
+      <div className="editor-container" onMouseMove={handleMouseMove} onMouseUp={handleMouseUp} onMouseLeave={handleMouseUp}>
+        <div className={`sidebar ${isSidebarOpen ? 'open' : 'closed'}`}>
+          <div className="sidebar-content">
+            <h2 className="text-xl font-bold mb-4">Ad Controls</h2>
+            
+            <div className="control-group">
+              <input 
+                type="file" 
+                multiple 
+                accept="image/*,video/*" 
+                onChange={handleMediaUpload}
+                className="w-full mb-4" 
+              />
+            </div>
+            
+            <div className="control-group">
+              <input
+                type="text"
+                placeholder="Enter Advertisement Title"
+                value={adTitle}
+                onChange={(e) => setAdTitle(e.target.value)}
+                className="w-full p-2 mb-4 border rounded"
+              />
+            </div>
+            
+            <div className="control-group">
+              <button 
+                onClick={handleSave} 
+                disabled={mediaItems.length === 0}
+                className="w-full bg-blue-500 text-white p-2 rounded mb-2 disabled:bg-gray-300"
+              >
+                Save Advertisement
+              </button>
+              
+              <button 
+                onClick={() => handleDelete()} 
+                disabled={mediaItems.length === 0}
+                className="w-full bg-red-500 text-white p-2 rounded disabled:bg-gray-300"
+              >
+                Delete All
+              </button>
+            </div>
+          </div>
+          
           <button 
-            className="delete-button"
-            onClick={() => handleDelete(item.id)}
+            className="sidebar-toggle"
+            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+          >
+            {isSidebarOpen ? <ChevronLeft size={32} /> : <ChevronRight size={32} />}
+          </button>
+        </div>
+
+        {mediaItems.map((item) => (
+          <div
+            key={item.id}
+            className="media-container"
             style={{
               position: 'absolute',
-              top: '-20px',
-              right: '-20px',
-              padding: '4px 8px',
-              background: 'red',
-              color: 'white',
-              border: 'none',
-              borderRadius: '50%',
-              cursor: 'pointer'
+              top: item.position.y,
+              left: item.position.x,
+              width: item.size.width,
+              height: item.size.height,
+              border: selectedItemId === item.id ? '2px solid blue' : '1px solid #ccc'
             }}
+            onMouseDown={(e) => handleMouseDown(e, item.id)}
           >
-            ×
-          </button>
-          {['top-left', 'top-right', 'bottom-left', 'bottom-right', 'top', 'bottom', 'left', 'right'].map((dir) => (
-            <div
-              key={dir}
-              className={`resize-handle ${dir}`}
-              data-direction={dir}
-            />
-          ))}
-        </div>
-      ))}
+            {item.type === 'video' ? (
+              <video
+                src={item.preview}
+                controls
+                style={{ width: '100%', height: '100%' }}
+              />
+            ) : (
+              <img src={item.preview} alt="Uploaded" style={{ width: '100%', height: '100%' }} />
+            )}
+            <button 
+              className="delete-button"
+              onClick={() => handleDelete(item.id)}
+            >
+              ×
+            </button>
+            {['top-left', 'top-right', 'bottom-left', 'bottom-right', 'top', 'bottom', 'left', 'right'].map((dir) => (
+              <div
+                key={dir}
+                className={`resize-handle ${dir}`}
+                data-direction={dir}
+              />
+            ))}
+          </div>
+        ))}
+      </div>
     </div>
   );
 };
