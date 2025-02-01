@@ -162,13 +162,11 @@ const AdForm = () => {
     <div className="editor-wrapper">
       <Navbar />
       <div className="editor-container" onMouseMove={handleMouseMove} onMouseUp={handleMouseUp} onMouseLeave={handleMouseUp}>
-        {/* Sidebar */}
         <div className={`sidebar ${isSidebarOpen ? 'open' : 'closed'}`}>
           <div className="sidebar-content">
             <h2 className="text-xl font-bold mb-4">Ad Controls</h2>
             
             <div className="control-group">
-              <label className="block mb-2">Upload Media</label>
               <input 
                 type="file" 
                 multiple 
@@ -179,10 +177,9 @@ const AdForm = () => {
             </div>
             
             <div className="control-group">
-              <label className="block mb-2">Advertisement Title</label>
               <input
                 type="text"
-                placeholder="Enter title"
+                placeholder="Enter Advertisement Title"
                 value={adTitle}
                 onChange={(e) => setAdTitle(e.target.value)}
                 className="w-full p-2 mb-4 border rounded"
@@ -212,11 +209,10 @@ const AdForm = () => {
             className="sidebar-toggle"
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
           >
-            {isSidebarOpen ? <ChevronLeft size={24} /> : <ChevronRight size={24} />}
+            {isSidebarOpen ? <ChevronLeft size={32} /> : <ChevronRight size={32} />}
           </button>
         </div>
 
-        {/* Media Items */}
         {mediaItems.map((item) => (
           <div
             key={item.id}

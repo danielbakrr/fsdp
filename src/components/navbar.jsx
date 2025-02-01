@@ -8,13 +8,13 @@ const Navbar = () => {
     <div className="Navbar">
       <nav className="navbar">
         <div className="navbar-logo">
-          <Link to="/">
+          <Link to="/Home">
             <img src={logo} alt="Logo" />
           </Link>
         </div>
         <ul className="navbar-links">
           <li>
-            <Link to="/">Dashboard</Link>
+            <Link to="/Home">Dashboard</Link>
           </li>
           <li>
             <Link to="/template-management">File Management</Link>
