@@ -11,7 +11,7 @@ const TV = () => {
   const groupNameFromUrl = queryParams.get("groupName");
   const storedGroupName = localStorage.getItem("groupName");
   const [userFeatures,setUserFeatures] = useState([]);
-  const features = ["Advertisement Display", "Template Editor", "Advertisement Management", "File Management"];
+  const features = ["Tv Groups", "Template Editor", "Advertisement Management", "User Management", "Metrics", "Schedule Ads"];
 
   const decodeToken = ()=> {
         const token = localStorage.getItem('token');
@@ -49,6 +49,7 @@ const TV = () => {
   const socketClient = useRef(null); // WebSocket client
 
   useEffect(() => {
+    decodeToken();
     const fetchCurrentAd = async () => {
       setError("");
       try {

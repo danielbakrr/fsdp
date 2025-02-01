@@ -19,7 +19,7 @@ const TemplatePage = () => {
   };
   const [active, setActive] = useState(0); // State to track the active template
   const [userFeatures,setUserFeatures] = useState([]);
-  const features = ["Advertisement Display", "Template Editor", "Advertisement Management", "File Management"];
+  const features = ["Tv Groups", "Template Editor", "Advertisement Management", "User Management", "Metrics", "Schedule Ads"];
 
   const decodeToken = ()=> {
         const token = localStorage.getItem('token');
@@ -96,12 +96,9 @@ const TemplatePage = () => {
   ];
 
   useEffect(() => {
-
-
     let items = document.querySelectorAll(".slider .item");
     let next = document.getElementById("next");
     let prev = document.getElementById("prev");
-
     function loadShow() {
       if (items.length === 0 || !items[active]) {
         console.error("No items found or active index is out of bounds");

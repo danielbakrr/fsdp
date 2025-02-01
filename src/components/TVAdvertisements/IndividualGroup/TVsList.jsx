@@ -19,7 +19,7 @@ const TVsList = () => {
   const { state } = useLocation();
   const navigate = useNavigate();
   const [userFeatures,setUserFeatures] = useState([]);
-  const features = ["Advertisement Display", "Template Editor", "Advertisement Management", "File Management"];
+  const features = ["Tv Groups", "Template Editor", "Advertisement Management", "User Management", "Metrics", "Schedule Ads"];
   
   const decodeToken = ()=> {
         const token = localStorage.getItem('token');
@@ -61,6 +61,10 @@ const TVsList = () => {
     );
   };
 
+  // useEffect with no dependency 
+  useEffect(()=> {
+    decodeToken();
+  },[])
   // Automatically remove notifications after 5 seconds
   useEffect(() => {
     if (notifications.length > 0) {
@@ -79,6 +83,7 @@ const TVsList = () => {
 
   // Fetch TVs and ads on component mount and every 3 seconds
   useEffect(() => {
+    
     if (state?.group?.groupName) {
       localStorage.setItem("groupName", state.group.groupName);
     }

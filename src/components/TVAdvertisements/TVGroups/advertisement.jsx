@@ -24,7 +24,7 @@ const AdvertisementDisplay = () => {
   const [tvGroupIds,setTvGroupIds] = useState([]);
   const [selectedUpdateGroup, setSelectedUpdateGroup] = useState(null);
   const [userFeatures,setUserFeatures] = useState([]);
-  const features = ["Advertisement Display", "Template Editor", "Advertisement Management", "File Management"];
+  const features = ["Tv Groups", "Template Editor", "Advertisement Management", "User Management", "Metrics", "Schedule Ads"];
 
 
    const decodeToken = ()=> {
@@ -65,6 +65,7 @@ const AdvertisementDisplay = () => {
     }
     decodeFetch();
     const intervalId = setInterval(() => {
+      decodeToken();
       fetchTVGroups();
     }, 5000);
     return () => clearInterval(intervalId);

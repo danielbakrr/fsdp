@@ -66,7 +66,7 @@ const ViewAllTemplates = () => {
   ];
 
   const [userFeatures,setUserFeatures] = useState([]);
-  const features = ["Advertisement Display", "Template Editor", "Advertisement Management", "File Management"];
+  const features = ["Tv Groups", "Template Editor", "Advertisement Management", "User Management", "Metrics", "Schedule Ads"];
   
   const decodeToken = ()=> {
         const token = localStorage.getItem('token');

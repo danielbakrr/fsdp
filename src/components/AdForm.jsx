@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ChevronRight, ChevronLeft } from 'lucide-react';
 import '../styles/AdForm.css';
 import { jwtDecode } from 'jwt-decode';
@@ -14,7 +14,7 @@ const AdForm = () => {
   const [resizeDirection, setResizeDirection] = useState(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [userFeatures,setUserFeatures] = useState([]);
-  const features = ["Advertisement Display", "Template Editor", "Advertisement Management", "File Management"];
+  const features = ["Tv Groups", "Template Editor", "Advertisement Management", "User Management", "Metrics", "Schedule Ads"];
 
 const decodeToken = ()=> {
       const token = localStorage.getItem('token');
@@ -132,6 +132,10 @@ const decodeToken = ()=> {
     setResizeDirection(null);
     setSelectedItemId(null);
   };
+
+  useEffect(()=>{
+    decodeToken()
+  },[])
 
   const handleSave = async () => {
     if (mediaItems.length === 0 || !adTitle) {

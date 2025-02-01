@@ -13,7 +13,7 @@ const AdList = () => {
   const [resizeDirection, setResizeDirection] = useState(null);
   const wsClient = useRef(null);
   const [userFeatures,setUserFeatures] = useState([]);
-  const features = ["Advertisement Display", "Template Editor", "Advertisement Management", "File Management"];
+  const features = ["Tv Groups", "Template Editor", "Advertisement Management", "User Management", "Metrics", "Schedule Ads"];
 
 const decodeToken = ()=> {
       const token = localStorage.getItem('token');
@@ -39,6 +39,7 @@ const decodeToken = ()=> {
   }
 
   useEffect(() => {
+    decodeToken();
     const fetchAds = async () => {
       const response = await fetch("http://localhost:5000/api/Advertisements");
       const data = await response.json();

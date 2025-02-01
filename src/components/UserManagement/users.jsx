@@ -26,7 +26,7 @@ const DisplayUsers = () => {
     const [newRole,selectRole] = useState({});
     const [roles,setRoles] = useState([]);
     const [userFeatures,setUserFeatures] = useState([]);
-    const features = ["Advertisement Display", "Template Editor", "Advertisement Management", "File Management"];
+    const features = ["Tv Groups", "Template Editor", "Advertisement Management", "User Management", "Metrics", "Schedule Ads"];
 
     const decodeToken = ()=> {
         const token = localStorage.getItem('token');
@@ -276,6 +276,7 @@ const DisplayUsers = () => {
     }
     // fetch the data in the useEffect (When component is rendered first time i fetch the data, subsequent re renders no need to fetch )
     useEffect(()=>{
+        decodeToken();
         // call our fetch api method that sets the data 
         fetchUsers();
         // call fetch api to set the roles 

@@ -3,7 +3,12 @@ import { Link } from "react-router-dom";
 import logo from "../assets/githubbies-logo.jpg"; // Replace with your actual logo path
 import "../styles/navbar.css";
 
+
 const Navbar = ({navItems}) => {
+
+  const logoutUser= ()=>{
+    localStorage.clear();
+  }
   console.log(navItems);
   return (
     <div className="Navbar">
@@ -21,11 +26,11 @@ const Navbar = ({navItems}) => {
             switch(child){
               case "Template Editor":
 
-              return (
-                <li>
-                  <Link to="/template-editor">Template Editor</Link>
-                </li>
-              )
+                return (
+                  <li>
+                    <Link to="/template-editor">Template Editor</Link>
+                  </li>
+                )
 
               case "Advertisement Management":
                 return (
@@ -50,6 +55,9 @@ const Navbar = ({navItems}) => {
               
             }
           })}
+          <li>
+            <Link to = "/" onClick={logoutUser}>Log out</Link>
+          </li>
         </ul>
       </nav>
     </div>
