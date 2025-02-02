@@ -6,7 +6,7 @@ import "./SelectFileDropdown.css";
 import AdPreview from "./adPreview"; 
 import { jwtDecode } from "jwt-decode";
 import io from "socket.io-client";
-const socket = io.connect("http://localhost:5000"); // Adjust to your backend URL
+const socket = io.connect("https://githubbiesbackend.onrender.com"); // Adjust to your backend URL
 
 const TV = () => {
   const { groupID, tvID } = useParams();
