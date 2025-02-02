@@ -219,7 +219,7 @@ const DisplayUsers = () => {
                 const tempObject = {
                     "actions": tvGroupPermissions.map(tvGrpPerm => tvGrpPerm.value),
                     "resource": "Tv Group",
-                    "tvGroupId": tvIds
+                    "tvGroupIds": tvIds
                 }
 
                 newPermissions.push(tempObject)
@@ -281,9 +281,9 @@ const DisplayUsers = () => {
         retrieveAllTvGroups();
 
         const intervalId = setInterval(() => {
-            retrieveAllTvGroups();
             fetchUsers();
             fetchAllRoles();
+            retrieveAllTvGroups();
         }, 5000);
 
         return () => clearInterval(intervalId);
