@@ -61,7 +61,7 @@ const GestureRecognition = ({ adID }) => {
       if (hand.length > 0) {
         const GE = new fp.GestureEstimator([fp.Gestures.ThumbsUpGesture]);
 
-        const gesture = await GE.estimate(hand[0].landmarks, 5);
+        const gesture = await GE.estimate(hand[0].landmarks, 6);
         console.log("Detected gestures:", gesture.gestures);
 
         if (gesture.gestures.length > 0) {
