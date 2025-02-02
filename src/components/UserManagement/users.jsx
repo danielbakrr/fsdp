@@ -88,7 +88,6 @@ const DisplayUsers = () => {
     const retrieveAllTvGroups = async()=> {
         const response = await fetch("https://githubbiesbackend.onrender.com/api/tvGroups");
         if (response.status == 200){
-            toast.success("Retrieved all tvGroups sucessfully");
             const data = await response.json();
             const tvGroupOptions = [];
             data.map((tvObj)=> {
@@ -117,11 +116,11 @@ const DisplayUsers = () => {
             })
         });
         if (response.status == 200){
-            alert("User role has been sucessfully updated");
+            toast.success("User role has been sucessfully updated")
 
         }
         else {
-            alert("Internal server error");
+            toast.error("Internal server error")
         }
     }
     const handleAdPermissions = (selected)=> {
@@ -156,6 +155,7 @@ const DisplayUsers = () => {
                 setUsers(prevUsers => prevUsers.filter(user => user.userId !== userId));
                 const message = await response.json();
                 toast.success(message);
+                
                 
             }
             else{
@@ -287,11 +287,14 @@ const DisplayUsers = () => {
         const intervalId = setInterval(() => {
             retrieveAllTvGroups();
             fetchUsers();
+            fetchAllRoles();
         }, 5000);
 
         return () => clearInterval(intervalId);
 
     },[])
+
+   
 
     const openAddRoleModal = () => {
         setModalOpen(true);
@@ -311,8 +314,7 @@ const DisplayUsers = () => {
             if (response.status == 200){
                 const users = await response.json();
                 if (users.retrievedUsers != null){
-                    setUsers(users.retrievedUsers); // Creates a new array
-                    toast.success("Users retrieved sucessfully");
+                    setUsers(users.retrievedUsers); 
                 }
             }
             else if (response.status == 403){
