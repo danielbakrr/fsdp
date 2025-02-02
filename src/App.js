@@ -11,9 +11,9 @@ import TVsList from "./components/TVAdvertisements/IndividualGroup/TVsList";
 import TV from "./components/TVAdvertisements/IndividualTV/TV";
 import Calendar from './components/Calender';
 import CampaignScheduler from './components/CampaignScheduler';
-
 import Home from './components/home';
 import DisplayUsers from './components/UserManagement/users';
+import GestureRecognition from "./components/GestureRecognition";
 
 const App = () => {
   return (
@@ -31,6 +31,7 @@ const App = () => {
         <Route path="/advertisement-display/tvgroups/:groupID" element={<TVsList/>} />
         <Route path="/advertisement-display/tvgroups/:groupID/tvs/:tvID" element={<TV />} />
         <Route path= "/manage-users" element = {<DisplayUsers/>} />
+        <Route path="/gesture-recognition" element={<GestureRecognition />} />
         {/* Default route for undefined paths */}
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>

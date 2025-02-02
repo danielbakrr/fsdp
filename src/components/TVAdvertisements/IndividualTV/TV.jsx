@@ -5,6 +5,11 @@ import "./TV.css";
 import "./SelectFileDropdown.css";
 import AdPreview from "./adPreview"; 
 import { jwtDecode } from "jwt-decode";
+import GestureRecognition from "../../GestureRecognition"; 
+
+
+
+
 import io from "socket.io-client";
 const socket = io.connect("https://githubbiesbackend.onrender.com"); // Adjust to your backend URL
 
@@ -187,6 +192,7 @@ const TV = () => {
           {groupName}
         </Link>{" "}
         &gt; <span className="breadcrumb-current">TV {tvID}</span>
+
       </div>
 
       <div className="tv-container">
@@ -247,6 +253,7 @@ const TV = () => {
     }}
   >
     <AdPreview ad={currentAd} /> {/* Use the AdPreview component */}
+    <GestureRecognition adID={currentAd?.adID} />;
   </div>
 </div>
           </>

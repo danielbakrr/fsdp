@@ -14,6 +14,7 @@ const roleController = require("./controllers/roleController");
 const accountController = require("./controllers/accountController");
 const authController = require("./controllers/authController");
 const authMiddleware = require("./middleware/authorisationMiddleware")
+const gestureRoutes = require("./gesture");
 
 const {
     DynamoDBDocumentClient,
@@ -155,7 +156,8 @@ app.post('/api/upload', (req, res) => {
           adID,
           adTitle,
           mediaItems,
-          createdAt: new Date().toISOString()
+          createdAt: new Date().toISOString(),
+          likes: 0
         },
       };
       await ddbDocClient.send(new PutCommand(params));
@@ -384,6 +386,8 @@ app.post('/api/update-ad', (req, res) => {
     }
   });
 });
+
+app.use("/api", gestureRoutes);
 
 // Routes for tv groups
 app.get("/api/tvgroups/:id", TVGroupController.getTVGroupsById);
