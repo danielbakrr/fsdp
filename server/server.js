@@ -89,6 +89,10 @@ io.on("connection", (socket) => {
   });
 });
 
+app.get("/", (req, res) => {
+  res.send("Server is running!");
+});
+
 // Configure Multer for File Upload
 const storage = multer.memoryStorage();
 
