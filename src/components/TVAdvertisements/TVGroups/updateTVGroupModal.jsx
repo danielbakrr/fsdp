@@ -29,7 +29,7 @@ const UpdateGroupModal = ({ groupID, isOpen, onClose, onUpdateGroup }) => {
     setIsLoading(true); // Set loading state
 
     try {
-      const response = await fetch(`https://githubbiesbackend.onrender.com/tvgroups/${groupID}`, {
+      const response = await fetch(`https://githubbiesbackend.onrender.com/api/tvgroups/${groupID}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
