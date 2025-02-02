@@ -104,7 +104,7 @@ const TVsList = () => {
   // Fetch TVs
   const fetchTvs = async (groupID) => {
     try {
-      const response = await fetch(`/api/tvgroups/${groupID}/tvs`);
+      const response = await fetch(`https://githubbiesbackend.onrender.com/api/tvgroups/${groupID}/tvs`);
       const tvData = await response.json();
       if (Array.isArray(tvData)) {
         setTvs(tvData);
@@ -118,7 +118,7 @@ const TVsList = () => {
   // Fetch all ads
   const fetchAds = async () => {
     try {
-      const response = await fetch("/api/Advertisements");
+      const response = await fetch('https://githubbiesbackend.onrender.com/api/Advertisements');
       const data = await response.json();
       setAds(data.reduce((acc, ad) => ({ ...acc, [ad.adID]: ad }), {}));
     } catch (error) {
@@ -131,7 +131,7 @@ const TVsList = () => {
   const handleAddTv = async () => {
     setError("");
     try {
-      const response = await fetch(`/api/tvgroups/${groupID}/tvs`, {
+      const response = await fetch(`https://githubbiesbackend.onrender.com/api/tvgroups/${groupID}/tvs`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -153,7 +153,7 @@ const TVsList = () => {
   const handleDeleteMultipleTv = async () => {
     setError("");
     try {
-      const response = await fetch(`/api/tvgroups/${groupID}/tvs/batch-delete`, {
+      const response = await fetch(`https://githubbiesbackend.onrender.com/api/tvgroups/${groupID}/tvs/batch-delete`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -181,7 +181,7 @@ const TVsList = () => {
     try {
       if (pinnedTvs.length === 1) {
         const tvID = pinnedTvs[0];
-        const response = await fetch(`/api/tvgroups/${groupID}/tvs/${tvID}`, {
+        const response = await fetch(`https://githubbiesbackend.onrender.com/api/tvgroups/${groupID}/tvs/${tvID}`, {
           method: "DELETE",
           headers: {
             "Content-Type": "application/json",
@@ -220,7 +220,7 @@ const TVsList = () => {
   const updateSelectedTvs = async (selectedAd, pinnedTvs) => {
     setError("");
     try {
-      const response = await fetch(`/api/tvgroups/${groupID}/tvs/batch-update`, {
+      const response = await fetch(`https://githubbiesbackend.onrender.com/api/tvgroups/${groupID}/tvs/batch-update`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -243,7 +243,7 @@ const TVsList = () => {
     setError("");
     try {
       const tvIds = tvs.map((tv) => tv.tvID);
-      const response = await fetch(`/api/tvgroups/${groupID}/tvs/batch-update`, {
+      const response = await fetch(`https://githubbiesbackend.onrender.com/api/tvgroups/${groupID}/tvs/batch-update`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

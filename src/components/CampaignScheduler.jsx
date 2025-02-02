@@ -1,10 +1,12 @@
+// CampaignScheduler.js
 import React, { useState } from 'react';
 import '../styles/campaignScheduler.css';
 
 const CampaignScheduler = () => {
   const [schedule, setSchedule] = useState({
     frequency: 'Daily',
-    title: 'Ideation marketplace app',
+    tvId: '',
+    campaignId: '',
     date: '2024-04-17',
     startTime: '08:00',
     endTime: '09:00',
@@ -17,6 +19,10 @@ const CampaignScheduler = () => {
       [e.target.name]: e.target.value
     });
   };
+
+  // Sample data - replace with your actual data
+  const tvIds = ['tv553711', 'tv655563', 'tv919587', 'tv408961','tv001','tv002','tv468873','tv933456'];
+  const campaignIds = ['Campaign001', 'Campaign002'];
 
   return (
     <div className="scheduler-container">
@@ -49,16 +55,33 @@ const CampaignScheduler = () => {
           <span>100%</span>
         </div>
       </div>
-
+     
       <div className="input-group">
-        <label>Title Schedule</label>
-        <input
-          type="text"
-          name="title"
-          value={schedule.title}
-          onChange={handleChange}
-          className="text-input"
-        />
+        <label>TV & Campaign ID</label>
+        <div className="id-inputs">
+          <select
+            name="tvId"
+            value={schedule.tvId}
+            onChange={handleChange}
+            className="id-select"
+          >
+            <option value="">Select TV ID</option>
+            {tvIds.map(id => (
+              <option key={id} value={id}>{id}</option>
+            ))}
+          </select>
+          <select
+            name="campaignId"
+            value={schedule.campaignId}
+            onChange={handleChange}
+            className="id-select"
+          >
+            <option value="">Select Campaign ID</option>
+            {campaignIds.map(id => (
+              <option key={id} value={id}>{id}</option>
+            ))}
+          </select>
+        </div>
       </div>
 
       <div className="input-group">
