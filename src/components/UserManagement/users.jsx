@@ -170,7 +170,6 @@ const DisplayUsers = () => {
         try {
             const response = await fetch('https://githubbiesbackend.onrender.com/api/getAllRoles');
             if (response.status == 200){
-
                 const roles = await response.json();
                 setRoles(roles.roles);
             }
@@ -264,9 +263,6 @@ const DisplayUsers = () => {
 
         if (response.status == 201){
             toast.success("Sucessfully created user role");
-        }
-        else if (response.status == 403){
-            toast.warn("User is forbidden from creating user roles");
         }
         else {
             toast.error("Unable to create user roles");
