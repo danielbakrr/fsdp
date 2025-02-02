@@ -64,7 +64,7 @@ const GestureRecognition = () => {
           new fp.GestureDescription("thumbs_down"),
         ]);
 
-        const gesture = await GE.estimate(hand[0].landmarks, 4);
+        const gesture = await GE.estimate(hand[0].landmarks, 5);
         console.log("Detected gestures:", gesture.gestures);
 
 if (gesture.gestures.length > 0) {

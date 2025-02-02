@@ -11,7 +11,6 @@ import TVsList from "./components/TVAdvertisements/IndividualGroup/TVsList";
 import TV from "./components/TVAdvertisements/IndividualTV/TV";
 import Calendar from './components/Calender';
 import CampaignScheduler from './components/CampaignScheduler';
-
 import Home from './components/home';
 import DisplayUsers from './components/UserManagement/users';
 import GestureRecognition from "./components/GestureRecognition";
