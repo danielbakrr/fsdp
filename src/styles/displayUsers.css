@@ -13,10 +13,16 @@
 }
 .create-new-role-btn{
   font-family: "Space Mono", monospace;
-  background-color: rgb(66, 194, 66);
+  background-color: #00a600;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow */
   color:whitesmoke;
+  transition: background 0.2s ease;
 }
+
+.create-new-role-btn:hover{
+  background-color:#00cc00;
+}
+
 /* Title styling */
 .userTable h2 {
   text-align: center;        /* Center the title */
@@ -65,11 +71,13 @@
   align-items:center;
   padding:0.5rem;
   justify-content:center;
+  transition: background 0.2s ease;
 }
 
 .delete-btn:hover{
   background-color: rgb(214, 65, 55);
   color:white;
+  cursor: pointer;
 }
 
 

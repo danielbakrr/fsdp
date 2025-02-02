@@ -1,35 +1,41 @@
 .login-page {
-    display: flex; 
-    align-items: center; 
+    display: flex;
+    align-items: center;
     justify-content: center;
-    height: 100vh;
+    height: 88vh;
+    padding: 2em;
 }
 
 .logo-container {
-    margin-right: 5em;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-right: 4em;
 }
 
 .logo-container img {
-    width: 35em;
-    height: auto; 
+    max-width: 25em;
+    height: auto;
 }
 
 .login-container {
-    width: 30em;
+    width: 100%;
+    max-width: 30em;
     height: 31em;
-    padding: 20px;
+    padding: 30px;
     border: 1px solid #ccc;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-top: 2em; 
 }
 
 h2 {
     text-align: center;
-    margin-bottom:2em;
+    margin-top: 3em;
 }
 
 .form-group {
-    margin-bottom: 15px;
+    margin-top: 3em;
 }
 
 label {
@@ -38,15 +44,15 @@ label {
 }
 
 input {
-    width: calc(100% - 1px); 
+    width: calc(100% - 1px);
     padding: 10px;
     border: 1px solid #ccc;
     border-radius: 4px;
-    box-sizing: border-box; 
+    box-sizing: border-box;
 }
 
 button {
-    width: 100%; 
+    width: 100%;
     padding: 10px;
     border: none;
     border-radius: 4px;
@@ -54,9 +60,8 @@ button {
     color: white;
     font-size: 16px;
     cursor: pointer;
-    margin-top:2em;
+    margin-top: 4em; 
 }
-
 button:disabled {
     background-color: #6c757d;
 }
