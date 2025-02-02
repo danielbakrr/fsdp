@@ -223,7 +223,8 @@ const decodeToken = ()=> {
               <button 
                 onClick={handleSave} 
                 disabled={mediaItems.length === 0}
-                className="w-full bg-blue-500 text-white p-2 rounded mb-2 disabled:bg-gray-300"
+                className="w-full text-white p-2 rounded mb-2 disabled:bg-gray-300"
+                style={{ backgroundColor: mediaItems.length === 0 ? '#9CA3AF' : 'rgb(66, 194, 66)' }}
               >
                 Save Advertisement
               </button>
@@ -231,7 +232,8 @@ const decodeToken = ()=> {
               <button 
                 onClick={() => handleDelete()} 
                 disabled={mediaItems.length === 0}
-                className="w-full bg-red-500 text-white p-2 rounded disabled:bg-gray-300"
+                className="w-full text-white p-2 rounded disabled:bg-gray-400"
+                style={{ backgroundColor: mediaItems.length === 0 ? '#9CA3AF' : '#ff0000' }}
               >
                 Delete All
               </button>

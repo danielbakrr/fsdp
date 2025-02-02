@@ -3,6 +3,7 @@ import "../styles/AdForm.css";
 import Navbar from "./navbar";
 import WebSocketClient from "../websocket/WebsocketClient";
 import { jwtDecode } from 'jwt-decode';
+
 const AdList = () => {
   const [ads, setAds] = useState([]);
   const [activeTab, setActiveTab] = useState(null);
@@ -208,7 +209,12 @@ const decodeToken = ()=> {
       onMouseUp={handleMouseUp}
       style={{ userSelect: "none" }}
     >
-      <div style={{ display: "flex", borderBottom: "2px solid #ccc" }}>
+      <div
+        style={{
+          display: "flex",
+          boxShadow: "0 4px 4px -2px rgba(0, 0, 0, 0.1)",
+        }}
+      >
         {ads.map((ad) => (
           <button
             key={ad.adID}
@@ -216,7 +222,7 @@ const decodeToken = ()=> {
             style={{
               padding: "10px",
               cursor: "pointer",
-              borderBottom: activeTab === ad.adID ? "2px solid blue" : "none",
+              borderBottom: activeTab === ad.adID ? "2px solid rgb(147, 93, 249)" : "none",
               backgroundColor: activeTab === ad.adID ? "#f0f0f0" : "white",
               fontWeight: activeTab === ad.adID ? "bold" : "normal",
               color: "black",
@@ -226,6 +232,7 @@ const decodeToken = ()=> {
           </button>
         ))}
       </div>
+
 
       {ads.map((ad) =>
         ad.adID === activeTab ? (
@@ -239,7 +246,7 @@ const decodeToken = ()=> {
               }}
             >
               <div style={{ display: "flex", justifyContent: "center", marginBottom: "10px" }}>
-                <button onClick={() => deleteAd(ad.adID)} style={{ padding: "5px 10px" }}>
+                <button onClick={() => deleteAd(ad.adID)} style={{ padding: "5px 10px", backgroundColor: "#ff0000" }}>
                   Delete Advertisement
                 </button>
               </div>

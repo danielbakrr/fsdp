@@ -10,51 +10,52 @@ const Navbar = ({navItems}) => {
     localStorage.clear();
   }
   console.log(navItems);
-  return (
-    <div className="Navbar">
-      <nav className="navbar">
-        <div className="navbar-logo">
-          <Link to="/Home">
-            <img src={logo} alt="Logo" />
-          </Link>
-        </div>
-        <ul className="navbar-links">
-          <li>
-            <Link to="/Home">Dashboard</Link>
-          </li>
-          {navItems.map((child)=>{
-            switch(child){
-              case "Template Editor":
+    return (
+      <div className="Navbar">
+        <nav className="navbar">
+          <div className="navbar-logo">
+            <Link to="/Home">
+              <img src={logo} alt="Logo" />
+            </Link>
+          </div>
+          <ul className="navbar-links">
+            <li>
+              <Link to="/Home">Dashboard</Link>
+            </li>
+            {navItems.map((child) => {
+              switch (child) {
+                case "Template Editor":
+                  return (
+                    <li key={child}>
+                      <Link to="/template-editor">Template Editor</Link>
+                    </li>
+                  );
 
-                return (
-                  <li>
-                    <Link to="/template-editor">Template Editor</Link>
-                  </li>
-                )
+                case "Advertisement Management":
+                  return (
+                    <li key={child}>
+                      <Link to="/template-management">Advertisement Management</Link>
+                    </li>
+                  );
 
-              case "Advertisement Management":
-                return (
-                  <li>
-                    <Link to="/template-management">Advertisement Management</Link>
-                  </li>
-                )
-              
-              case "Tv Group":
-              return (
-                  <li>
-                    <Link to = "/advertisement-display">Tv Groups</Link>
-                  </li>
-              )
-              
-              case "User Management":
-                return (
-                  <li>
-                    <Link to = "/manage-users"> Manage Users</Link>
-                  </li>
-                )
-              
-            }
-          })}
+                case "Tv Group":
+                  return (
+                    <li key={child}>
+                      <Link to="/advertisement-display">Tv Groups</Link>
+                    </li>
+                  );
+
+                case "User Management":
+                  return (
+                    <li key={child}>
+                      <Link to="/manage-users">Manage Users</Link>
+                    </li>
+                  );
+
+                default:
+                  return null
+                }
+              })}
           <li>
             <Link to = "/" onClick={logoutUser}>Log out</Link>
           </li>
