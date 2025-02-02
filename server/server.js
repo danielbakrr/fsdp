@@ -53,7 +53,7 @@ const PORT = process.env.PORT || 5000;
 // Middleware
 app.use(
   cors({
-    origin: ['http://localhost:3000', 'https://fsdp.vercel.app'], 
+    origin: ['http://localhost:3000', 'https://githubbies.onrender.com'],
     methods: ["GET", "POST", "DELETE"],
     credentials: true,
   })
@@ -64,7 +64,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // WebSocket Setup
 const io = new Server(server, {
   cors: {
-    origin: 'http://localhost:3000',
+    origin: ['http://localhost:3000', 'https://githubbies.onrender.com'],
     methods: ["GET", "POST", "DELETE"],
   },
 });
