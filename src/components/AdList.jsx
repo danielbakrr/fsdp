@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import "../styles/AdForm.css";
 import Navbar from "./navbar";
-import WebSocketClient from "../websocket/WebsocketClient";
 import { jwtDecode } from 'jwt-decode';
 
 const AdList = () => {
@@ -49,13 +48,6 @@ const decodeToken = ()=> {
     };
     fetchAds();
 
-    // Initialize WebSocket client
-    wsClient.current = new WebSocketClient("ws://localhost:3000");
-    wsClient.current.connect();
-
-    return () => {
-      wsClient.current.disconnect();
-    };
   }, []);
 
   const sendUpdate = (ad) => {
