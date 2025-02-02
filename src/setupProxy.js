@@ -4,7 +4,7 @@ module.exports = function(app) {
   app.use(
     '/api',
     createProxyMiddleware({
-      target: 'https://githubbiesbackend.onrender.com',
+      target: 'https://your-subdomain.example.com',
       changeOrigin: true,
       pathRewrite: { '^/api': '' },
     })
