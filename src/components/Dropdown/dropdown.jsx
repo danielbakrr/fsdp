@@ -11,7 +11,7 @@ const Dropdown = ({buttonText, content,id}) => {
         setOpen((open) => !open) // set to true 
     }
     return (
-        <div className = "dropdown">
+        <div className = "dropdown-isaac">
            <DropdownButton toggle = {toggleDropDown} open = {open}>
                 {buttonText}
            </DropdownButton>
