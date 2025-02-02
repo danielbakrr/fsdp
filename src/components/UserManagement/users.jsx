@@ -86,7 +86,7 @@ const DisplayUsers = () => {
     }
 
     const retrieveAllTvGroups = async()=> {
-        const response = await fetch('/api/tvGroups');
+        const response = await fetch("https://githubbiesbackend.onrender.com/api/tvGroups");
         if (response.status == 200){
             toast.success("Retrieved all tvGroups sucessfully");
             const data = await response.json();
@@ -106,7 +106,7 @@ const DisplayUsers = () => {
     }
 
     const editRole = async (userId,newRole)=> {
-        const response = await fetch(`/api/edit-userRole/${userId}`,{
+        const response = await fetch(`https://githubbiesbackend.onrender.com/api/edit-userRole/${userId}`,{
             method: "POST",
             headers: {
                 "Authorization": `Bearer ${token}`, 
@@ -146,7 +146,7 @@ const DisplayUsers = () => {
 
     const deleteUser = async(userId)=> {
         try{
-            const response = await fetch(`/api/delete-user/${userId}`,{
+            const response = await fetch(`https://githubbiesbackend.onrender.com/api/delete-user/${userId}`,{
                 'method':'DELETE',
                 'headers':{
                     'content-type': 'application/json'
@@ -168,7 +168,7 @@ const DisplayUsers = () => {
     }
     const fetchAllRoles = async()=>{
         try {
-            const response = await fetch("/api/getAllRoles");
+            const response = await fetch('https://githubbiesbackend.onrender.com/api/getAllRoles');
             if (response.status == 200){
 
                 const roles = await response.json();
@@ -254,7 +254,7 @@ const DisplayUsers = () => {
 
         console.log(request);
 
-        const response = await fetch('/api/create-userRole',{
+        const response = await fetch(`https://githubbiesbackend.onrender.com/api/create-userRole`,{
             'method': 'POST',
             'headers': {
                 'content-type': 'application/json',
@@ -294,7 +294,7 @@ const DisplayUsers = () => {
     }
     const fetchUsers = async ()=> {
         try{
-            const response = await fetch("/api/get-allUsers",{
+            const response = await fetch('https://githubbiesbackend.onrender.com/api/get-allUsers',{
                 'headers':{
                     "Authorization": `Bearer ${token}`,
                     'content-type': "application/json",

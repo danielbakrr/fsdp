@@ -3,7 +3,6 @@ const bcrypt = require('bcrypt');
 const Account = require('../models/Account');
 const {Role} = require('../models/role');
 const jwt = require("jsonwebtoken");
-const { json } = require('body-parser');
 const { v4: uuidv4 } = require('uuid');
 const dotenv = require("dotenv")
 // Export the account class 

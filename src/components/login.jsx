@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import "../styles/login.css"; 
 import logo from "../assets/githubbies-logo.jpg";
 import { useNavigate } from 'react-router-dom';
-
 const Login = () => {
     let navigate = useNavigate();
     const [email, setEmail] = useState('');

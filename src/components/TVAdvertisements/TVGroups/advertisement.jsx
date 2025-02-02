@@ -85,7 +85,7 @@ const AdvertisementDisplay = () => {
             return;  // Don't fetch if role is undefined
         }
 
-        const response = await fetch("/api/tvgroups");
+        const response = await fetch("https://githubbiesbackend.onrender.com/api/tvgroups");
         const data = await response.json();
         if (data.error) {
             throw new Error(data.error);
@@ -112,7 +112,7 @@ const AdvertisementDisplay = () => {
   // Fetch TVs for the selected TVGroup
   const fetchTvs = async (groupID) => {
     try {
-      const response = await fetch(`/api/tvgroups/${groupID}/tvs`); // Endpoint to get TVs for a TVGroup
+      const response = await fetch(`https://githubbiesbackend.onrender.com/api/tvgroups/${groupID}/tvs`); // Endpoint to get TVs for a TVGroup
       const data = await response.json();
       setTvs(data); // Set the TVs for the selected TVGroup
     } catch (error) {
@@ -180,7 +180,7 @@ const AdvertisementDisplay = () => {
   const handleDeleteTVGroup = async (groupID) => {
     try {
       // Make API call to delete the TVGroup (assuming DELETE endpoint exists)
-      await fetch(`/api/tvgroups/${groupID}`, { method: "DELETE" });
+      await fetch(`https://githubbiesbackend.onrender.com/api/tvgroups/${groupID}`, { method: "DELETE" });
 
       // Remove deleted group from the state
       setTVGroups(tvgroups.filter((group) => group.groupID !== groupID));

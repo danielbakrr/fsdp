@@ -30,7 +30,7 @@ const AddGroupModal = ({ isOpen, onClose, onAddGroup }) => {
     }
 
     try {
-      const response = await fetch("/api/tvgroups", {
+      const response = await fetch('https://githubbiesbackend.onrender.com/api/tvgroups', {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
