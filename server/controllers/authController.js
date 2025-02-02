@@ -41,7 +41,7 @@ const login = async(req,res) => {
             }
             const payload = {
                 "userId": user.userId,
-                "userName": `${user.firstName} ${user.lastName}`,
+                "userName": `${user.firstName} + " " + ${user.lastName}`,
                 "role": user.role,
                 "permissions": permissions
             }
