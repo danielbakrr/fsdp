@@ -63,7 +63,7 @@ const TV = () => {
     const fetchCurrentAd = async () => {
       setError("");
       try {
-        const tvResponse = await fetch(`/tvgroups/${groupID}/tvs/${tvID}`);
+        const tvResponse = await fetch(`/api/tvgroups/${groupID}/tvs/${tvID}`);
         if (!tvResponse.ok) {
           throw new Error("Failed to fetch TV details");
         }
@@ -151,7 +151,7 @@ const TV = () => {
 
     setError("");
     try {
-      const response = await fetch(`/tvgroups/${groupID}/tvs/${tvID}`, {
+      const response = await fetch(`/api/tvgroups/${groupID}/tvs/${tvID}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

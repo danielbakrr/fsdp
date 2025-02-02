@@ -1,147 +1,103 @@
 import React, { useState } from 'react';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Calendar, Clock } from 'lucide-react';
-import './CampaignScheduler.css';
+import '../styles/campaignScheduler.css';
 
 const CampaignScheduler = () => {
-  const [formData, setFormData] = useState({
-    campaignName: 'Ideation marketplace app',
-    frequency: 'daily',
-    color: '#2C87F2',
+  const [schedule, setSchedule] = useState({
+    frequency: 'Daily',
+    title: 'Ideation marketplace app',
     date: '2024-04-17',
     startTime: '08:00',
-    endTime: '09:00'
+    endTime: '09:00',
+    color: '#2C87F2'
   });
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    setSchedule({
+      ...schedule,
+      [e.target.name]: e.target.value
+    });
   };
 
   return (
     <div className="scheduler-container">
-      <div className="scheduler-modal">
-        <div className="scheduler-content">
-          {/* Header */}
-          <div className="modal-header">
-            <div className="header-title">
-              <div className="header-icon">
-                <Calendar size={20} />
-              </div>
-              <h2>Create Schedule</h2>
-            </div>
-            <button className="close-button">×</button>
-          </div>
+      <div className="scheduler-header">
+        <h2>📅 Create Schedule</h2>
+        <button className="close-button">×</button>
+      </div>
 
-          <div className="subtitle">
-            Fill in the data below to add a schedule
-          </div>
+      <p className="scheduler-subtitle">Fill in the data below to add a schedule</p>
 
-          {/* Form Content */}
-          <div className="form-content">
-            {/* Frequency Selection */}
-            <div className="frequency-section">
-              <div className="frequency-container">
-                <Select 
-                  defaultValue="daily"
-                  onValueChange={(value) => setFormData(prev => ({ ...prev, frequency: value }))}
-                >
-                  <SelectTrigger className="frequency-trigger">
-                    <SelectValue placeholder="Select frequency" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="daily">Daily</SelectItem>
-                    <SelectItem value="weekly">Weekly</SelectItem>
-                    <SelectItem value="monthly">Monthly</SelectItem>
-                  </SelectContent>
-                </Select>
-                <div className="color-picker-container">
-                  <Input
-                    type="color"
-                    name="color"
-                    value={formData.color}
-                    onChange={handleChange}
-                    className="color-input"
-                  />
-                  <span className="percentage">100%</span>
-                </div>
-              </div>
-            </div>
+      <div className="frequency-row">
+        <select 
+          name="frequency"
+          value={schedule.frequency}
+          onChange={handleChange}
+          className="frequency-select"
+        >
+          <option>Daily</option>
+          <option>Weekly</option>
+          <option>Monthly</option>
+        </select>
+        <div className="color-container">
+          <input
+            type="color"
+            name="color"
+            value={schedule.color}
+            onChange={handleChange}
+            className="color-input"
+          />
+          <span>100%</span>
+        </div>
+      </div>
 
-            {/* Campaign Name */}
-            <div className="campaign-name-section">
-              <label>Title Schedule</label>
-              <Input
-                name="campaignName"
-                value={formData.campaignName}
-                onChange={handleChange}
-                className="campaign-input"
-                placeholder="Enter campaign name"
-              />
-            </div>
+      <div className="input-group">
+        <label>Title Schedule</label>
+        <input
+          type="text"
+          name="title"
+          value={schedule.title}
+          onChange={handleChange}
+          className="text-input"
+        />
+      </div>
 
-            {/* Date & Time */}
-            <div className="datetime-section">
-              <label>Date & Time</label>
-              <div className="datetime-container">
-                {/* Date Input */}
-                <div className="date-input-container">
-                  <Calendar size={18} className="input-icon" />
-                  <Input
-                    type="date"
-                    name="date"
-                    value={formData.date}
-                    onChange={handleChange}
-                    className="date-input"
-                  />
-                </div>
-                
-                {/* Time Input */}
-                <div className="time-inputs">
-                  <div className="time-input-container">
-                    <Clock size={18} className="input-icon" />
-                    <Input
-                      type="time"
-                      name="startTime"
-                      value={formData.startTime}
-                      onChange={handleChange}
-                      className="time-input"
-                    />
-                  </div>
-                  <span className="time-separator">-</span>
-                  <div className="time-input-container">
-                    <Clock size={18} className="input-icon" />
-                    <Input
-                      type="time"
-                      name="endTime"
-                      value={formData.endTime}
-                      onChange={handleChange}
-                      className="time-input"
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Progress Bar */}
-            <div className="progress-bar" />
-
-            {/* Buttons */}
-            <div className="button-container">
-              <Button variant="outline" className="cancel-button">
-                Cancel
-              </Button>
-              <Button className="continue-button">
-                Continue
-              </Button>
-            </div>
+      <div className="input-group">
+        <label>Date & Time</label>
+        <div className="datetime-container">
+          <input
+            type="date"
+            name="date"
+            value={schedule.date}
+            onChange={handleChange}
+            className="date-input"
+          />
+          <div className="time-inputs">
+            <input
+              type="time"
+              name="startTime"
+              value={schedule.startTime}
+              onChange={handleChange}
+              className="time-input"
+            />
+            <span>-</span>
+            <input
+              type="time"
+              name="endTime"
+              value={schedule.endTime}
+              onChange={handleChange}
+              className="time-input"
+            />
           </div>
         </div>
+      </div>
+
+      <div className="progress-bar" style={{ backgroundColor: schedule.color }} />
+
+      <div className="button-container">
+        <button className="cancel-button">Cancel</button>
+        <button className="continue-button" style={{ backgroundColor: schedule.color }}>
+          Continue
+        </button>
       </div>
     </div>
   );
