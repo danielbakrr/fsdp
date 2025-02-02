@@ -96,7 +96,7 @@ const GestureRecognition = ({ adID }) => {
     try {
         console.log(`Sending like for adID: ${adID}`);  
 
-        const response = await fetch("http://localhost:5000/api/store-gesture", {
+        const response = await fetch("https://githubbiesbackend.onrender.com/api/store-gesture", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",

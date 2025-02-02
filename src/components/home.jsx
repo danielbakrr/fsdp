@@ -84,7 +84,7 @@ const Home = () => {
 
   const fetchMetrics = async () => {
     try {
-      const response = await fetch("http://localhost:5000/api/get-metrics");
+      const response = await fetch("https://githubbiesbackend.onrender.com/api/get-metrics");
       const data = await response.json();
       setMetrics(data);
     } catch (error) {
