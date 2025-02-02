@@ -27,13 +27,23 @@ const Login = () => {
             console.log('Raw Response:', textResponse);
     
             // Check if the response is valid JSON
-            const data = textResponse ? JSON.parse(textResponse) : null;
-    
-            if (!response.ok) {
-                console.error('Response Data:', data);
-                throw new Error(data?.message || 'Invalid email or password');
+            let data;
+            try {
+            data = textResponse ? JSON.parse(textResponse) : null;
+            } catch (parseError) {
+            console.error('Failed to parse JSON:', parseError);
+            throw new Error('Invalid response from server');
             }
-    
+
+            if (!response.ok) {
+            console.error('Response Data:', data);
+            throw new Error(data?.message || 'Invalid email or password');
+            }
+
+            if (!data || !data.token) {
+            throw new Error('Token not found in response');
+            }
+
             console.log('Login successful', data);
             localStorage.setItem('token', data.token); // Save token
             navigate('/Home');
@@ -43,7 +53,7 @@ const Login = () => {
         } finally {
             setLoading(false);
         }
-    };
+        };
     
     return (
         <div className="login-page">
