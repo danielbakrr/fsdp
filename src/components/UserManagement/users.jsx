@@ -283,6 +283,14 @@ const DisplayUsers = () => {
         fetchAllRoles();
 
         retrieveAllTvGroups();
+
+        const intervalId = setInterval(() => {
+            retrieveAllTvGroups();
+            fetchUsers();
+        }, 5000);
+
+        return () => clearInterval(intervalId);
+
     },[])
 
     const openAddRoleModal = () => {
