@@ -1,154 +1,26 @@
-.scheduler-container {
-  max-width: 500px;
-  margin: 20px auto;
-  padding: 20px;
-  background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
+/* Add these new styles to your existing CSS file */
 
-.scheduler-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-}
-
-.scheduler-header h2 {
-  margin: 0;
-  font-weight: normal;
-}
-
-.close-button {
-  border: none;
-  background: none;
-  font-size: 20px;
-  cursor: pointer;
-  color: #9ca3af;
-}
-
-.close-button:hover {
-  color: #6b7280;
-}
-
-.scheduler-subtitle {
-  color: #666;
-  margin-bottom: 20px;
-  font-size: 0.9rem;
-}
-
-.frequency-row {
-  margin-bottom: 20px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.frequency-select {
-  padding: 8px;
-  border-radius: 4px;
-  border: 1px solid #ddd;
-  width: 200px;
-  background-color: #f9fafb;
-}
-
-.color-container {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.color-input {
-  width: 40px;
-  height: 30px;
-  padding: 0;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.input-group {
-  margin-bottom: 20px;
-}
-
-.input-group label {
-  display: block;
-  margin-bottom: 8px;
-  color: #666;
-  font-size: 0.9rem;
-}
-
-.text-input {
-  width: 100%;
-  padding: 8px;
-  border-radius: 4px;
-  border: 1px solid #ddd;
-  background-color: #f9fafb;
-}
-
-.datetime-container {
-  background-color: #f9fafb;
-  padding: 15px;
-  border-radius: 8px;
-}
-
-.date-input {
-  width: 100%;
-  padding: 8px;
-  margin-bottom: 10px;
-  border-radius: 4px;
-  border: 1px solid #ddd;
-  background-color: white;
-}
-
-.time-inputs {
+.id-inputs {
   display: flex;
   gap: 10px;
-  align-items: center;
+  margin-top: 8px;
 }
 
-.time-input {
+.id-select {
   flex: 1;
   padding: 8px;
   border-radius: 4px;
   border: 1px solid #ddd;
-  background-color: white;
-}
-
-.progress-bar {
-  height: 4px;
-  width: 33%;
-  border-radius: 2px;
-  margin: 20px 0;
-}
-
-.button-container {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: 20px;
-}
-
-.cancel-button {
-  padding: 8px 16px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  background: white;
-  cursor: pointer;
-}
-
-.cancel-button:hover {
   background-color: #f9fafb;
-}
-
-.continue-button {
-  padding: 8px 16px;
-  border: none;
-  border-radius: 4px;
-  color: white;
   cursor: pointer;
 }
 
-.continue-button:hover {
-  opacity: 0.9;
+.id-select:focus {
+  outline: none;
+  border-color: #2C87F2;
+}
+
+/* You can remove these styles since we're no longer using them */
+.text-input {
+  /* Remove if not used elsewhere */
 }
