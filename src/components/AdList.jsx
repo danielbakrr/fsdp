@@ -56,7 +56,7 @@ const AdList = () => {
   };
 
   const deleteAd = async (adID) => {
-    await fetch('https://githubbiesbackend.onrender.com/api/delete/${adID}', {
+    await fetch(`https://githubbiesbackend.onrender.com/api/delete/${adID}`, {
       method: "DELETE",
     });
     setAds(ads.filter((ad) => ad.adID !== adID));

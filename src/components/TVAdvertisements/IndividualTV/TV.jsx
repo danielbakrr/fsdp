@@ -63,7 +63,7 @@ const TV = () => {
     const fetchCurrentAd = async () => {
       setError("");
       try {
-        const tvResponse = await fetch('https://githubbiesbackend.onrender.com/api/tvgroups/${groupID}/tvs/${tvID}');
+        const tvResponse = await fetch(`https://githubbiesbackend.onrender.com/api/tvgroups/${groupID}/tvs/${tvID}`);
         if (!tvResponse.ok) {
           throw new Error("Failed to fetch TV details");
         }
