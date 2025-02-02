@@ -107,11 +107,7 @@ const AdvertisementDisplay = () => {
     } catch (error) {
         console.error("Error fetching TV groups:", error.message);
     }
-};
-
-
-
-  
+  };
 
   // Fetch TVs for the selected TVGroup
   const fetchTvs = async (groupID) => {

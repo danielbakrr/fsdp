@@ -3,14 +3,15 @@ import { useLocation, Link, useParams } from "react-router-dom";
 import Navbar from "../../navbar";
 import "./TV.css";
 import "./SelectFileDropdown.css";
-import SocketIOClient from "../../../websocket/WebsocketClient";
-import AdPreview from "./adPreview"; // Import the AdPreview component
+import AdPreview from "./adPreview"; 
 import { jwtDecode } from "jwt-decode";
 import GestureRecognition from "../../GestureRecognition"; 
 
 
 
 
+import io from "socket.io-client";
+const socket = io.connect("https://githubbiesbackend.onrender.com"); // Adjust to your backend URL
 
 const TV = () => {
   const { groupID, tvID } = useParams();
@@ -61,7 +62,6 @@ const TV = () => {
   const [selectedAd, setSelectedAd] = useState(null); // Selected ad in the dropdown
   const [loading, setLoading] = useState(true); // Loading state
   const [error, setError] = useState(""); // Error message
-  const socketClient = useRef(null); // WebSocket client
 
   useEffect(() => {
     decodeToken();
@@ -91,21 +91,12 @@ const TV = () => {
       }
     };
 
-    // Initialize WebSocket client
-    socketClient.current = new SocketIOClient("http://localhost:5000");
-    socketClient.current.connect();
-
-    // Join the TV room
-    socketClient.current.joinTV(tvID);
-
     // Fetch all ads for the dropdown
     fetchAllAds();
 
-    // Handle incoming ad updates
-    socketClient.current.onMessage((data) => {
-      if (data.type === "ad_update" && data.ad) {
-        setCurrentAd(data.ad);
-      }
+    socket.emit("join_tv", { tvID: tvID, user_id: "some_user_id" });
+    socket.on("receive_message", (data) => {
+      setCurrentAd(data.message);
     });
 
     // Fetch the current ad periodically
@@ -113,15 +104,16 @@ const TV = () => {
       fetchCurrentAd();
     }, 5000);
 
-    // Cleanup on unmount
     return () => {
-      socketClient.current.disconnect();
       clearInterval(intervalId);
+      socket.off("receive_message");
+      socket.emit("leave_tv", { tvID: tvID, user_id: "some_user_id" }); // Leave the room when unmounting
     };
   }, [tvID, groupID]); // Add groupID to the dependency array
 
   // Fetch all ads
   const fetchAllAds = async () => {
+    socket.emit("join_tv", tvID); 
     setError("");
     setLoading(true);
     try {
@@ -173,15 +165,8 @@ const TV = () => {
 
       // Update the current ad state
       setCurrentAd(selectedAd);
+      socket.emit("send_message", { message: selectedAd, tv: tvID });
 
-      // Broadcast the update via WebSocket
-      if (socketClient.current && socketClient.current.send) {
-        socketClient.current.send({
-          type: "ad_update",
-          tvID: tvID,
-          ad: selectedAd,
-        });
-      }
     } catch (error) {
       console.error("Error updating advertisement:", error);
       setError("Failed to update advertisement. Please try again.");

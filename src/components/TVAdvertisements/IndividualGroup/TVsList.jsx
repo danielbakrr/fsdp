@@ -7,9 +7,11 @@ import AddTvButton from "./addTVButton";
 import UpdateAll from "./updateAllButton";
 import SelectAdModal from "./selectAdModal";
 import AlertMessage from "../successMessage"; // Ensure this is imported
+import io from "socket.io-client";
+const socket = io.connect("https://githubbiesbackend.onrender.com"); // Adjust to your backend URL
 
 const TVsList = () => {
-  const { groupID } = useParams();
+  const { groupID, tvID } = useParams();
   const [tvs, setTvs] = useState([]);
   const [ads, setAds] = useState({});
   const [pinnedTvs, setPinnedTvs] = useState([]);
@@ -84,6 +86,8 @@ const TVsList = () => {
   // Fetch TVs and ads on component mount and every 3 seconds
   useEffect(() => {
     
+    socket.emit("join_tv", { tvID: tvID, user_id: "some_user_id" });
+
     if (state?.group?.groupName) {
       localStorage.setItem("groupName", state.group.groupName);
     }

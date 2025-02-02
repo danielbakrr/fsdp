@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
+import { ChevronRight, ChevronLeft } from 'lucide-react';
 import "../styles/AdForm.css";
 import Navbar from "./navbar";
-import WebSocketClient from "../websocket/WebsocketClient";
 import { jwtDecode } from 'jwt-decode';
 
 const AdList = () => {
@@ -12,31 +12,29 @@ const AdList = () => {
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [resizingItem, setResizingItem] = useState(null);
   const [resizeDirection, setResizeDirection] = useState(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const wsClient = useRef(null);
-  const [userFeatures,setUserFeatures] = useState([]);
+  const [userFeatures, setUserFeatures] = useState([]);
   const features = ["Tv Groups", "Template Editor", "Advertisement Management", "User Management", "Metrics", "Schedule Ads"];
 
-const decodeToken = ()=> {
-      const token = localStorage.getItem('token');
-      if(token != null){
-        const decodedToken = jwtDecode(token);
-        console.log(JSON.stringify(decodedToken,null,2));
-        const role = decodedToken.permissions;
-        const temp = [];
-        const permissions = role.permissions;
-        if(Array.isArray(permissions) && permissions.length > 0){
-          permissions.forEach(element => {
-            console.log(element.resource);
-            for(let i = 0; i< features.length; i++){
-              if(features[i].includes(element.resource)){
-                temp.push(features[i]);
-              }
+  const decodeToken = () => {
+    const token = localStorage.getItem('token');
+    if (token != null) {
+      const decodedToken = jwtDecode(token);
+      const role = decodedToken.permissions;
+      const temp = [];
+      const permissions = role.permissions;
+      if (Array.isArray(permissions) && permissions.length > 0) {
+        permissions.forEach(element => {
+          for (let i = 0; i < features.length; i++) {
+            if (features[i].includes(element.resource)) {
+              temp.push(features[i]);
             }
-          });
-        }
-        setUserFeatures(temp);
-  
+          }
+        });
       }
+      setUserFeatures(temp);
+    }
   }
 
   useEffect(() => {
@@ -48,14 +46,6 @@ const decodeToken = ()=> {
       if (data.length > 0) setActiveTab(data[0].adID);
     };
     fetchAds();
-
-    // Initialize WebSocket client
-    wsClient.current = new WebSocketClient("ws://localhost:3000");
-    wsClient.current.connect();
-
-    return () => {
-      wsClient.current.disconnect();
-    };
   }, []);
 
   const sendUpdate = (ad) => {
@@ -65,13 +55,16 @@ const decodeToken = ()=> {
       console.error("WebSocket client is not initialized or send function is missing.");
     }
   };
-  
+
   const deleteAd = async (adID) => {
     await fetch(`http://localhost:5000/api/delete/${adID}`, {
       method: "DELETE",
     });
     setAds(ads.filter((ad) => ad.adID !== adID));
-    if (activeTab === adID) setActiveTab(null);
+    if (activeTab === adID) {
+      const remainingAds = ads.filter((ad) => ad.adID !== adID);
+      setActiveTab(remainingAds.length > 0 ? remainingAds[0].adID : null);
+    }
   };
 
   const handleTabClick = (adID) => {
@@ -105,12 +98,10 @@ const decodeToken = ()=> {
       setAds((prevAds) =>
         prevAds.map((ad) => {
           if (ad.adID !== draggingItem.adID) return ad;
-          
           return {
             ...ad,
             mediaItems: ad.mediaItems.map((item) => {
               if (item.id !== draggingItem.mediaID) return item;
-              
               return {
                 ...item,
                 metadata: {
@@ -127,12 +118,10 @@ const decodeToken = ()=> {
       setAds((prevAds) =>
         prevAds.map((ad) => {
           if (ad.adID !== resizingItem.adID) return ad;
-
           return {
             ...ad,
             mediaItems: ad.mediaItems.map((item) => {
               if (item.id !== resizingItem.mediaID) return item;
-
               const newMetadata = { ...item.metadata };
               const deltaX = e.movementX;
               const deltaY = e.movementY;
@@ -200,127 +189,138 @@ const decodeToken = ()=> {
   };
 
   return (
-    <div>
-      <Navbar
-        navItems={userFeatures} 
-      />
-    <div
-      onMouseMove={handleMouseMove}
-      onMouseUp={handleMouseUp}
-      style={{ userSelect: "none" }}
-    >
-      <div
-        style={{
-          display: "flex",
-          boxShadow: "0 4px 4px -2px rgba(0, 0, 0, 0.1)",
-        }}
+    <div className="editor-wrapper">
+      <Navbar navItems={userFeatures} />
+      <div 
+        className="editor-container" 
+        onMouseMove={handleMouseMove} 
+        onMouseUp={handleMouseUp}
       >
-        {ads.map((ad) => (
-          <button
-            key={ad.adID}
-            onClick={() => handleTabClick(ad.adID)}
-            style={{
-              padding: "10px",
-              cursor: "pointer",
-              borderBottom: activeTab === ad.adID ? "2px solid rgb(147, 93, 249)" : "none",
-              backgroundColor: activeTab === ad.adID ? "#f0f0f0" : "white",
-              fontWeight: activeTab === ad.adID ? "bold" : "normal",
-              color: "black",
-            }}
-          >
-            {ad.adTitle}
-          </button>
-        ))}
-      </div>
-
-
-      {ads.map((ad) =>
-        ad.adID === activeTab ? (
-          <div key={ad.adID} style={{ marginTop: "10px" }}>
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                marginBottom: "10px",
-              }}
-            >
-              <div style={{ display: "flex", justifyContent: "center", marginBottom: "10px" }}>
-                <button onClick={() => deleteAd(ad.adID)} style={{ padding: "5px 10px", backgroundColor: "#ff0000" }}>
-                  Delete Advertisement
-                </button>
-              </div>
-            </div>
-
-            <div
-              style={{
-                padding: fullscreenAd === ad.adID ? "0" : "20px",
-                border: "1px solid #ddd",
-                minHeight: fullscreenAd === ad.adID ? "100vh" : "700px",
-                position: fullscreenAd === ad.adID ? "fixed" : "relative",
-                top: fullscreenAd === ad.adID ? "0" : "auto",
-                left: fullscreenAd === ad.adID ? "0" : "auto",
-                width: fullscreenAd === ad.adID ? "100%" : "auto",
-                height: fullscreenAd === ad.adID ? "100vh" : "auto",
-                backgroundColor: fullscreenAd === ad.adID ? "white" : "white",
-                zIndex: fullscreenAd === ad.adID ? "1000" : "1",
-                overflow: "hidden",
-              }}
-            >
-
-              {ad.mediaItems && ad.mediaItems.map((mediaItem) => (
+        {/* Canvas Area */}
+        <div className="w-full h-full p-4">
+          {ads.map((ad) =>
+            ad.adID === activeTab ? (
+              <div 
+                key={ad.adID} 
+                className="relative w-full h-full"
+              >
                 <div
-                  key={mediaItem.id}
-                  className="draggable-resizable"
                   style={{
-                    position: 'absolute',
-                    left: `${mediaItem.metadata.x}px`,
-                    top: `${mediaItem.metadata.y}px`,
-                    width: `${mediaItem.metadata.width}px`,
-                    height: `${mediaItem.metadata.height}px`,
-                    border: '1px solid #000',
-                    overflow: 'hidden',
-                    cursor: draggingItem?.mediaID === mediaItem.id ? 'grabbing' : 'grab',
+                    padding: "20px",
+                    border: "1px solid #ddd",
+                    minHeight: "700px",
+                    position: "relative",
+                    backgroundColor: "white",
+                    overflow: "hidden",
                   }}
-                  onMouseDown={(e) => handleMouseDown(e, ad, mediaItem)}
                 >
-                  {mediaItem.type === 'video' ? (
-                    <video
-                      src={mediaItem.url}
-                      style={{
-                        width: '100%',
-                        height: '100%',
-                        objectFit: 'cover',
-                      }}
-                      controls
-                    />
-                  ) : (
-                    <img
-                      src={mediaItem.url}
-                      alt={`${ad.adTitle} - ${mediaItem.id}`}
-                      style={{
-                        width: '100%',
-                        height: '100%',
-                        objectFit: 'cover',
-                      }}
-                    />
-                  )}
-
-                  {['top-left', 'top-right', 'bottom-left', 'bottom-right', 'top', 'bottom', 'left', 'right'].map((dir) => (
+                  {ad.mediaItems && ad.mediaItems.map((mediaItem) => (
                     <div
-                      key={dir}
-                      className={`resize-handle ${dir}`}
-                      data-direction={dir}
-                      onMouseDown={(e) => handleMouseDown(e, ad, mediaItem, true, dir)}
-                    />
+                      key={mediaItem.id}
+                      className="draggable-resizable"
+                      style={{
+                        position: 'absolute',
+                        left: `${mediaItem.metadata.x}px`,
+                        top: `${mediaItem.metadata.y}px`,
+                        width: `${mediaItem.metadata.width}px`,
+                        height: `${mediaItem.metadata.height}px`,
+                        border: '1px solid #000',
+                        overflow: 'hidden',
+                        cursor: draggingItem?.mediaID === mediaItem.id ? 'grabbing' : 'grab',
+                      }}
+                      onMouseDown={(e) => handleMouseDown(e, ad, mediaItem)}
+                    >
+                      {mediaItem.type === 'video' ? (
+                        <video
+                          src={mediaItem.url}
+                          style={{
+                            width: '100%',
+                            height: '100%',
+                            objectFit: 'cover',
+                          }}
+                          controls
+                        />
+                      ) : (
+                        <img
+                          src={mediaItem.url}
+                          alt={`${ad.adTitle} - ${mediaItem.id}`}
+                          style={{
+                            width: '100%',
+                            height: '100%',
+                            objectFit: 'cover',
+                          }}
+                        />
+                      )}
+
+                      {['top-left', 'top-right', 'bottom-left', 'bottom-right', 'top', 'bottom', 'left', 'right'].map((dir) => (
+                        <div
+                          key={dir}
+                          className={`resize-handle ${dir}`}
+                          data-direction={dir}
+                          onMouseDown={(e) => handleMouseDown(e, ad, mediaItem, true, dir)}
+                        />
+                      ))}
+                    </div>
                   ))}
                 </div>
+              </div>
+            ) : null
+          )}
+        </div>
+
+        {/* Overlapping Sidebar */}
+        <div 
+          className={`sidebar ${isSidebarOpen ? 'open' : 'closed'}`}
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            height: '100%',
+            zIndex: 1000,
+          }}
+        >
+          <div className="sidebar-content">
+            <h2 className="text-xl font-bold mb-4">Advertisement List</h2>
+            
+            {/* Ad buttons with reduced margin and compact layout */}
+            <div className="flex flex-col gap-1">
+              {ads.map((ad) => (
+                <button
+                  key={ad.adID}
+                  onClick={() => handleTabClick(ad.adID)}
+                  className={`w-full p-2 text-left rounded ${
+                    activeTab === ad.adID 
+                      ? 'bg-purple-500 text-white' 
+                      : 'bg-gray-100 hover:bg-gray-200'
+                  }`}
+                >
+                  {ad.adTitle}
+                </button>
               ))}
+              
+              {/* Delete button directly after ad buttons with minimal gap */}
+              {activeTab && (
+                <button
+                  onClick={() => deleteAd(activeTab)}
+                  className="w-full p-2 rounded text-white"
+                  style={{ backgroundColor: '#ff0000',
+                    marginBottom: '5em',
+                   }}
+                >
+                  Delete Advertisement
+                </button>
+              )}
             </div>
           </div>
-        ) : null
-      )}
-    </div>
+          
+          <button 
+            className="sidebar-toggle"
+            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+          >
+            {isSidebarOpen ? <ChevronLeft size={32} /> : <ChevronRight size={32} />}
+          </button>
+        </div>
+      </div>
     </div>
   );
 };

@@ -54,7 +54,7 @@ function verifyJWT(req,res,next){
 
         console.log(decoded);
         // match the permissions of each use to a route in authroized role  
-        const requestedEndpoint = "http://localhost:5000" + req.url;
+        const requestedEndpoint = "https://githubbiesbackend.onrender.com" + req.url;
         const url = new URL(requestedEndpoint);
         const path = url.pathname; // Extracts '/get-Advertisments'
         console.log(path);
