@@ -88,7 +88,6 @@ const DisplayUsers = () => {
     const retrieveAllTvGroups = async()=> {
         const response = await fetch("https://githubbiesbackend.onrender.com/api/tvGroups");
         if (response.status == 200){
-            toast.success("Retrieved all tvGroups sucessfully");
             const data = await response.json();
             const tvGroupOptions = [];
             data.map((tvObj)=> {
@@ -117,11 +116,11 @@ const DisplayUsers = () => {
             })
         });
         if (response.status == 200){
-            alert("User role has been sucessfully updated");
+            toast.success("User role has been sucessfully updated")
 
         }
         else {
-            alert("Internal server error");
+            toast.error("Internal server error")
         }
     }
     const handleAdPermissions = (selected)=> {
@@ -157,6 +156,7 @@ const DisplayUsers = () => {
                 const message = await response.json();
                 toast.success(message);
                 
+                
             }
             else{
                 alert("Unable to delete user");
@@ -170,7 +170,6 @@ const DisplayUsers = () => {
         try {
             const response = await fetch('https://githubbiesbackend.onrender.com/api/getAllRoles');
             if (response.status == 200){
-
                 const roles = await response.json();
                 setRoles(roles.roles);
             }
@@ -220,7 +219,7 @@ const DisplayUsers = () => {
                 const tempObject = {
                     "actions": tvGroupPermissions.map(tvGrpPerm => tvGrpPerm.value),
                     "resource": "Tv Group",
-                    "tvGroupId": tvIds
+                    "tvGroupIds": tvIds
                 }
 
                 newPermissions.push(tempObject)
@@ -265,9 +264,6 @@ const DisplayUsers = () => {
         if (response.status == 201){
             toast.success("Sucessfully created user role");
         }
-        else if (response.status == 403){
-            toast.warn("User is forbidden from creating user roles");
-        }
         else {
             toast.error("Unable to create user roles");
         }
@@ -283,7 +279,18 @@ const DisplayUsers = () => {
         fetchAllRoles();
 
         retrieveAllTvGroups();
+
+        const intervalId = setInterval(() => {
+            fetchUsers();
+            fetchAllRoles();
+            retrieveAllTvGroups();
+        }, 5000);
+
+        return () => clearInterval(intervalId);
+
     },[])
+
+   
 
     const openAddRoleModal = () => {
         setModalOpen(true);
@@ -303,8 +310,7 @@ const DisplayUsers = () => {
             if (response.status == 200){
                 const users = await response.json();
                 if (users.retrievedUsers != null){
-                    setUsers(users.retrievedUsers); // Creates a new array
-                    toast.success("Users retrieved sucessfully");
+                    setUsers(users.retrievedUsers); 
                 }
             }
             else if (response.status == 403){
