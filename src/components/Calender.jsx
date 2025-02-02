@@ -1,5 +1,6 @@
 // src/components/Calendar.jsx
 import React, { useState } from 'react';
+import { Link } from "react-router-dom";
 import { PlusCircle, Edit, Trash2, X, Check } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./calenderApp.jsx/dialog";
 import { Button } from "./calenderApp.jsx/button";
@@ -146,6 +147,7 @@ const Calendar = () => {
               onClick={() => openDialog(date)}
               className="add-event-btn"
             >
+              <Link to="/campaign-scheduler"></Link>
               <PlusCircle className="w-4 h-4" />
             </button>
           </div>
