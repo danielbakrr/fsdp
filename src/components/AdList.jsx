@@ -2,7 +2,6 @@ import React, { useEffect, useState, useRef } from "react";
 import "../styles/AdForm.css";
 import Navbar from "./navbar";
 import { jwtDecode } from 'jwt-decode';
-
 const AdList = () => {
   const [ads, setAds] = useState([]);
   const [activeTab, setActiveTab] = useState(null);
@@ -41,7 +40,7 @@ const decodeToken = ()=> {
   useEffect(() => {
     decodeToken();
     const fetchAds = async () => {
-      const response = await fetch("https://githubbiesbackend.onrender.com/api/Advertisements");
+      const response = await fetch('https://githubbiesbackend.onrender.com/api/Advertisements');
       const data = await response.json();
       setAds(data);
       if (data.length > 0) setActiveTab(data[0].adID);
@@ -59,7 +58,7 @@ const decodeToken = ()=> {
   };
   
   const deleteAd = async (adID) => {
-    await fetch(`https://githubbiesbackend.onrender.com/api/delete/${adID}`, {
+    await fetch('https://githubbiesbackend.onrender.com/api/delete/${adID}', {
       method: "DELETE",
     });
     setAds(ads.filter((ad) => ad.adID !== adID));

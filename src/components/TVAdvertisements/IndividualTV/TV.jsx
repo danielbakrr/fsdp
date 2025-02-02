@@ -63,13 +63,13 @@ const TV = () => {
     const fetchCurrentAd = async () => {
       setError("");
       try {
-        const tvResponse = await fetch(`/api/tvgroups/${groupID}/tvs/${tvID}`);
+        const tvResponse = await fetch('https://githubbiesbackend.onrender.com/api/tvgroups/${groupID}/tvs/${tvID}');
         if (!tvResponse.ok) {
           throw new Error("Failed to fetch TV details");
         }
         const tvData = await tvResponse.json();
 
-        const adsResponse = await fetch("/api/Advertisements");
+        const adsResponse = await fetch('https://githubbiesbackend.onrender.com/api/Advertisements');
         if (!adsResponse.ok) {
           throw new Error("Failed to fetch advertisements");
         }
@@ -112,7 +112,7 @@ const TV = () => {
     setError("");
     setLoading(true);
     try {
-      const response = await fetch("/api/Advertisements");
+      const response = await fetch('https://githubbiesbackend.onrender.com/api/Advertisements');
       if (!response.ok) {
         throw new Error("Failed to fetch advertisements");
       }
@@ -143,7 +143,7 @@ const TV = () => {
 
     setError("");
     try {
-      const response = await fetch(`/api/tvgroups/${groupID}/tvs/${tvID}`, {
+      const response = await fetch(`${process.env.REACT_APP_SUBDOMAIN}/api/tvgroups/${groupID}/tvs/${tvID}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import "../styles/login.css"; 
 import logo from "../assets/githubbies-logo.jpg";
 import { useNavigate } from 'react-router-dom';
-
 const Login = () => {
     let navigate = useNavigate();
     const [email, setEmail] = useState('');
@@ -15,7 +14,7 @@ const Login = () => {
         setLoading(true);
         setError('');
         try {
-            const response = await fetch('/api/userLogin', { 
+            const response = await fetch('https://githubbiesbackend.onrender.com/api/userLogin', { 
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
