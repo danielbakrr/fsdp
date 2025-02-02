@@ -10,7 +10,7 @@ const SelectAdModal = ({ isOpen, onClose, onUpdate, groupID, pinnedTvs, createNo
   // Memoize fetchAllAds
   const fetchAllAds = useCallback(async () => {
     try {
-      const response = await fetch("/api/advertisements");
+      const response = await fetch('https://githubbiesbackend.onrender.com/api/advertisements');
       const data = await response.json();
       if (response.ok) {
         setAds(data);
@@ -59,7 +59,6 @@ const SelectAdModal = ({ isOpen, onClose, onUpdate, groupID, pinnedTvs, createNo
       prevNotifications.filter((notification) => notification.id !== id)
     );
   };
-
   // Automatically remove notifications after 5 seconds
   useEffect(() => {
     if (notifications.length > 0) {
