@@ -15,27 +15,29 @@ const Login = () => {
         setLoading(true);
         setError('');
         try {
-            const response = await fetch('/api/userLogin', { // Update to the correct endpoint
+            const response = await fetch('/api/userLogin', { 
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',               
+                    'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ email, password }), // Ensure you're sending email here
-            });            
-
-            const data = await response.json();
-
+                body: JSON.stringify({ email, password }),
+            });
+    
+            // Log the raw response before parsing it as JSON
+            const textResponse = await response.text();
+            console.log('Raw Response:', textResponse);
+    
+            // Check if the response is valid JSON
+            const data = textResponse ? JSON.parse(textResponse) : null;
+    
             if (!response.ok) {
                 console.error('Response Data:', data);
-                throw new Error(data.message || 'Invalid email or password');
+                throw new Error(data?.message || 'Invalid email or password');
             }
-
+    
             console.log('Login successful', data);
             localStorage.setItem('token', data.token); // Save token
             navigate('/Home');
-
-            
-        
         } catch (err) {
             console.error('Login failed', err);
             setError(err.message);
@@ -43,7 +45,7 @@ const Login = () => {
             setLoading(false);
         }
     };
-
+    
     return (
         <div className="login-page">
             <div className="logo-container">
