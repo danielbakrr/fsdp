@@ -157,7 +157,8 @@ app.post('/api/upload', (req, res) => {
           adID,
           adTitle,
           mediaItems,
-          createdAt: new Date().toISOString()
+          createdAt: new Date().toISOString(),
+          likes: 0
         },
       };
       await ddbDocClient.send(new PutCommand(params));

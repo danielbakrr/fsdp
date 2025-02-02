@@ -6,6 +6,11 @@ import "./SelectFileDropdown.css";
 import SocketIOClient from "../../../websocket/WebsocketClient";
 import AdPreview from "./adPreview"; // Import the AdPreview component
 import { jwtDecode } from "jwt-decode";
+import GestureRecognition from "../../GestureRecognition"; 
+
+
+
+
 
 const TV = () => {
   const { groupID, tvID } = useParams();
@@ -202,6 +207,7 @@ const TV = () => {
           {groupName}
         </Link>{" "}
         &gt; <span className="breadcrumb-current">TV {tvID}</span>
+
       </div>
 
       <div className="tv-container">
@@ -262,6 +268,7 @@ const TV = () => {
     }}
   >
     <AdPreview ad={currentAd} /> {/* Use the AdPreview component */}
+    <GestureRecognition adID={currentAd?.adID} />;
   </div>
 </div>
           </>

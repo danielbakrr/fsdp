@@ -1,37 +1,90 @@
 const express = require("express");
-const { DynamoDBClient } = require("@aws-sdk/client-dynamodb");
-const { DynamoDBDocumentClient, PutCommand } = require("@aws-sdk/lib-dynamodb");
-
 const router = express.Router();
+const { DynamoDBClient } = require("@aws-sdk/client-dynamodb");
+const {
+    DynamoDBDocumentClient,
+    ScanCommand,
+    UpdateCommand,
+    GetCommand,
+    PutCommand
+} = require("@aws-sdk/lib-dynamodb");
 
-// Initialize DynamoDB Client
 const dynamoDBClient = new DynamoDBClient({ region: process.env.AWS_REGION });
 const ddbDocClient = DynamoDBDocumentClient.from(dynamoDBClient);
 
-router.post("/store-gesture", async (req, res) => {
-    const { gesture } = req.body;
+const ADS_TABLE = process.env.DYNAMODB_TABLE_ADVERTISEMENTS;
+const METRICS_TABLE = "Metrics"; 
 
-    if (!gesture) {
-        return res.status(400).json({ error: "Gesture is required" });
+// increment like count
+router.post("/store-gesture", async (req, res) => {
+    const { adID } = req.body;
+
+    if (!adID) {
+        return res.status(400).json({ error: "adID is required" });
     }
 
-    const timestamp = new Date().toISOString();
-    const params = {
-        TableName: "Gestures", // Ensure this matches your actual DynamoDB table name
-        Item: {
-            id: `${gesture}-${timestamp}`,
-            gesture: gesture,
-            timestamp: timestamp,
-        },
-    };
-
     try {
-        await ddbDocClient.send(new PutCommand(params));
-        console.log(`Stored gesture: ${gesture}`);
-        res.status(200).json({ message: "Gesture stored successfully!" });
+        
+        const getParams = {
+            TableName: METRICS_TABLE,
+            Key: { adID },
+        };
+
+        const adData = await ddbDocClient.send(new GetCommand(getParams));
+
+        let updatedLikes = 1; 
+
+        if (adData.Item) {
+            updatedLikes = (adData.Item.likes || 0) + 1;
+        }
+
+        
+        const putParams = {
+            TableName: METRICS_TABLE,
+            Item: {
+                adID,
+                likes: updatedLikes, 
+            },
+        };
+
+        await ddbDocClient.send(new PutCommand(putParams));
+
+        res.status(200).json({ message: "Like recorded successfully", likes: updatedLikes });
     } catch (error) {
-        console.error("Error storing gesture:", error);
-        res.status(500).json({ error: "Could not store gesture" });
+        console.error("Error storing like:", error);
+        res.status(500).json({ error: "Could not store like" });
+    }
+});
+
+
+router.get("/get-metrics", async (req, res) => {
+    try {
+
+        const likeParams = {
+            TableName: METRICS_TABLE,
+        };
+        const likeData = await ddbDocClient.send(new ScanCommand(likeParams));
+
+        const likeCounts = {};
+        likeData.Items.forEach(item => {
+            likeCounts[item.adID] = item.likes || 0;
+        });
+
+        const adParams = {
+            TableName: ADS_TABLE,
+        };
+        const adData = await ddbDocClient.send(new ScanCommand(adParams));
+
+        const adsWithLikes = adData.Items.map(ad => ({
+            adID: ad.adID,
+            adName: ad.adTitle || "Unnamed Ad",
+            likes: likeCounts[ad.adID] || 0, 
+        }));
+
+        res.json(adsWithLikes);
+    } catch (error) {
+        console.error("Error fetching advertisement metrics:", error);
+        res.status(500).json({ error: "Failed to retrieve metrics" });
     }
 });
 
