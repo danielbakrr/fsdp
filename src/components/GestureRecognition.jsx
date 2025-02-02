@@ -118,7 +118,7 @@ const GestureRecognition = ({ adID }) => {
         className="webcam" 
         width={0} 
         height={0} 
-        //style={{ visibility: "hidden" }} 
+        style={{ visibility: "hidden" }} 
       />
       <canvas ref={canvasRef} className="gesture-canvas" />
       {emoji && images[emoji] && (
