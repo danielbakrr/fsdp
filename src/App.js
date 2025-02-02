@@ -10,6 +10,8 @@ import AdvertisementDisplay from "./components/TVAdvertisements/TVGroups/adverti
 import TVsList from "./components/TVAdvertisements/IndividualGroup/TVsList";
 import TV from "./components/TVAdvertisements/IndividualTV/TV";
 import Calendar from './components/Calender';
+import CampaignScheduler from './components/CampaignScheduler';
+
 import Home from './components/home';
 import DisplayUsers from './components/UserManagement/users';
 import GestureRecognition from "./components/GestureRecognition";
@@ -25,6 +27,7 @@ const App = () => {
         <Route path="/template-management" element={<TemplateManagement />} />
         <Route path="/template-editor" element={<TemplateEditor/>} />
         <Route path="/calendar" element={<Calendar />} />
+        <Route path="/campaign-scheduler" element={<CampaignScheduler />} />
         <Route path="/advertisement-display" element={<AdvertisementDisplay />} /> {/* New route */}
         <Route path="/advertisement-display/tvgroups/:groupID" element={<TVsList/>} />
         <Route path="/advertisement-display/tvgroups/:groupID/tvs/:tvID" element={<TV />} />

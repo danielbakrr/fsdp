@@ -30,7 +30,7 @@ const AddGroupModal = ({ isOpen, onClose, onAddGroup }) => {
     }
 
     try {
-      const response = await fetch("/tvgroups", {
+      const response = await fetch("/api/tvgroups", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

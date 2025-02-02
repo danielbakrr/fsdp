@@ -54,7 +54,7 @@ const PORT = process.env.PORT || 5000;
 // Middleware
 app.use(
   cors({
-    origin: "http://localhost:3000",
+    origin: ['http://localhost:3000', 'https://fsdp.vercel.app'], 
     methods: ["GET", "POST", "DELETE"],
     credentials: true,
   })
@@ -65,7 +65,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // WebSocket Setup
 const io = new Server(server, {
   cors: {
-    origin: 'http://localhost:3000',
+    origin: ['http://localhost:3000', 'https://fsdp.vercel.app'],
     methods: ["GET", "POST", "DELETE"],
     credentials: true,
   },
@@ -390,8 +390,8 @@ app.post('/api/update-ad', (req, res) => {
 app.use("/api", gestureRoutes);
 
 // Routes for tv groups
-app.get("/tvgroups/:id", TVGroupController.getTVGroupsById);
-app.get("/tvgroups", async (req, res) => {
+app.get("/api/tvgroups/:id", TVGroupController.getTVGroupsById);
+app.get("/api/tvgroups", async (req, res) => {
   try {
     const params = {
       TableName: "TVGroups",
@@ -408,9 +408,9 @@ app.get("/tvgroups", async (req, res) => {
   }
 });
 
-app.post("/tvgroups", TVGroupController.addTVGroup);
-app.put("/tvgroups/:groupID", TVGroupController.updateTVGroup);
-app.delete("/tvgroups/:groupID", TVGroupController.deleteTVGroup);
+app.post("/api/tvgroups", TVGroupController.addTVGroup);
+app.put("/api/tvgroups/:groupID", TVGroupController.updateTVGroup);
+app.delete("/api/tvgroups/:groupID", TVGroupController.deleteTVGroup);
 
 // Routes for user authentication
 app.post("/api/userLogin", authController.login);
@@ -429,13 +429,13 @@ app.get("/api/get-allUsers", authMiddleware.verifyJWT,accountController.getAllUs
 app.delete("/api/delete-user/:uuid", accountController.deleteUser);
 
 // Routes for TVs
-app.get("/tvgroups/:groupID/tvs/:tvID", TVController.getTvById);
-app.get("/tvgroups/:groupID/tvs", TVController.getAllTvsByTVGroup);
-app.post("/tvgroups/:groupID/tvs", TVController.addTv);
-app.delete("/tvgroups/:groupID/tvs/:tvID", TVController.deleteTv);
-app.put("/tvgroups/:groupID/tvs/:tvID", TVController.updateAdForTv);
-app.post("/tvgroups/:groupID/tvs/batch-delete", TVController.deleteTvs);
-app.post("/tvgroups/:groupID/tvs/batch-update", TVController.updateBatchTvs);
+app.get("/api/tvgroups/:groupID/tvs/:tvID", TVController.getTvById);
+app.get("/api/tvgroups/:groupID/tvs", TVController.getAllTvsByTVGroup);
+app.post("/api/tvgroups/:groupID/tvs", TVController.addTv);
+app.delete("/api/tvgroups/:groupID/tvs/:tvID", TVController.deleteTv);
+app.put("/api/tvgroups/:groupID/tvs/:tvID", TVController.updateAdForTv);
+app.post("/api/tvgroups/:groupID/tvs/batch-delete", TVController.deleteTvs);
+app.post("/api/tvgroups/:groupID/tvs/batch-update", TVController.updateBatchTvs);
 
 // Start Server
 server.listen(PORT, () => {

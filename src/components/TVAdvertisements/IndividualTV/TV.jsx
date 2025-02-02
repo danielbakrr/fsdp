@@ -4,7 +4,9 @@ import Navbar from "../../navbar";
 import "./TV.css";
 import "./SelectFileDropdown.css";
 import SocketIOClient from "../../../websocket/WebsocketClient";
+import AdPreview from "./adPreview"; // Import the AdPreview component
 import { jwtDecode } from "jwt-decode";
+
 const TV = () => {
   const { groupID, tvID } = useParams();
   const { state, search } = useLocation();
@@ -42,6 +44,7 @@ const TV = () => {
       setUserFeatures(temp);
     }
   };
+
   const groupName =
     state?.group?.groupName ||
     groupNameFromUrl ||
@@ -60,7 +63,7 @@ const TV = () => {
     const fetchCurrentAd = async () => {
       setError("");
       try {
-        const tvResponse = await fetch(`/tvgroups/${groupID}/tvs/${tvID}`);
+        const tvResponse = await fetch(`/api/tvgroups/${groupID}/tvs/${tvID}`);
         if (!tvResponse.ok) {
           throw new Error("Failed to fetch TV details");
         }
@@ -148,7 +151,7 @@ const TV = () => {
 
     setError("");
     try {
-      const response = await fetch(`/tvgroups/${groupID}/tvs/${tvID}`, {
+      const response = await fetch(`/api/tvgroups/${groupID}/tvs/${tvID}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -208,26 +211,28 @@ const TV = () => {
           <p className="error-message">{error}</p>
         ) : (
           <>
-          {/* Left Column: Select Advertisement */}
-          <div className="ad-selector">
+            {/* Left Column: Select Advertisement */}
+            <div className="ad-selector">
               <div className="dropdown">
-              <input
-                hidden=""
-                class="sr-only"
-                name="state-dropdown"
-                id="state-dropdown"
-                type="checkbox"
-              />
-              <label
-                aria-label="dropdown scrollbar"
-                for="state-dropdown"
-                class="trigger"
-              ></label>
+                <input
+                  hidden=""
+                  className="sr-only"
+                  name="state-dropdown"
+                  id="state-dropdown"
+                  type="checkbox"
+                />
+                <label
+                  aria-label="dropdown scrollbar"
+                  htmlFor="state-dropdown"
+                  className="trigger"
+                ></label>
                 <ul className="list webkit-scrollbar" role="list" dir="auto">
                   {adsList.map((ad) => (
                     <li
                       key={ad.adID}
-                      className={`listitem ${selectedAd?.adID === ad.adID ? "selected" : ""}`}
+                      className={`listitem ${
+                        selectedAd?.adID === ad.adID ? "selected" : ""
+                      }`}
                       role="listitem"
                       onClick={() => handleAdChange(ad)}
                     >
@@ -237,61 +242,28 @@ const TV = () => {
                 </ul>
               </div>
 
-            {/* Confirm Button */}
-            <button
-              className="confirm-button"
-              onClick={handleConfirm}
-              disabled={!selectedAd}
-            >
-              Push Ad
-            </button>
-          </div>
-
-            <div className="ad-preview">
-              <h2>Ad Preview</h2>
-              <div className="ad-preview-container">
-                {currentAd ? (
-                  currentAd.mediaItems.map((mediaItem) => (
-                    <div
-                      key={mediaItem.id}
-                      style={{
-                        scale: "0.8",
-                        position: "absolute",
-                        left: `${mediaItem.metadata.x}px`,
-                        top: `${mediaItem.metadata.y}px`,
-                        width: `${mediaItem.metadata.width}px`,
-                        height: `${mediaItem.metadata.height}px`,
-                      }}
-                      className="ad-media-item"
-                    >
-                      {mediaItem.type === "video" ? (
-                        <video
-                          src={mediaItem.url}
-                          style={{
-                            width: "100%",
-                            height: "100%",
-                            objectFit: "cover",
-                          }}
-                          controls
-                        />
-                      ) : (
-                        <img
-                          src={mediaItem.url}
-                          alt={`${currentAd.adTitle} - ${mediaItem.id}`}
-                          style={{
-                            width: "100%",
-                            height: "100%",
-                            objectFit: "cover",
-                          }}
-                        />
-                      )}
-                    </div>
-                  ))
-                ) : (
-                  <p>No ad selected</p>
-                )}
-              </div>
+              {/* Confirm Button */}
+              <button
+                className="confirm-button"
+                onClick={handleConfirm}
+                disabled={!selectedAd}
+              >
+                Push Ad
+              </button>
             </div>
+
+            {/* Ad Preview Section */}
+            <div className="ad-preview">
+  <h2>Ad Preview</h2>
+  <div
+    style={{
+      width: "75vw", 
+      height: "75vh", 
+    }}
+  >
+    <AdPreview ad={currentAd} /> {/* Use the AdPreview component */}
+  </div>
+</div>
           </>
         )}
       </div>
