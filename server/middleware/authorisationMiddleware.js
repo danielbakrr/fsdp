@@ -30,10 +30,10 @@ function verifyJWT(req,res,next){
             "/api/delete-user/[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$" : {"action": "delete", "resource": "User"},
             // Routes for TvGroup
             "/tvgroups" : {"action": "create", "resource": "TvGroup"},
-            "/tvgroups/grp\d{6}$/i:" : {"action": "view", "resource": "TvGroup"}, // Get all tvGroups 
-            "/tvgroups/grp\d{6}$/i" : {"action": "delete", "resource": "TvGroup"}, // Delete tvGroup 
+            "/tvgroups/grp\d{6}$:" : {"action": "view", "resource": "TvGroup"}, // Get all tvGroups 
+            "/tvgroups/grp\d{6}$" : {"action": "delete", "resource": "TvGroup"}, // Delete tvGroup 
             "/tvgroups" : {"action" : "view", "resource": "TvGroup"},
-            "/tvgroups/grp\d{6}$/i" : {"action" : "view", "resource": "TvGroup"},
+            "/tvgroups/grp\d{6}$" : {"action" : "view", "resource": "TvGroup"},
 
             // Thinking whether it needs to be deleted 
             "/tvgroups/:groupID/tvs": {"action": "view", "resource": "Tv"},
@@ -53,8 +53,6 @@ function verifyJWT(req,res,next){
         }
 
         console.log(decoded);
-        // match the permissions of each use to a route in authroized role  
-        const requestedEndpoint = "https://githubbiesbackend.onrender.com" + req.url;
         const url = new URL(requestedEndpoint);
         const path = url.pathname; // Extracts '/get-Advertisments'
         console.log(path);
