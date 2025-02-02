@@ -159,7 +159,7 @@ const AdList = () => {
       if (adToUpdate) {
         sendUpdate(adToUpdate);
         try {
-          const response = await fetch('http://localhost:5000/api/update-coordinates', {
+          const response = await fetch('https://githubbiesbackend.onrender.com/api/update-coordinates', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({

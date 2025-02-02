@@ -143,7 +143,7 @@ const TV = () => {
 
     setError("");
     try {
-      const response = await fetch(`${process.env.REACT_APP_SUBDOMAIN}/api/tvgroups/${groupID}/tvs/${tvID}`, {
+      const response = await fetch(`https://githubbiesbackend.onrender.com/api/tvgroups/${groupID}/tvs/${tvID}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

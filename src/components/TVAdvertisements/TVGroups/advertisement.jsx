@@ -85,7 +85,7 @@ const AdvertisementDisplay = () => {
             return;  // Don't fetch if role is undefined
         }
 
-        const response = await fetch("/api/tvgroups");
+        const response = await fetch("https://githubbiesbackend.onrender.com/api/tvgroups");
         const data = await response.json();
         if (data.error) {
             throw new Error(data.error);
