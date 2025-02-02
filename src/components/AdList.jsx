@@ -41,7 +41,7 @@ const decodeToken = ()=> {
   useEffect(() => {
     decodeToken();
     const fetchAds = async () => {
-      const response = await fetch("http://localhost:5000/api/Advertisements");
+      const response = await fetch("https://githubbiesbackend.onrender.com/api/Advertisements");
       const data = await response.json();
       setAds(data);
       if (data.length > 0) setActiveTab(data[0].adID);
@@ -59,7 +59,7 @@ const decodeToken = ()=> {
   };
   
   const deleteAd = async (adID) => {
-    await fetch(`http://localhost:5000/api/delete/${adID}`, {
+    await fetch(`https://githubbiesbackend.onrender.com/api/delete/${adID}`, {
       method: "DELETE",
     });
     setAds(ads.filter((ad) => ad.adID !== adID));
@@ -164,7 +164,7 @@ const decodeToken = ()=> {
       if (adToUpdate) {
         sendUpdate(adToUpdate);
         try {
-          const response = await fetch('http://localhost:5000/api/update-coordinates', {
+          const response = await fetch('https://githubbiesbackend.onrender.com/api/update-coordinates', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({

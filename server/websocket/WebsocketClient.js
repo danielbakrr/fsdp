@@ -1,7 +1,7 @@
 const ClientManager = require('./ClientManager');
 const wsClient = new ClientManager();
 const WebSocket = require('ws');
-const allowedOrigin = ['http://localhost:3000/','localhost:5000']
+const allowedOrigin = ['http://localhost:3000/','https://githubbies.onrender.com']
 // Adding clients to the websocket 
 const setupWebSocketServer = function(server) {
     // fo not upgrade to the server automatically
