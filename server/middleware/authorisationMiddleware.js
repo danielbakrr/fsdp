@@ -52,9 +52,12 @@ function verifyJWT(req,res,next){
             
         }
 
-        const url = new URL(req.url);
+        console.log(decoded);
+        const requestedEndpoint = "https://githubbiesbackend.onrender.com" + req.url
+        const url = new URL(requestedEndpoint);
         const path = url.pathname; // Extracts '/get-Advertisments'
         console.log(path);
+        
 
         // check regex endpoint and the permissions with the other object
         const authorizedRole = Object.entries(authorizedRoutes).find(
