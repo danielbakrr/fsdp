@@ -86,8 +86,9 @@ const DisplayUsers = () => {
     }
 
     const retrieveAllTvGroups = async()=> {
-        const response = await fetch("https://githubbiesbackend.onrender.com/api/tvGroups");
+        const response = await fetch('/api/tvGroups');
         if (response.status == 200){
+            toast.success("Retrieved all tvGroups sucessfully");
             const data = await response.json();
             const tvGroupOptions = [];
             data.map((tvObj)=> {
@@ -105,7 +106,7 @@ const DisplayUsers = () => {
     }
 
     const editRole = async (userId,newRole)=> {
-        const response = await fetch(`https://githubbiesbackend.onrender.com/api/edit-userRole/${userId}`,{
+        const response = await fetch(`/api/edit-userRole/${userId}`,{
             method: "POST",
             headers: {
                 "Authorization": `Bearer ${token}`, 
@@ -116,11 +117,11 @@ const DisplayUsers = () => {
             })
         });
         if (response.status == 200){
-            toast.success("User role has been sucessfully updated")
+            alert("User role has been sucessfully updated");
 
         }
         else {
-            toast.error("Internal server error")
+            alert("Internal server error");
         }
     }
     const handleAdPermissions = (selected)=> {
@@ -145,7 +146,7 @@ const DisplayUsers = () => {
 
     const deleteUser = async(userId)=> {
         try{
-            const response = await fetch(`https://githubbiesbackend.onrender.com/api/delete-user/${userId}`,{
+            const response = await fetch(`/api/delete-user/${userId}`,{
                 'method':'DELETE',
                 'headers':{
                     'content-type': 'application/json'
@@ -155,7 +156,6 @@ const DisplayUsers = () => {
                 setUsers(prevUsers => prevUsers.filter(user => user.userId !== userId));
                 const message = await response.json();
                 toast.success(message);
-                
                 
             }
             else{
@@ -168,8 +168,9 @@ const DisplayUsers = () => {
     }
     const fetchAllRoles = async()=>{
         try {
-            const response = await fetch('https://githubbiesbackend.onrender.com/api/getAllRoles');
+            const response = await fetch("/api/getAllRoles");
             if (response.status == 200){
+
                 const roles = await response.json();
                 setRoles(roles.roles);
             }
@@ -219,7 +220,7 @@ const DisplayUsers = () => {
                 const tempObject = {
                     "actions": tvGroupPermissions.map(tvGrpPerm => tvGrpPerm.value),
                     "resource": "Tv Group",
-                    "tvGroupIds": tvIds
+                    "tvGroupId": tvIds
                 }
 
                 newPermissions.push(tempObject)
@@ -253,7 +254,7 @@ const DisplayUsers = () => {
 
         console.log(request);
 
-        const response = await fetch(`https://githubbiesbackend.onrender.com/api/create-userRole`,{
+        const response = await fetch('/api/create-userRole',{
             'method': 'POST',
             'headers': {
                 'content-type': 'application/json',
@@ -264,6 +265,9 @@ const DisplayUsers = () => {
         if (response.status == 201){
             toast.success("Sucessfully created user role");
         }
+        else if (response.status == 403){
+            toast.warn("User is forbidden from creating user roles");
+        }
         else {
             toast.error("Unable to create user roles");
         }
@@ -271,7 +275,8 @@ const DisplayUsers = () => {
         
     }
     // fetch the data in the useEffect (When component is rendered first time i fetch the data, subsequent re renders no need to fetch )
-    useEffect(()=>{
+     // fetch the data in the useEffect (When component is rendered first time i fetch the data, subsequent re renders no need to fetch )
+     useEffect(()=>{
         decodeToken();
         // call our fetch api method that sets the data 
         fetchUsers();
@@ -290,8 +295,6 @@ const DisplayUsers = () => {
 
     },[])
 
-   
-
     const openAddRoleModal = () => {
         setModalOpen(true);
     }
@@ -301,7 +304,7 @@ const DisplayUsers = () => {
     }
     const fetchUsers = async ()=> {
         try{
-            const response = await fetch('https://githubbiesbackend.onrender.com/api/get-allUsers',{
+            const response = await fetch("/api/get-allUsers",{
                 'headers':{
                     "Authorization": `Bearer ${token}`,
                     'content-type': "application/json",
@@ -310,7 +313,7 @@ const DisplayUsers = () => {
             if (response.status == 200){
                 const users = await response.json();
                 if (users.retrievedUsers != null){
-                    setUsers(users.retrievedUsers); 
+                    setUsers(users.retrievedUsers); // Creates a new array
                 }
             }
             else if (response.status == 403){

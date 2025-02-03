@@ -53,6 +53,7 @@ function verifyJWT(req,res,next){
         }
 
         console.log(decoded);
+        const requestedEndpoint = "http://localhost:5000" + req.url
         const url = new URL(requestedEndpoint);
         const path = url.pathname; // Extracts '/get-Advertisments'
         console.log(path);
