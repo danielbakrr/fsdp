@@ -52,8 +52,7 @@ function verifyJWT(req,res,next){
             
         }
 
-        console.log(decoded);
-        const url = new URL(requestedEndpoint);
+        const url = new URL(req.url);
         const path = url.pathname; // Extracts '/get-Advertisments'
         console.log(path);
 
