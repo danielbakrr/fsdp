@@ -1,6 +1,6 @@
 // src/components/Calendar.jsx
 import React, { useState } from 'react';
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { PlusCircle, Edit, Trash2, X, Check } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./calenderApp.jsx/dialog";
 import { Button } from "./calenderApp.jsx/button";
@@ -18,6 +18,7 @@ const Calendar = () => {
     description: '',
     time: ''
   });
+  const navigate = useNavigate();
 
   // Calendar navigation
   const nextMonth = () => {
@@ -144,10 +145,9 @@ const Calendar = () => {
           <div className="day-header">
             <span className="day-number">{day}</span>
             <button
-              onClick={() => openDialog(date)}
+              onClick={() => navigate("/calendar/campaign-scheduler")}
               className="add-event-btn"
             >
-              <Link to="/campaign-scheduler"></Link>
               <PlusCircle className="w-4 h-4" />
             </button>
           </div>
@@ -245,7 +245,15 @@ const Calendar = () => {
                 <X className="w-4 h-4 mr-2" />
                 Cancel
               </Button>
-              <Button onClick={editingEvent ? updateEvent : addEvent}>
+              <Button
+                onClick={() => {
+                  if (editingEvent) {
+                    updateEvent();
+                  } else {
+                    addEvent();
+                  }
+                }}
+              >
                 <Check className="w-4 h-4 mr-2" />
                 {editingEvent ? 'Update' : 'Add'}
               </Button>

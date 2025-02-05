@@ -26,7 +26,7 @@ const App = () => {
         <Route path="/template-management" element={<TemplateManagement />} />
         <Route path="/template-editor" element={<TemplateEditor/>} />
         <Route path="/calendar" element={<Calendar />} />
-        <Route path="/campaign-scheduler" element={<CampaignScheduler />} />
+        <Route path="/calendar/campaign-scheduler" element={<CampaignScheduler />} />
         <Route path="/advertisement-display" element={<AdvertisementDisplay />} /> {/* New route */}
         <Route path="/advertisement-display/tvgroups/:groupID" element={<TVsList/>} />
         <Route path="/advertisement-display/tvgroups/:groupID/tvs/:tvID" element={<TV />} />
