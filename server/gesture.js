@@ -16,7 +16,7 @@ const ADS_TABLE = process.env.DYNAMODB_TABLE_ADVERTISEMENTS;
 const METRICS_TABLE = "Metrics"; 
 
 // increment like count
-router.post("/api/store-gesture", async (req, res) => {
+router.post("/store-gesture", async (req, res) => {
     const { adID } = req.body;
 
     if (!adID) {
@@ -57,7 +57,7 @@ router.post("/api/store-gesture", async (req, res) => {
 });
 
 
-router.get("/api/get-metrics", async (req, res) => {
+router.get("/get-metrics", async (req, res) => {
     try {
 
         const likeParams = {
