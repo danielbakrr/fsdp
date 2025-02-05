@@ -33,7 +33,7 @@ const App = () => {
         <Route path= "/manage-users" element = {<DisplayUsers/>} />
         <Route path="/gesture-recognition" element={<GestureRecognition />} />
         {/* Default route for undefined paths */}
-        <Route path="https://githubbies.onrender.com" element={<Navigate to="/" />} />
+        <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </BrowserRouter>
   );
