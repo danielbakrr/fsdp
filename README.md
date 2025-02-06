@@ -68,3 +68,12 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/d
 ### `npm run build` fails to minify
 
 This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+
+Credits & References for Hand Gesture Recognition feature:
+- Nicholas Renotte (YouTube)
+https://youtu.be/f7uBsb-0sGQ?si=HBgG8Njk9dC1cVoO
+https://youtu.be/9MTiQMxTXPE?si=OVzIzrmBBcxScNTY
+https://youtu.be/WajtPtLAg-o?si=F7XWqfKhPQN4IZcz
+
+- TensorFlow blog
+https://blog.tensorflow.org/2021/11/3D-handpose.html
